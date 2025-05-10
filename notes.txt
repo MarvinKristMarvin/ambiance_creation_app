@@ -1,0 +1,10 @@
+connexion à la db => psql -U postgres -d ambiance_creation_app_db
+
+execution d'un script sql sans être connecté => psql -U postgres -d ambiance_creation_app_db -f C:/Tout/Projets_Dev/ambiance_creation_app/src/sql_scripts/create_tables.sql
+
+execution d'un script sql => \i C:/Tout/Projets_Dev/ambiance_creation_app/src/sql_scripts/create_tables.sql
+
+Copier-coller toutes ces commandes d'un coup pour reset la db :
+\i C:/Tout/Projets_Dev/ambiance_creation_app/src/sql_scripts/drop_tables.sql
+\i C:/Tout/Projets_Dev/ambiance_creation_app/src/sql_scripts/create_tables.sql
+\i C:/Tout/Projets_Dev/ambiance_creation_app/src/sql_scripts/seed_tables.sql

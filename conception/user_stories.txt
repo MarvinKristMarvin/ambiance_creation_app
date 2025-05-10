@@ -1,0 +1,73 @@
+
+USER STORIES (MVP)
+
+As a visitor, I want to :
+- open search menu
+- search for specific sounds (by search string)
+- see the results of the search (number of sounds found, display sounds components)
+- listen a preview of a searched sound
+- load a searched sound into the current ambiance
+- search for saved ambiance
+- sea the results of the search (number of ambiances found, display ambiances components)
+- load an ambiance
+- modify the settings of each sound of the current ambiance (volume, spatiality)
+- remove a sound from the current ambiance
+- open ambiance menu to modify current ambiance name
+- open hamburger menu to set global volume
+- open the profile menu to log in or sign up to access saving features
+- see the quick starter guide with links to main features
+
+As a connected user, I want to :
+- open search menu
+- search for specific sounds (by search string)
+- sea the results of the search (number of sounds found, display sounds components, always see favorites first)
+- listen a preview of a searched sound
+- add or remove a searched sound to a favorite list
+- load a searched sound into the current ambiance
+- search for saved ambiance
+- sea the results of the search (number of ambiances found, display ambiances components)
+- load an ambiance
+- modify the settings of each sound of the current ambiance (volume, spatiality)
+- remove a sound from the current ambiance
+- open ambiance menu to modify current ambiance name
+- open hamburger menu to set global volume and save current ambiance in database
+- open the profile menu to log out or delete account
+
+
+
+USER STORIES (FINAL PRODUCT)
+
+As a visitor, I want to :
+- open search menu
+- search for specific sounds (by search string, sound type, category, themes)
+- sea the results of the search (number of sounds found, display sounds components)
+- listen a preview of a searched sound
+- load a searched sound into the current ambiance
+- search for saved ambiance
+- sea the results of the search (number of ambiances found, display ambiances components)
+- load an ambiance
+- use a youtube video as a sound
+- modify the settings of each sound of the current ambiance (volume, spatiality, frequency, reverb)
+- remove a sound from the current ambiance
+- open ambiance menu to modify current ambiance name, duration, create a new ambiance section, manage sound transitions between sections, see ambiance section details
+- open hamburger menu to set global volume, theme, and other settings
+- open the profile menu to log in or sign up to access saving features
+- see the quick starter guide with links to main features
+
+As a connected user, I want to :
+- open search menu
+- search for specific sounds (by search string)
+- sea the results of the search (number of sounds found, display sounds components, always see favorites first)
+- listen a preview of a searched sound
+- add or remove a searched sound to a favorite list
+- load a searched sound into the current ambiance
+- search for saved ambiance
+- sea the results of the search (number of ambiances found, display ambiances components)
+- load an ambiance
+- use a youtube video as a sound
+- modify the settings of each sound of the current ambiance (volume, spatiality, frequency, reverb)
+- remove a sound from the current ambiance
+- open ambiance menu to modify current ambiance name, duration, create a new ambiance section, manage sound transitions between sections, see ambiance section details
+- open hamburger menu to set global volume, save current ambiance in database, set theme, and other settings
+- open the profile menu to log out or delete account, see current subscription details, cancel subscription button
+- see the premium subscription prices and advantages and buy button

@@ -1,0 +1,13 @@
+
+TECHNOLOGIES
+
+React - Simplifies the creation and management of components, encourages reusability, and ensures scalability if the application grows.
+Vite - A bundler and transpiler + front development server.
+Express - Lightweight and easy to configure, enables straightforward handling of routes and requests.
+Node - Lightweight, allows server-side JavaScript, simplifying development with a single language.
+Nodemon - Speeds up backend development with a dynamic refresh on save.
+PostgreSQL - Needed to store and manage user data. It's reliable, powerful, open-source, and offers advanced features while being suitable for small projects.
+TypeScript - Improves reliability with typing, simplifies code maintenance, and reduces errors during development.
+Tone.js - Audio library that simplifies audio gestion
+Bcrypt - Crypts passwords
+CORS - Authorizes specific URLs to access the backend.

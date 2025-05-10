@@ -1,0 +1,5 @@
+
+MINIMUM VIABLE PRODUCT
+
+Users can search for sounds and community-made ambiances. After loading the sounds or the ambiance, they can adjust settings of each individual sound, like volume and panning to suit their preferences. They can save sounds or ambiances as favorites for quick access later. Additionally, users have access to other menus, like a profile menu to sign up, log in and log out, an ambiance menu to modify the ambiance name, and a main menu to adjust the global volume.
+Only looping sounds will be available in the mvp.

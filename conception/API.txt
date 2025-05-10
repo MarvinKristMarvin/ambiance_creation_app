@@ -1,0 +1,17 @@
+
+API ROUTES
+
+GET /search?type=x&category=x&themes=x,x&string=x - get filtered sounds or ambiances for search results
+GET /sound/:id - load the full sound in the ambiance
+GET /ambiance/:id - load the ambiance with all sounds associated to it
+
+POST /signup - account creation
+POST /login - user connection
+POST /logout - user disconnection
+POST /subscribe - user subscription to premium
+POST /ambiance - save ambiance in database
+
+PATCH /user - update user informations
+PATCH /ambiance - update an existing ambiance
+
+DELETE /user - delete user

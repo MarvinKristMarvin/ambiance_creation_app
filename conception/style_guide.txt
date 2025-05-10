@@ -1,0 +1,6 @@
+
+STYLE GUIDE
+
+Description - The application should evoke the modern music industry -> dark theme first. Very minimalistic and intuitive interface.
+Colors - Dark theme, with some colors for the sliders, logo and premium features
+Fonts - Not specified yet

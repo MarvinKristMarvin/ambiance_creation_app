@@ -1,0 +1,12 @@
+Users: mail, password, pseudo, settings_theme, settings_volume
+SAVE, 0N Ambiances, 0N Users
+Ambiances: id, name, author_id, likes, data, total_duration, sections
+USE, 0N Sounds, 1N Ambiances
+Sounds: name, audio_paths, image_path, looping, volume, reverb, direction, repeat_delay, category
+
+PAY, 11 Subscriptions, 0N Users
+LIKE,  0N Sounds,  0N Users
+
+Subscriptions: id, user_id, plan_id, starting_date, ending_date, payment_date, status
+REFER, 0N Plans, 11 Subscriptions
+Plans: name, price, description

@@ -1,0 +1,15 @@
+
+PRESENTATION
+
+Description :
+Froggus is an innovative application designed to create customized audio ambiances, primarily aimed at enhancing focus during work or promoting mental relaxation. It is also versatile enough to support creative activities, such as role-playing scenarios or providing background audio for videos.
+With a minimalist and user-friendly interface, Froggus still empowers users to craft intricate and dynamic ambiances. Users have complete control over sound customization, incorporating elements of randomness and gradual variations over time. Unlike typical ambiance audio, which tends to be repetitive, Froggus ensures a seamless and continually evolving listening experience.
+The application achieves this by allowing users to select their favorite sounds from its extensive sound database and fine-tune the settings of each sound individually. Furthermore, users can divide their ambiance into multiple sections, enabling smooth transitions and evolving soundscapes.
+For those who prefer not to create their own ambiance, Froggus offers a library of community-made audio ambiances. These can be loaded, played, and even customized to suit personal preferences. Additionally, Froggus supports the integration of YouTube audio into ambiances, offering even more versatility.
+
+Resolved problem :
+Finding a high-quality ambiance can be challenging. Most existing platforms offer limited features and lack the ability to create complex ambiances with randomness and evolving variations. While premade ambiances on YouTube or audio players are widely available, they are often repetitive and cannot be customized.
+Froggus addresses this gap by providing a tool that not only creates immersive, ever-changing soundscapes but also gives users full control over individual sound elements. A well-crafted background ambiance can significantly boost productivity, enhance relaxation, and support a wide range of creative pursuits.
+
+Target :
+Froggus is ideal for independent workers, office employees, yoga/meditation/massage enthusiasts, and creatives seeking for audio ambiances.

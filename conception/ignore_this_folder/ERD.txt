@@ -1,0 +1,87 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table Users {
+  id integer [pk]
+  password text [not null]
+  email text [not null, unique]
+  pseudo text
+  settings_theme text
+  settings_volume int
+  created_at timestamp [not null]
+  updated_at timestamp
+}
+
+Table Sounds  {
+  id int [pk]
+  name text [not null, unique]
+  audio_paths text[] [not null]
+  image_path text
+  looping boolean
+  volume int
+  reverb int
+  direction int
+  repeat_delay decimal[] [not null]
+  category enum(text)
+}
+
+Table Ambiances {
+  id int [pk]
+  name text [not null, unique]
+  author_id int
+  likes int
+  settings jsonb
+  total_duration int
+  sections int
+}
+
+Table Users_Sounds {
+  id int [pk]
+  user_id int [not null]
+  sound_id int [not null]
+}
+
+Table Users_Ambiances {
+  id int [pk]
+  user_id int [not null]
+  ambiance_id int [not null]
+}
+
+Table Ambiances_Sounds {
+  id int [pk]
+  ambiance_id int [not null]
+  sound_id int [not null]
+}
+
+Table Plans {
+  id int [pk]
+  name text [not null, unique]
+  price decimal [not null]
+  description text 
+}
+
+Table Subscriptions {
+  id int [pk]
+  user_id int [not null]
+  plan_id int [not null]
+  starting_date date
+  ending_date datetime
+  created_at timestamp [not null]
+  paid_at timestamp
+  payment_method text
+  status enum(text)
+}
+
+Ref: Users.id > Users_Sounds.user_id
+Ref: Sounds.id > Users_Sounds.sound_id 
+
+Ref: Users.id > Users_Ambiances.user_id
+Ref: Ambiances.id > Users_Ambiances.ambiance_id
+
+Ref: Ambiances.id > Ambiances_Sounds.ambiance_id
+Ref: Sounds.id > Ambiances_Sounds.sound_id
+
+Ref: Users.id > Subscriptions.user_id
+Ref: Plans.id > Subscriptions.plan_id
+
+Ref: Users.id > Ambiances.author_id

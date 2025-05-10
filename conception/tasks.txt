@@ -1,0 +1,50 @@
+
+TASKS
+
+23/12/2024
+- conception files structure
+- wireframe
+- presentation
+- routes
+
+24/12/2024
+- user stories
+- data dictionnary
+- routes
+
+25/12/2024
+- MVP
+- begin style guide
+- begin potential improvements
+- begin technologies
+- specifications and requirements
+- update data dictionnary
+- MCD Merise
+- use cases
+- begin ERD
+
+26/12/2024
+- modify MCD
+- modify ERD
+- modify data dictionnary
+- API routes
+
+27/12/2024
+- mockup
+
+28/12/2024
+- delete old react code, components and css
+
+17/04/2025
+- remake the app in nextjs instead of react
+
+05/05/2025
+- database creation + sql scripts create, seed and drop
+
+09/05/2025
+- zustand global store (use for globalVolume and settings for now, but refactor the prop drilling later on)
+- settings menu + options for sounds flex justification
+
+10/05/2025
+- refactor all prop drilling into zustand store
+- comment code for maintenability and refresh memory
