@@ -1,14 +1,15 @@
 "use client";
 
-import React, { Dispatch, SetStateAction } from "react";
 import type { Ambiance, Sound } from "../types";
+import { useGlobalStore } from "@/stores/useGlobalStore";
 
-interface Props {
-  setCurrentAmbiance: Dispatch<SetStateAction<Ambiance | null>>;
-  setSoundsUsed: Dispatch<SetStateAction<Sound[]>>;
-}
+export default function Hero() {
+  // Zustand states
+  const setCurrentAmbiance = useGlobalStore(
+    (state) => state.setCurrentAmbiance
+  );
+  const setSoundsUsed = useGlobalStore((state) => state.setSoundsUsed);
 
-export default function Hero({ setCurrentAmbiance, setSoundsUsed }: Props) {
   const loadAmbianceAndSounds = async () => {
     try {
       const response = await fetch("/api/ambiances/1");

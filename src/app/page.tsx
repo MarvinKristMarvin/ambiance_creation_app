@@ -3,43 +3,24 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Sounds from "@/components/Sounds";
-import { useEffect, useState } from "react";
-import { Ambiance, Sound } from "../types";
+import { useEffect } from "react";
+import { useGlobalStore } from "@/stores/useGlobalStore";
 
 export default function Home() {
-  const [currentAmbiance, setCurrentAmbiance] = useState<Ambiance | null>(null);
-  const [currentSection, setCurrentSection] = useState<number>(0);
-  const [soundsUsed, setSoundsUsed] = useState<Sound[]>([]);
-  const [paused, setPaused] = useState<boolean>(false);
+  // Zustand states
+  const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
+  const setCurrentSection = useGlobalStore((state) => state.setCurrentSection);
 
   // When the ambiance changes, set the current section to 1
   useEffect(() => {
     console.log(currentAmbiance);
     setCurrentSection(1);
-  }, [currentAmbiance]);
+  }, [currentAmbiance, setCurrentSection]);
 
   return (
     <main className="flex min-h-screen bg-gray-950">
-      <Header
-        currentAmbiance={currentAmbiance}
-        currentSection={currentSection}
-        setCurrentSection={setCurrentSection}
-        paused={paused}
-        setPaused={setPaused}
-      />
-      {currentAmbiance ? (
-        <Sounds
-          currentAmbiance={currentAmbiance}
-          soundsUsed={soundsUsed}
-          currentSection={currentSection}
-          paused={paused}
-        />
-      ) : (
-        <Hero
-          setCurrentAmbiance={setCurrentAmbiance}
-          setSoundsUsed={setSoundsUsed}
-        />
-      )}
+      <Header />
+      {currentAmbiance ? <Sounds /> : <Hero />}
     </main>
   );
 }

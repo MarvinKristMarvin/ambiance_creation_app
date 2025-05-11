@@ -1,35 +1,25 @@
 import VolumeIcon from "@/components/icons/VolumeIcon";
 import PauseIcon from "@/components/icons/PauseIcon";
 import PlayIcon from "@/components/icons/PlayIcon";
-import { Ambiance } from "@/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 
-interface Props {
-  currentAmbiance: Ambiance | null;
-  currentSection: number;
-  setCurrentSection: React.Dispatch<React.SetStateAction<number>>;
-  paused?: boolean;
-  setPaused?: React.Dispatch<React.SetStateAction<boolean>>;
-  setGlobalVolume?: React.Dispatch<React.SetStateAction<number>>;
-  globalVolume?: number;
-}
+export default function AmbianceMenu() {
+  // Zustand states
+  const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
+  const currentSection = useGlobalStore((state) => state.currentSection);
+  const setCurrentSection = useGlobalStore((state) => state.setCurrentSection);
+  const paused = useGlobalStore((state) => state.paused);
+  const setPaused = useGlobalStore((state) => state.setPaused);
+  const globalVolume = useGlobalStore((state) => state.globalVolume);
+  const setGlobalVolume = useGlobalStore((state) => state.setGlobalVolume);
 
-export default function AmbianceMenu({
-  currentAmbiance,
-  currentSection,
-  setCurrentSection,
-  paused,
-  setPaused,
-}: Props) {
   const [timer, setTimer] = useState(0);
   const sectionDuration =
     currentAmbiance?.settings.sections[currentSection - 1].duration ?? 0;
   const prevSectionRef = useRef(currentSection);
   const prevAmbianceRef = useRef(currentAmbiance);
   const lastGlobalVolume = useRef(1);
-  const globalVolume = useGlobalStore((state) => state.globalVolume);
-  const setGlobalVolume = useGlobalStore((state) => state.setGlobalVolume);
 
   useEffect(() => {
     console.log("ambiance menu : ", currentAmbiance);
@@ -38,15 +28,15 @@ export default function AmbianceMenu({
   // Updates current section on arrow button click, can't be less than 1 or greater than the total number of sections
   const updateSection = useCallback(
     (delta: number) => {
-      setCurrentSection((prev) => {
-        if (!currentAmbiance) return prev;
-        const next = prev + delta;
-        const min = 1;
-        const max = currentAmbiance.sections;
-        return Math.max(min, Math.min(next, max));
-      });
+      if (!currentAmbiance) return;
+
+      const min = 1;
+      const max = currentAmbiance.sections;
+      const next = Math.max(min, Math.min(currentSection + delta, max));
+
+      setCurrentSection(next);
     },
-    [currentAmbiance, setCurrentSection]
+    [currentSection, currentAmbiance, setCurrentSection]
   );
 
   // Updates global volume when muting / unmuting

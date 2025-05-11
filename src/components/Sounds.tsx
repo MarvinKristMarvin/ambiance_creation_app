@@ -1,21 +1,14 @@
-import { Ambiance, Sound, AmbianceSound } from "@/types";
+import { AmbianceSound } from "@/types";
 import SimpleSound from "./SimpleSound";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 
-interface Props {
-  currentAmbiance: Ambiance | null;
-  soundsUsed: Sound[];
-  currentSection: number;
-  paused: boolean;
-}
-
-export default function Sounds({
-  currentAmbiance,
-  soundsUsed,
-  currentSection,
-  paused,
-}: Props) {
+export default function Sounds() {
+  // Zustand states
   const soundsCentering = useGlobalStore((state) => state.soundsCentering);
+  const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
+  const soundsUsed = useGlobalStore((state) => state.soundsUsed);
+  const paused = useGlobalStore((state) => state.paused);
+  const currentSection = useGlobalStore((state) => state.currentSection);
 
   if (!currentAmbiance || !currentAmbiance.settings?.sections) return null;
 

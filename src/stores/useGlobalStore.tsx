@@ -29,7 +29,11 @@ export const useGlobalStore = create<Store>((set) => ({
   setCurrentAmbiance: (value) => set({ currentAmbiance: value }),
 
   currentSection: 0,
-  setCurrentSection: (value) => set({ currentSection: value }),
+  setCurrentSection: (value: number | ((prev: number) => number)) =>
+    set((state) => ({
+      currentSection:
+        typeof value === "function" ? value(state.currentSection) : value,
+    })),
 
   soundsUsed: [],
   setSoundsUsed: (value) => set({ soundsUsed: value }),

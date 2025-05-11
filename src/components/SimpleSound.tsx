@@ -9,9 +9,9 @@ interface Props {
   audioPaths: string[];
   soundName: string;
   initialVolume: number;
-  initialReverb?: number;
+  initialReverb: number;
   initialDirection?: number;
-  number?: number;
+  number: number;
   paused: boolean;
   playsInSections: number[];
   currentSection: number;

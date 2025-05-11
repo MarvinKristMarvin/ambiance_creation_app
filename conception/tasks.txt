@@ -47,4 +47,9 @@ TASKS
 
 10/05/2025
 - refactor all prop drilling into zustand store
+
+11/05/2025
+- 
+
+TO DO
 - comment code for maintenability and refresh memory

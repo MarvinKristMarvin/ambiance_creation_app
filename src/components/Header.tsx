@@ -1,20 +1,6 @@
 import HeaderButton from "@/components/HeaderButton";
-import { Ambiance } from "@/types";
 
-interface Props {
-  currentAmbiance: Ambiance | null;
-  currentSection: number;
-  setCurrentSection: React.Dispatch<React.SetStateAction<number>>;
-  paused: boolean;
-  setPaused: React.Dispatch<React.SetStateAction<boolean>>;
-}
-export default function Header({
-  currentAmbiance,
-  currentSection,
-  setCurrentSection,
-  paused,
-  setPaused,
-}: Props) {
+export default function Header() {
   return (
     <header className="flex flex-col text-center justify-start bg-emerald-500 w-90 min-w-90">
       <h1
@@ -25,26 +11,9 @@ export default function Header({
         frog
       </h1>
       <div className="bg-gray-900 flex-1">
-        <HeaderButton
-          currentAmbiance={currentAmbiance}
-          text="Ambiance"
-          currentSection={currentSection}
-          setCurrentSection={setCurrentSection}
-          paused={paused}
-          setPaused={setPaused}
-        />
-        <HeaderButton
-          currentAmbiance={currentAmbiance}
-          text="Settings"
-          currentSection={currentSection}
-          setCurrentSection={setCurrentSection}
-        />
-        <HeaderButton
-          currentAmbiance={currentAmbiance}
-          text="My account"
-          currentSection={currentSection}
-          setCurrentSection={setCurrentSection}
-        />
+        <HeaderButton text="Ambiance" />
+        <HeaderButton text="Settings" />
+        <HeaderButton text="My account" />
       </div>
     </header>
   );
