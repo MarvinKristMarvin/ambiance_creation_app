@@ -119,31 +119,31 @@ export default function AmbianceMenu() {
     return `${padZero(hours)}:${padZero(minutes)}:${padZero(remainingSeconds)}`;
   };
 
+  // GRAY 925 => style={{ background: "rgb(7, 12, 23)" }}
+
   return (
-    <div
-      className=" p-4 flex flex-col text-gray-300 text-lg font-bold"
-      style={{ background: "rgb(7, 12, 23)" }}
-    >
-      <div className="flex flex-row gap-4">
+    <div className=" flex flex-row text-gray-300 text-lg font-bold h-full">
+      <div className="flex flex-row bg-gray-900 rounded-full">
         <div
           onClick={() => updateSection(-1)}
-          className=" flex flex-col justify-center align-center border-0 border-gray-800 py-1 px-4 hover:bg-gray-800 hover:cursor-pointer bg-gray-900"
+          className="flex flex-col justify-center align-center rounded-l-full border-0 border-gray-800 py-1 px-6 hover:bg-gray-800 hover:cursor-pointer bg-gray-900 border-r-2 border-gray-950"
         >
           &lt;
         </div>
-        <div className="flex flex-col justify-center align-center flex-1 border-0 border-gray-950 py-1 px-4 hover:bg-gray-800 hover:cursor-pointer bg-gray-900">
-          <p className="text-gray-500 text-lg font-bold text-sm">
-            {currentAmbiance
-              ? `PART ${currentSection}/${currentAmbiance.sections}`
-              : "Click here to"}
-          </p>
+        <div className="flex flex-col justify-center align-center flex-1 border-0 border-gray-950 py-1 px-6 hover:bg-gray-800 hover:cursor-pointer bg-gray-900">
+          {/* <p className="text-gray-400 text-lg font-bold text-sm">
+      {currentAmbiance
+        ? `PART ${currentSection}/${currentAmbiance.sections}`
+        : "Click here to"}
+    </p> */}
           <p className="">
             {currentAmbiance
-              ? currentAmbiance.ambiance_name
+              ? currentAmbiance.ambiance_name +
+                ` (${currentSection}/${currentAmbiance.sections})`
               : "Load an ambiance"}
           </p>
           {currentAmbiance ? (
-            <p className="text-gray-500 text-lg font-bold text-sm">
+            <p className="text-gray-400 text-lg font-bold text-sm">
               {formatTime(timer)} / {formatTime(sectionDuration)}
             </p>
           ) : (
@@ -152,16 +152,16 @@ export default function AmbianceMenu() {
         </div>
         <div
           onClick={() => updateSection(1)}
-          className=" flex flex-col justify-center align-center border-0 border-gray-800 py-1 px-4 hover:bg-gray-800 hover:cursor-pointer bg-gray-900"
+          className="rounded-r-full flex flex-col justify-center align-center border-0 border-gray-800 py-1 px-6 hover:bg-gray-800 hover:cursor-pointer bg-gray-900 border-l-2 border-gray-950"
         >
           &gt;
         </div>
       </div>
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-row gap-4 ml-4">
         {setPaused !== undefined && (
           <div
             onClick={() => setPaused(!paused)}
-            className=" text-xs mt-4  flex flex-col justify-center align-center border-0 border-gray-800 py-2 px-2 hover:bg-gray-800 hover:cursor-pointer bg-gray-900"
+            className="h-full text-xs rounded-full  flex flex-col justify-center align-center border-0 border-gray-800 py-2 px-5 hover:bg-gray-800 hover:cursor-pointer bg-gray-900"
           >
             {paused ? (
               <PlayIcon className="w-4 h-4 text-gray-200" />
@@ -171,11 +171,11 @@ export default function AmbianceMenu() {
           </div>
         )}
 
-        <div className="flex-1 text-md mt-4 flex flex-row items-center border-0 border-gray-800 bg-emerald-900 hover:cursor-pointer relative">
+        <div className="flex-1 text-md h-full rounded-full flex flex-row items-center border-0 border-gray-800 bg-emerald-900 hover:cursor-pointer relative">
           {/* Volume Icon */}
           <div
             onClick={updateGlobalVolume}
-            className="flex justify-center items-center bg-gray-900 py-2 px-2 hover:bg-gray-800 border-r-2 border-gray-800"
+            className="h-full text-xs rounded-full flex justify-center items-center bg-gray-900 py-2 px-5 hover:bg-gray-800 z-5"
           >
             <VolumeIcon
               className={`w-4 h-4 ${
@@ -185,14 +185,14 @@ export default function AmbianceMenu() {
           </div>
 
           {/* Range Input with custom visual track */}
-          <div className="relative flex-1 h-8">
+          <div className="relative flex-1 h-full rounded-full">
             {/* Background track */}
-            <div className="absolute inset-0 bg-emerald-900"></div>
+            <div className="absolute inset-0 bg-emerald-900 h-full rounded-full"></div>
 
             {/* Filled portion */}
             <div
-              className="absolute inset-y-0 bg-emerald-600"
-              style={{ width: `${(globalVolume ?? 0) * 100}%` }}
+              className="absolute inset-x-[-56] bg-emerald-600 h-full rounded-full"
+              style={{ width: `${(globalVolume ?? 0) * 100 + 26}%` }}
             ></div>
 
             {/* Range input (functional but invisible) */}
@@ -211,8 +211,8 @@ export default function AmbianceMenu() {
           </div>
         </div>
       </div>
-      <div className="flex-1 text-xs mt-4  flex flex-col justify-center align-center border-0 border-gray-800 py-2 px-8 hover:bg-gray-800 hover:cursor-pointer bg-gray-900">
-        ADVANCED SETTINGS
+      <div className="ml-4 text-sm h-full rounded-full flex flex-col justify-center align-center border-0 border-gray-800 py-5 px-5 hover:bg-gray-800 hover:cursor-pointer bg-gray-900">
+        Add a sound
       </div>
     </div>
   );

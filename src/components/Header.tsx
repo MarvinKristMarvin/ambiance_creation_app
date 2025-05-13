@@ -1,19 +1,25 @@
 import HeaderButton from "@/components/HeaderButton";
+import AmbianceMenu from "./AmbianceMenu";
 
 export default function Header() {
   return (
-    <header className="flex flex-col text-center justify-start bg-emerald-500 w-90 min-w-90">
+    <header className="relative flex text-center justify-between h-24 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-gray-900 after:to-transparent">
+      {/* Left section - Logo */}
       <h1
-        className="tracking-[-14] font-title font-mansalva text-8xl text-gray-50 p-8 pb-14
-  transition-all duration-200 ease-in-out
-  hover:text-8xl hover:tracking-[-2] hover:pt-8 hover:cursor-pointer "
+        className="tracking-[-0] font-title font-mansalva text-4xl text-emerald-300 py-2 px-6
+        hover:cursor-pointer flex items-center transform -translate-y-1"
       >
         frog
       </h1>
-      <div className="bg-gray-900 flex-1">
-        <HeaderButton text="Ambiance" />
+
+      {/* Absolutely positioned center menu */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <AmbianceMenu />
+      </div>
+
+      {/* Right section - Buttons */}
+      <div className="flex-row flex justify-end items-center h-full">
         <HeaderButton text="Settings" />
-        <HeaderButton text="My account" />
       </div>
     </header>
   );

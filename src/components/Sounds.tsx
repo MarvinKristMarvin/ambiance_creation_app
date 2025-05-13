@@ -38,7 +38,7 @@ export default function Sounds() {
 
   return (
     <div
-      className={`flex flex-row m-4 gap-4 w-full ${
+      className={`flex flex-row gap-4 my-4 w-full h-full ${
         soundsCentering === "left"
           ? "justify-start"
           : soundsCentering === "center"

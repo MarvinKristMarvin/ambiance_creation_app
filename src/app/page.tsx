@@ -18,7 +18,7 @@ export default function Home() {
   }, [currentAmbiance, setCurrentSection]);
 
   return (
-    <main className="flex min-h-screen bg-gray-950">
+    <main className="flex flex-col w-screen h-screen bg-gray-950">
       <Header />
       {currentAmbiance ? <Sounds /> : <Hero />}
     </main>
