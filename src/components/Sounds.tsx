@@ -63,6 +63,7 @@ export default function Sounds() {
             paused={paused}
             playsInSections={playsInSections}
             currentSection={currentSection}
+            soundId={sound.sound_id}
           />
         );
       })}

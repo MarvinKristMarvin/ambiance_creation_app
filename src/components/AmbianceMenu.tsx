@@ -30,9 +30,15 @@ export default function AmbianceMenu() {
     (delta: number) => {
       if (!currentAmbiance) return;
 
-      const min = 1;
       const max = currentAmbiance.sections;
-      const next = Math.max(min, Math.min(currentSection + delta, max));
+      let next = currentSection + delta;
+
+      // Wrap around if needed
+      if (next > max) {
+        next = 1;
+      } else if (next < 1) {
+        next = max;
+      }
 
       setCurrentSection(next);
     },

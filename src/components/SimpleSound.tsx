@@ -3,6 +3,8 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { Ambiance } from "../types";
+import { X, Copy } from "lucide-react";
 
 interface Props {
   imagePath: string;
@@ -15,6 +17,7 @@ interface Props {
   paused: boolean;
   playsInSections: number[];
   currentSection: number;
+  soundId: number;
 }
 
 export default function SimpleSound({
@@ -28,12 +31,17 @@ export default function SimpleSound({
   paused,
   playsInSections,
   currentSection,
+  soundId,
 }: Props) {
   const [volume, setVolume] = useState(initialVolume);
   const [reverb, setReverb] = useState(initialReverb);
   const [direction, setDirection] = useState(initialDirection);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const globalVolume = useGlobalStore((state) => state.globalVolume);
+  const setCurrentAmbiance = useGlobalStore(
+    (state) => state.setCurrentAmbiance
+  );
+  const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -56,10 +64,99 @@ export default function SimpleSound({
     }
   }, [currentSection, paused, playsInSections]);
 
+  const handleRemove = () => {
+    if (!currentAmbiance || !currentAmbiance.settings?.sections) return;
+
+    const updatedSections = currentAmbiance.settings.sections.map((section) => {
+      return {
+        ...section,
+        sounds: section.sounds.filter(
+          (s) => !(s.sound_id === soundId && s.number === number)
+        ),
+      };
+    });
+
+    const updatedAmbiance: Ambiance = {
+      ...currentAmbiance,
+      settings: {
+        ...currentAmbiance.settings,
+        sections: updatedSections,
+      },
+    };
+
+    setCurrentAmbiance(updatedAmbiance);
+  };
+
+  function handleCopy() {
+    if (!currentAmbiance) return;
+
+    const { settings } = currentAmbiance;
+
+    // Find all numbers for this sound_id
+    const existingNumbers = new Set<number>();
+    settings.sections.forEach((section) => {
+      section.sounds.forEach((s) => {
+        if (s.sound_id === soundId) {
+          existingNumbers.add(s.number);
+        }
+      });
+    });
+
+    // Find next available number (lowest missing integer starting from 1)
+    let newNumber = 1;
+    while (existingNumbers.has(newNumber)) {
+      newNumber++;
+    }
+
+    // Add new copies of the sound to all matching sections
+    const newSections = settings.sections.map((section, i) => {
+      if (!playsInSections.includes(i + 1)) return section;
+
+      return {
+        ...section,
+        sounds: [
+          ...section.sounds,
+          {
+            sound_id: soundId,
+            number: newNumber,
+            volume,
+            reverb,
+            direction: direction ?? 0,
+            repeat_delay: [5.0, 10.0], // Or reuse original's
+          },
+        ],
+      };
+    });
+
+    setCurrentAmbiance({
+      ...currentAmbiance,
+      settings: {
+        ...settings,
+        sections: newSections,
+      },
+    });
+  }
+
   return (
-    <div className="text-center text-gray-400 text-lg font-bold hover:bg-gray-800  w-40 bg-gray-900  ">
+    <div className="group text-center text-gray-400 text-lg font-bold hover:bg-gray-800 w-40 bg-gray-900">
       <div className="relative bg-blue-800 h-30">
         <Image src={imagePath} alt={soundName} fill className="object-cover" />
+        <div className="absolute top-1 right-1 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-10">
+          <button
+            onClick={handleCopy}
+            className="bg-black/50 text-gray-200 text-md  w-6 h-6 flex items-center justify-center hover:bg-black/75 hover:cursor-pointer"
+            title="Copy sound"
+          >
+            <Copy size={14} />
+          </button>
+          <button
+            onClick={handleRemove}
+            className="bg-black/50 text-gray-200 text-md  w-6 h-6 flex items-center justify-center hover:bg-red-700/60 hover:cursor-pointer"
+            title="Remove sound"
+          >
+            <X size={20} />
+          </button>
+        </div>
       </div>
       <div className="mt-3 mx-4 flex items-center justify-between">
         <span className="text-xs text-gray-300">{soundName}</span>
