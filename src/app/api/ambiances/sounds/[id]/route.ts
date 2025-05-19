@@ -21,7 +21,6 @@ export async function GET(request: Request) {
         sounds.volume,
         sounds.reverb,
         sounds.direction,
-        sounds.repeat_delay,
         sounds.category
       FROM ambiances_sounds
       JOIN sounds ON ambiances_sounds.sound_id = sounds.id

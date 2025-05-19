@@ -1,49 +1,26 @@
 import VolumeIcon from "@/components/icons/VolumeIcon";
 import PauseIcon from "@/components/icons/PauseIcon";
 import PlayIcon from "@/components/icons/PlayIcon";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
+import { Repeat, SkipForward, SkipBack, Plus } from "lucide-react";
 
 export default function AmbianceMenu() {
   // Zustand states
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
-  const currentSection = useGlobalStore((state) => state.currentSection);
-  const setCurrentSection = useGlobalStore((state) => state.setCurrentSection);
   const paused = useGlobalStore((state) => state.paused);
   const setPaused = useGlobalStore((state) => state.setPaused);
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const setGlobalVolume = useGlobalStore((state) => state.setGlobalVolume);
+  const setSearchSoundsMenu = useGlobalStore(
+    (state) => state.setSearchSoundsMenu
+  );
 
-  const [timer, setTimer] = useState(0);
-  const sectionDuration =
-    currentAmbiance?.settings.sections[currentSection - 1].duration ?? 0;
-  const prevSectionRef = useRef(currentSection);
-  const prevAmbianceRef = useRef(currentAmbiance);
   const lastGlobalVolume = useRef(1);
 
   useEffect(() => {
     console.log("ambiance menu : ", currentAmbiance);
   });
-
-  // Updates current section on arrow button click, can't be less than 1 or greater than the total number of sections
-  const updateSection = useCallback(
-    (delta: number) => {
-      if (!currentAmbiance) return;
-
-      const max = currentAmbiance.sections;
-      let next = currentSection + delta;
-
-      // Wrap around if needed
-      if (next > max) {
-        next = 1;
-      } else if (next < 1) {
-        next = max;
-      }
-
-      setCurrentSection(next);
-    },
-    [currentSection, currentAmbiance, setCurrentSection]
-  );
 
   // Updates global volume when muting / unmuting
   const updateGlobalVolume = useCallback(() => {
@@ -61,159 +38,106 @@ export default function AmbianceMenu() {
     }
   }, [setGlobalVolume, globalVolume]);
 
-  // Reset timer when section changes, but not when pause state changes
-  useEffect(() => {
-    // Check if section or ambiance has changed
-    const sectionChanged = prevSectionRef.current !== currentSection;
-    const ambianceChanged = prevAmbianceRef.current !== currentAmbiance;
-
-    // Update refs to current values
-    prevSectionRef.current = currentSection;
-    prevAmbianceRef.current = currentAmbiance;
-
-    // Only reset timer when section or ambiance changes
-    if (sectionChanged || ambianceChanged) {
-      setTimer(0);
-    }
-  }, [currentSection, currentAmbiance]);
-
-  // Handle timer updates
-  useEffect(() => {
-    if (currentSection <= 0 || !currentAmbiance || paused) return;
-
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        const next = prev + 1;
-        if (sectionDuration && next >= sectionDuration) {
-          if (currentSection === currentAmbiance.sections) {
-            clearInterval(interval);
-            setTimeout(() => updateSection(-currentSection + 1), 0);
-            setTimeout(() => setPaused?.(true), 0);
-            return 0;
-          }
-          clearInterval(interval);
-          // Set timeout necessary to avoid rendering parent at the same time as the child (avoid errors)
-          setTimeout(() => updateSection(1), 0);
-        }
-        return next;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [
-    currentSection,
-    currentAmbiance,
-    setCurrentSection,
-    sectionDuration,
-    updateSection,
-    paused,
-    setPaused,
-  ]);
-
-  // Helper function to format seconds to hh:mm:ss format
-  const formatTime = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    const padZero = (num: number): string => num.toString().padStart(2, "0");
-    return `${padZero(hours)}:${padZero(minutes)}:${padZero(remainingSeconds)}`;
-  };
-
   // GRAY 925 => style={{ background: "rgb(7, 12, 23)" }}
 
   return (
-    <div className=" flex flex-row text-gray-300 text-lg font-bold h-full">
-      <div className="flex flex-row bg-gray-900 rounded-full">
-        <div
-          onClick={() => updateSection(-1)}
-          className="flex flex-col justify-center align-center rounded-l-full border-0 border-gray-800 py-1 px-6 hover:bg-gray-800 hover:cursor-pointer bg-gray-900 border-r-2 border-gray-950"
-        >
-          &lt;
+    <>
+      <div className="flex flex-row h-full text-lg font-bold text-gray-300 ">
+        {/* PLAY AND VOLUME */}
+        <div className="flex flex-row flex-1 gap-4 mx-2 w-90">
+          <div className="relative flex flex-row items-center flex-1 h-full border-0 border-gray-800 rounded-full text-md bg-emerald-900 hover:cursor-pointer">
+            {/* Volume Icon */}
+            <div
+              onClick={updateGlobalVolume}
+              className="flex items-center justify-center h-full px-6 py-2 text-xs bg-gray-900 rounded-full hover:bg-gray-800 z-5"
+            >
+              <VolumeIcon
+                className={`w-4 h-4 ${
+                  globalVolume === 0 ? "text-gray-500" : "text-gray-200"
+                }`}
+              />
+            </div>
+
+            {/* Range Input with custom visual track */}
+            <div className="relative flex-1 h-full rounded-full">
+              {/* Background track */}
+              <div className="absolute inset-0 h-full rounded-full bg-emerald-900"></div>
+
+              {/* Filled portion */}
+              <div
+                className="absolute inset-x-[-56] bg-emerald-400 h-full rounded-full"
+                style={{ width: `${(globalVolume ?? 0) * 100 + 26}%` }}
+              ></div>
+
+              {/* Range input (functional but invisible) */}
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.001}
+                value={globalVolume ?? 0}
+                onChange={(e) => {
+                  const newValue = parseFloat(e.target.value);
+                  setGlobalVolume?.(newValue);
+                }}
+                className="z-10 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+          </div>
+          {setPaused !== undefined && (
+            <div
+              onClick={() => setPaused(!paused)}
+              className="flex flex-col justify-center h-full px-6 py-3 text-xs bg-gray-900 border-0 border-gray-800 rounded-full align-center hover:bg-gray-800 hover:cursor-pointer"
+            >
+              {paused ? (
+                <PlayIcon className="w-4 h-4 text-gray-200" />
+              ) : (
+                <PauseIcon className="w-4 h-4 text-gray-200" />
+              )}
+            </div>
+          )}
         </div>
-        <div className="flex flex-col justify-center align-center flex-1 border-0 border-gray-950 py-1 px-6 hover:bg-gray-800 hover:cursor-pointer bg-gray-900">
-          {/* <p className="text-gray-400 text-lg font-bold text-sm">
+        {/* AMBIANCE NAME */}
+        <div className="flex flex-row flex-1 mx-2 bg-gray-900 rounded-full w-90">
+          <div className="flex flex-col justify-center px-6 py-1 pr-4 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950">
+            <SkipBack />
+          </div>
+          <div className="flex flex-col justify-center flex-1 px-6 py-1 bg-gray-900 border-0 align-center border-gray-950 hover:bg-gray-800 hover:cursor-pointer">
+            {/* <p className="text-sm text-lg font-bold text-gray-400">
       {currentAmbiance
         ? `PART ${currentSection}/${currentAmbiance.sections}`
         : "Click here to"}
     </p> */}
-          <p className="">
-            {currentAmbiance
-              ? currentAmbiance.ambiance_name +
-                ` (${currentSection}/${currentAmbiance.sections})`
-              : "Load an ambiance"}
-          </p>
-          {currentAmbiance ? (
-            <p className="text-gray-400 text-lg font-bold text-sm">
-              {formatTime(timer)} / {formatTime(sectionDuration)}
+            <p className="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+              {currentAmbiance
+                ? currentAmbiance.ambiance_name
+                : "Load an ambiance"}
             </p>
-          ) : (
-            <p className="text-gray-500 text-lg font-bold text-sm">~</p>
-          )}
-        </div>
-        <div
-          onClick={() => updateSection(1)}
-          className="rounded-r-full flex flex-col justify-center align-center border-0 border-gray-800 py-1 px-6 hover:bg-gray-800 hover:cursor-pointer bg-gray-900 border-l-2 border-gray-950"
-        >
-          &gt;
-        </div>
-      </div>
-      <div className="flex flex-row gap-4 ml-4">
-        {setPaused !== undefined && (
-          <div
-            onClick={() => setPaused(!paused)}
-            className="h-full text-xs rounded-full  flex flex-col justify-center align-center border-0 border-gray-800 py-2 px-5 hover:bg-gray-800 hover:cursor-pointer bg-gray-900"
-          >
-            {paused ? (
-              <PlayIcon className="w-4 h-4 text-gray-200" />
+            {currentAmbiance ? (
+              <p className="text-sm font-bold text-gray-400">PLAYING</p>
             ) : (
-              <PauseIcon className="w-4 h-4 text-gray-200" />
+              <p className="text-sm font-bold text-gray-500">~</p>
             )}
           </div>
-        )}
-
-        <div className="flex-1 text-md h-full rounded-full flex flex-row items-center border-0 border-gray-800 bg-emerald-900 hover:cursor-pointer relative">
-          {/* Volume Icon */}
-          <div
-            onClick={updateGlobalVolume}
-            className="h-full text-xs rounded-full flex justify-center items-center bg-gray-900 py-2 px-5 hover:bg-gray-800 z-5"
-          >
-            <VolumeIcon
-              className={`w-4 h-4 ${
-                globalVolume === 0 ? "text-gray-500" : "text-gray-200"
-              }`}
-            />
+          <div className="flex flex-col justify-center px-6 py-1 pl-4 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950">
+            <SkipForward />
           </div>
+        </div>
 
-          {/* Range Input with custom visual track */}
-          <div className="relative flex-1 h-full rounded-full">
-            {/* Background track */}
-            <div className="absolute inset-0 bg-emerald-900 h-full rounded-full"></div>
-
-            {/* Filled portion */}
-            <div
-              className="absolute inset-x-[-56] bg-emerald-600 h-full rounded-full"
-              style={{ width: `${(globalVolume ?? 0) * 100 + 26}%` }}
-            ></div>
-
-            {/* Range input (functional but invisible) */}
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.001}
-              value={globalVolume ?? 0}
-              onChange={(e) => {
-                const newValue = parseFloat(e.target.value);
-                setGlobalVolume?.(newValue);
-              }}
-              className="w-full h-full opacity-0 cursor-pointer z-10"
-            />
+        {/* REPEAT AND ADD SOUND */}
+        <div className="flex flex-1 mx-2 w-90">
+          <div className="flex flex-col justify-center h-full px-5 py-5 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer">
+            <Repeat className="text-gray-200" />
+          </div>
+          <div
+            onClick={() => setSearchSoundsMenu(true)}
+            className="flex items-center justify-between flex-1 h-full px-5 py-4 pr-6 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
+          >
+            <Plus className="w-8 h-8 justify-self-start" />
+            <p>Add a new sound</p>
           </div>
         </div>
       </div>
-      <div className="ml-4 text-sm h-full rounded-full flex flex-col justify-center align-center border-0 border-gray-800 py-5 px-5 hover:bg-gray-800 hover:cursor-pointer bg-gray-900">
-        Add a sound
-      </div>
-    </div>
+    </>
   );
 }

@@ -3,7 +3,6 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Ambiance } from "../types";
 import { X, Copy } from "lucide-react";
 
 interface Props {
@@ -15,8 +14,6 @@ interface Props {
   initialDirection?: number;
   number: number;
   paused: boolean;
-  playsInSections: number[];
-  currentSection: number;
   soundId: number;
 }
 
@@ -28,20 +25,12 @@ export default function SimpleSound({
   initialReverb,
   initialDirection,
   number,
-  paused,
-  playsInSections,
-  currentSection,
-  soundId,
 }: Props) {
   const [volume, setVolume] = useState(initialVolume);
   const [reverb, setReverb] = useState(initialReverb);
   const [direction, setDirection] = useState(initialDirection);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const globalVolume = useGlobalStore((state) => state.globalVolume);
-  const setCurrentAmbiance = useGlobalStore(
-    (state) => state.setCurrentAmbiance
-  );
-  const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -49,142 +38,34 @@ export default function SimpleSound({
     }
   }, [volume, globalVolume]);
 
-  // Play or pause depending on currentSection and playsInSections
-  useEffect(() => {
-    if (!audioRef.current) return;
-
-    const shouldPlay = playsInSections.includes(currentSection) && !paused;
-
-    if (shouldPlay) {
-      audioRef.current.play().catch((err) => {
-        console.error("Audio play failed:", err);
-      });
-    } else {
-      audioRef.current.pause();
-    }
-  }, [currentSection, paused, playsInSections]);
-
-  const handleRemove = () => {
-    if (!currentAmbiance || !currentAmbiance.settings?.sections) return;
-
-    const updatedSections = currentAmbiance.settings.sections.map((section) => {
-      return {
-        ...section,
-        sounds: section.sounds.filter(
-          (s) => !(s.sound_id === soundId && s.number === number)
-        ),
-      };
-    });
-
-    const updatedAmbiance: Ambiance = {
-      ...currentAmbiance,
-      settings: {
-        ...currentAmbiance.settings,
-        sections: updatedSections,
-      },
-    };
-
-    setCurrentAmbiance(updatedAmbiance);
-  };
-
-  function handleCopy() {
-    if (!currentAmbiance) return;
-
-    const { settings } = currentAmbiance;
-
-    // Find all numbers for this sound_id
-    const existingNumbers = new Set<number>();
-    settings.sections.forEach((section) => {
-      section.sounds.forEach((s) => {
-        if (s.sound_id === soundId) {
-          existingNumbers.add(s.number);
-        }
-      });
-    });
-
-    // Find next available number (lowest missing integer starting from 1)
-    let newNumber = 1;
-    while (existingNumbers.has(newNumber)) {
-      newNumber++;
-    }
-
-    // Add new copies of the sound to all matching sections
-    const newSections = settings.sections.map((section, i) => {
-      if (!playsInSections.includes(i + 1)) return section;
-
-      return {
-        ...section,
-        sounds: [
-          ...section.sounds,
-          {
-            sound_id: soundId,
-            number: newNumber,
-            volume,
-            reverb,
-            direction: direction ?? 0,
-            repeat_delay: [5.0, 10.0], // Or reuse original's
-          },
-        ],
-      };
-    });
-
-    setCurrentAmbiance({
-      ...currentAmbiance,
-      settings: {
-        ...settings,
-        sections: newSections,
-      },
-    });
-  }
-
   return (
-    <div className="group text-center text-gray-400 text-lg font-bold hover:bg-gray-800 w-40 bg-gray-900">
+    <div className="w-40 text-lg font-bold text-center text-gray-400 bg-gray-900 group hover:bg-gray-800">
       <div className="relative bg-blue-800 h-30">
         <Image src={imagePath} alt={soundName} fill className="object-cover" />
-        <div className="absolute top-1 right-1 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-10">
+        <div className="absolute flex space-x-1 transition-opacity opacity-0 top-1 right-1 group-hover:opacity-100 duration-10">
           <button
-            onClick={handleCopy}
-            className="bg-black/50 text-gray-200 text-md  w-6 h-6 flex items-center justify-center hover:bg-black/75 hover:cursor-pointer"
+            // onClick={handleCopy}
+            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
             title="Copy sound"
           >
             <Copy size={14} />
           </button>
           <button
-            onClick={handleRemove}
-            className="bg-black/50 text-gray-200 text-md  w-6 h-6 flex items-center justify-center hover:bg-red-700/60 hover:cursor-pointer"
+            // onClick={handleRemove}
+            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-red-700/60 hover:cursor-pointer"
             title="Remove sound"
           >
             <X size={20} />
           </button>
         </div>
       </div>
-      <div className="mt-3 mx-4 flex items-center justify-between">
+      <div className="flex items-center justify-between mx-4 mt-3">
         <span className="text-xs text-gray-300">{soundName}</span>
         <span className="text-xs text-gray-300">{number}</span>
       </div>
-      {/* Status Message */}
-      {playsInSections.includes(currentSection) ? (
-        volume === 0 ? (
-          <div className="mt-3 border-y-2 border-red-900">
-            <p className="text-xs text-red-700 py-2">MUTED</p>
-          </div>
-        ) : (
-          <div className="mt-3 border-y-2 border-emerald-800">
-            <p className="text-xs text-emerald-500 py-2">PLAYING</p>
-          </div>
-        )
-      ) : (
-        <div className="mt-3 border-y-2 border-yellow-800">
-          <p className="text-xs text-yellow-400 py-2">
-            {playsInSections.length === 1
-              ? `PART ${playsInSections[0]}`
-              : `PARTS ${playsInSections.join(" ")}`}
-          </p>
-        </div>
-      )}
 
       {/* VOLUME SLIDER */}
-      <div className="mt-3 mx-4 h-5 flex items-center justify-between">
+      <div className="flex items-center justify-between h-5 mx-4 mt-3">
         <span className="text-xs text-gray-400">Volume</span>
         <span className="text-xs text-gray-400">{volume}%</span>
       </div>
@@ -210,7 +91,7 @@ export default function SimpleSound({
       </div>
 
       {/* REVERB SLIDER */}
-      <div className="mt-3 mx-4 h-5 flex items-center justify-between">
+      <div className="flex items-center justify-between h-5 mx-4 mt-3">
         <span className="text-xs text-gray-400">Reverb</span>
         <span className="text-xs text-gray-400">{reverb}%</span>
       </div>
@@ -236,7 +117,7 @@ export default function SimpleSound({
       </div>
 
       {/* DIRECTION SLIDER */}
-      <div className="mt-3 mx-4 h-5 flex items-center justify-between">
+      <div className="flex items-center justify-between h-5 mx-4 mt-3">
         <span className="text-xs text-gray-400">Direction</span>
         <span className="text-xs text-gray-400">{direction}%</span>
       </div>

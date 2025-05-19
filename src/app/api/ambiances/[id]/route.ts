@@ -12,9 +12,24 @@ export async function GET(request: Request) {
   }
 
   try {
-    const result = await pool.query(`SELECT * FROM ambiances WHERE id = $1;`, [
-      ambianceId,
-    ]);
+    const result = await pool.query(
+      `SELECT 
+  a.id,
+  a.ambiance_name,
+  a.author_id,
+  json_agg(json_build_object(
+    'id', asound.id,
+    'sound_id', asound.sound_id,
+    'volume', asound.volume,
+    'reverb', asound.reverb,
+    'direction', asound.direction
+  )) AS ambiance_sounds
+FROM ambiances a
+LEFT JOIN ambiances_sounds asound ON asound.ambiance_id = a.id
+WHERE a.id = $1
+GROUP BY a.id;`,
+      [ambianceId]
+    );
 
     if (result.rows.length === 0) {
       return NextResponse.json(

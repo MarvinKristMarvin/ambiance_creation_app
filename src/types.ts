@@ -2,29 +2,15 @@ export interface Ambiance {
   id: number;
   ambiance_name: string;
   author_id: number;
-  likes: number;
-  settings: AmbianceSettings;
-  total_duration: number;
-  sections: number;
-}
-
-export interface AmbianceSettings {
-  sections: AmbianceSection[];
-}
-
-export interface AmbianceSection {
-  sounds: AmbianceSound[];
-  smoothing_time: number;
-  duration: number;
+  ambiance_sounds: AmbianceSound[];
 }
 
 export interface AmbianceSound {
+  id: number;
   sound_id: number;
-  number: number;
   volume: number;
   reverb: number;
   direction: number;
-  repeat_delay: number[];
 }
 
 export interface Sound {
@@ -36,6 +22,11 @@ export interface Sound {
   volume: number;
   reverb: number;
   direction: number;
-  repeat_delay: number[];
   category: string;
+}
+
+export interface SoundBasicInformations {
+  id: number;
+  sound_name: string;
+  image_path: string;
 }

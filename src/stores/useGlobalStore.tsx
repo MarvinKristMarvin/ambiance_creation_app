@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Sound, Ambiance } from "@/types";
+import { Sound, Ambiance, SoundBasicInformations } from "@/types";
 
 interface Store {
   soundsCentering: string;
@@ -7,9 +7,6 @@ interface Store {
 
   currentAmbiance: Ambiance | null;
   setCurrentAmbiance: (value: Ambiance | null) => void;
-
-  currentSection: number;
-  setCurrentSection: (value: number) => void;
 
   soundsUsed: Sound[];
   setSoundsUsed: (value: Sound[]) => void;
@@ -19,6 +16,16 @@ interface Store {
 
   globalVolume: number;
   setGlobalVolume: (value: number) => void;
+
+  searchSoundsMenu: boolean;
+  setSearchSoundsMenu: (value: boolean) => void;
+
+  settingsMenu: boolean;
+  setSettingsMenu: (value: boolean) => void;
+
+  // Search sounds menu
+  searchedSoundsBasicInformations: SoundBasicInformations[];
+  setSearchedSoundsBasicInformations: (value: SoundBasicInformations[]) => void;
 }
 
 export const useGlobalStore = create<Store>((set) => ({
@@ -28,9 +35,6 @@ export const useGlobalStore = create<Store>((set) => ({
   currentAmbiance: null,
   setCurrentAmbiance: (value) => set({ currentAmbiance: value }),
 
-  currentSection: 0,
-  setCurrentSection: (value) => set({ currentSection: value }),
-
   soundsUsed: [],
   setSoundsUsed: (value) => set({ soundsUsed: value }),
 
@@ -39,4 +43,15 @@ export const useGlobalStore = create<Store>((set) => ({
 
   globalVolume: 1,
   setGlobalVolume: (value) => set({ globalVolume: value }),
+
+  searchSoundsMenu: false,
+  setSearchSoundsMenu: (value) => set({ searchSoundsMenu: value }),
+
+  settingsMenu: false,
+  setSettingsMenu: (value) => set({ settingsMenu: value }),
+
+  // Search sounds menu
+  searchedSoundsBasicInformations: [],
+  setSearchedSoundsBasicInformations: (value) =>
+    set({ searchedSoundsBasicInformations: value }),
 }));

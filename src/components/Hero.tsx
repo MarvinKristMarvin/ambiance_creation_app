@@ -12,37 +12,39 @@ export default function Hero() {
 
   const loadAmbianceAndSounds = async () => {
     try {
-      const response = await fetch("/api/ambiances/1");
+      const loadedAmbiance = await fetch("/api/ambiances/1");
       // If the response is not ok, throw an error (stops execution and go to catch)
-      if (!response.ok) throw new Error("Failed to load ambiance");
+      if (!loadedAmbiance.ok) throw new Error("Failed to load ambiance");
       // Data retrieved must be of type Ambiance
-      const data: Ambiance = await response.json();
+      const data: Ambiance = await loadedAmbiance.json();
       setCurrentAmbiance(data);
-      const soundsResponse = await fetch("/api/ambiances/sounds/1");
-      if (!soundsResponse.ok) throw new Error("Failed to load sounds");
-      const soundsData: Sound[] = await soundsResponse.json();
+      console.log("Ambiance loaded : ", data);
+      const loadedSounds = await fetch("/api/ambiances/sounds/1");
+      if (!loadedSounds.ok) throw new Error("Failed to load sounds");
+      const soundsData: Sound[] = await loadedSounds.json();
       setSoundsUsed(soundsData);
+      console.log("Sounds used : ", soundsData);
     } catch (error) {
       console.error("Error loading ambiance or sounds :", error);
     }
   };
 
   return (
-    <div className="flex flex-1 flex-col justify-center align-center text-center">
+    <div className="flex flex-col justify-center flex-1 text-center align-center">
       <h2 className="font-title text-7xl mb-8 text-emerald-300 tracking-[-9]">
         frog
       </h2>
-      <p className="text-xl font-bold mb-6 text-gray-300">
+      <p className="mb-6 text-xl font-bold text-gray-300">
         Create or listen to community made ambiances
       </p>
-      <div className="flex justify-center items-center gap-4">
+      <div className="flex items-center justify-center gap-4">
         <button
-          className="bg-emerald-600 hover:bg-emerald-500 hover:cursor-pointer text-white font-bold py-4 px-6 text-md"
+          className="px-6 py-4 font-bold text-white bg-emerald-600 hover:bg-emerald-500 hover:cursor-pointer text-md"
           onClick={loadAmbianceAndSounds}
         >
           Load an ambiance
         </button>
-        <button className="hover:bg-emerald-950 border border-emerald-700 hover:cursor-pointer text-white font-bold py-4 px-6 text-md">
+        <button className="px-6 py-4 font-bold text-white border hover:bg-emerald-950 border-emerald-700 hover:cursor-pointer text-md">
           Or create a new one
         </button>
       </div>

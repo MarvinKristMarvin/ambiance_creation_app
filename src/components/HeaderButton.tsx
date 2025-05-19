@@ -1,32 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import SettingsMenu from "./SettingsMenu";
-import Modal from "./Modal";
+import { Settings } from "lucide-react";
+import { useGlobalStore } from "@/stores/useGlobalStore";
 
-interface Props {
-  text: string;
-}
-
-export default function HeaderButton({ text }: Props) {
-  const [opened, setOpened] = useState(false);
-
-  const handleClose = () => setOpened(false);
-
+export default function HeaderButton() {
+  const setSettingsMenu = useGlobalStore((state) => state.setSettingsMenu);
   return (
     <>
       <div
-        onClick={() => setOpened(true)}
-        className={`flex flex-row justify-start items-center py-4 px-6 text-center text-gray-400 text-lg font-bold hover:bg-gray-800 hover:cursor-pointer h-full`}
+        onClick={() => setSettingsMenu(true)}
+        className={`flex flex-row justify-start rounded-full items-center py-2 px-3 text-center text-gray-400 text-lg font-bold hover:bg-gray-800 hover:cursor-pointer h-full`}
       >
-        <span className="ml-1 text-1xl">{text}</span>
+        <span className="">
+          <Settings className="w-8 h-8 text-gray-300" />
+        </span>
       </div>
-
-      {opened && (
-        <Modal onClose={handleClose}>
-          {text === "Settings" && <SettingsMenu />}
-        </Modal>
-      )}
     </>
   );
 }

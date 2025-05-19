@@ -7,34 +7,8 @@ export default function Sounds() {
   const soundsCentering = useGlobalStore((state) => state.soundsCentering);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const soundsUsed = useGlobalStore((state) => state.soundsUsed);
-  const paused = useGlobalStore((state) => state.paused);
-  const currentSection = useGlobalStore((state) => state.currentSection);
 
-  if (!currentAmbiance || !currentAmbiance.settings?.sections) return null;
-
-  const sections = currentAmbiance.settings.sections;
-
-  // Map of unique sound identifier to { sound: AmbianceSound, playsInSections: number[] }
-  const uniqueMap = new Map<
-    string,
-    { sound: AmbianceSound; playsInSections: number[] }
-  >();
-
-  sections.forEach((section, sectionIndex) => {
-    section.sounds.forEach((sound) => {
-      const key = `${sound.sound_id}_${sound.number}`;
-      if (!uniqueMap.has(key)) {
-        uniqueMap.set(key, {
-          sound,
-          playsInSections: [sectionIndex + 1], // section number (1-based)
-        });
-      } else {
-        uniqueMap.get(key)!.playsInSections.push(sectionIndex + 1);
-      }
-    });
-  });
-
-  const uniqueSounds = Array.from(uniqueMap.values());
+  // Map sounds of the current ambiance
 
   return (
     <div
@@ -46,13 +20,8 @@ export default function Sounds() {
           : "justify-end"
       }`}
     >
-      {uniqueSounds.map(({ sound, playsInSections }) => {
-        const matchingSound = soundsUsed.find((s) => s.id === sound.sound_id);
-        if (!matchingSound) return null;
-
-        return (
+      {/* return (
           <SimpleSound
-            key={`${sound.sound_id}_${sound.number}`}
             soundName={matchingSound.sound_name}
             imagePath={matchingSound.image_path}
             audioPaths={matchingSound.audio_paths}
@@ -60,13 +29,9 @@ export default function Sounds() {
             initialReverb={sound.reverb}
             initialDirection={sound.direction}
             number={sound.number}
-            paused={paused}
-            playsInSections={playsInSections}
-            currentSection={currentSection}
             soundId={sound.sound_id}
           />
-        );
-      })}
+        ); */}
     </div>
   );
 }

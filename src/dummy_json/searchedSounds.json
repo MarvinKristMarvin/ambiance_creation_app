@@ -1,0 +1,12 @@
+{
+  "sounds": [
+    {
+      "sound_name": "Rain",
+      "image_path": "/photos/rain2.jpeg"
+    },
+    {
+      "sound_name": "Frog croaking",
+      "image_path": "/photos/frog1.jpg"
+    }
+  ]
+}

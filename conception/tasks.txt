@@ -48,8 +48,10 @@ TASKS
 10/05/2025
 - refactor all prop drilling into zustand store
 
-11/05/2025
-- 
+19/05/2025
+- remove all section logic from the app and conception docs, it was a bad idea
 
 TO DO
+- make the app work again with new ambiance logic
+- refactor some code and rename files
 - comment code for maintenability and refresh memory

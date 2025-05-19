@@ -26,23 +26,21 @@ CREATE TABLE sounds (
   volume INT,
   reverb INT,
   direction INT,
-  repeat_delay DECIMAL[] NOT NULL,
   category sound_category
 );
 
 CREATE TABLE ambiances (
   id SERIAL PRIMARY KEY,
   ambiance_name TEXT NOT NULL,
-  author_id INT REFERENCES users(id) ON DELETE SET NULL,
-  likes INT DEFAULT 0,
-  settings JSONB,
-  total_duration INT,
-  sections INT
+  author_id INT REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE ambiances_sounds (
   id SERIAL PRIMARY KEY,
   -- if an ambiance is deleted, delete the association rows where the ambiance was appearing, same for a sound
   ambiance_id INT NOT NULL REFERENCES ambiances(id) ON DELETE CASCADE,
-  sound_id INT NOT NULL REFERENCES sounds(id) ON DELETE CASCADE
+  sound_id INT NOT NULL REFERENCES sounds(id) ON DELETE CASCADE,
+  volume INT,
+  reverb INT,
+  direction INT
 );
