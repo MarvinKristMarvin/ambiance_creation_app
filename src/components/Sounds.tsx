@@ -1,14 +1,16 @@
-import { AmbianceSound } from "@/types";
 import SimpleSound from "./SimpleSound";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 
 export default function Sounds() {
-  // Zustand states
   const soundsCentering = useGlobalStore((state) => state.soundsCentering);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const soundsUsed = useGlobalStore((state) => state.soundsUsed);
 
-  // Map sounds of the current ambiance
+  if (!currentAmbiance || !soundsUsed || soundsUsed.length === 0) {
+    return null;
+  }
+
+  const soundCounters: Record<number, number> = {}; // sound_id -> count
 
   return (
     <div
@@ -20,18 +22,30 @@ export default function Sounds() {
           : "justify-end"
       }`}
     >
-      {/* return (
-          <SimpleSound
-            soundName={matchingSound.sound_name}
-            imagePath={matchingSound.image_path}
-            audioPaths={matchingSound.audio_paths}
-            initialVolume={sound.volume}
-            initialReverb={sound.reverb}
-            initialDirection={sound.direction}
-            number={sound.number}
-            soundId={sound.sound_id}
-          />
-        ); */}
+      {currentAmbiance.ambiance_sounds.map((sound) => {
+        const matchingSound = soundsUsed.find((s) => s.id === sound.sound_id);
+
+        if (matchingSound) {
+          // Increment count for this sound_id
+          soundCounters[sound.sound_id] =
+            (soundCounters[sound.sound_id] || 0) + 1;
+
+          return (
+            <SimpleSound
+              key={sound.id}
+              soundName={matchingSound.sound_name}
+              imagePath={matchingSound.image_path}
+              audioPaths={matchingSound.audio_paths}
+              initialVolume={sound.volume}
+              initialReverb={sound.reverb}
+              initialDirection={sound.direction}
+              number={soundCounters[sound.sound_id]} // 1, 2, 3 for same sound
+              id={sound.id}
+            />
+          );
+        }
+        return null;
+      })}
     </div>
   );
 }

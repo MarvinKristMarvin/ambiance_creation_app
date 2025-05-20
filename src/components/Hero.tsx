@@ -19,9 +19,23 @@ export default function Hero() {
       const data: Ambiance = await loadedAmbiance.json();
       setCurrentAmbiance(data);
       console.log("Ambiance loaded : ", data);
-      const loadedSounds = await fetch("/api/ambiances/sounds/1");
-      if (!loadedSounds.ok) throw new Error("Failed to load sounds");
-      const soundsData: Sound[] = await loadedSounds.json();
+
+      // Extract unique sound IDs from the loaded ambiance
+      const soundIds = [
+        ...new Set(data.ambiance_sounds.map((sound) => sound.sound_id)),
+      ];
+
+      // Fetch multiple sounds by their IDs
+      const response = await fetch("/api/get_used_sounds", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ soundIds }),
+      });
+
+      if (!response.ok) throw new Error("Failed to load sounds");
+      const soundsData: Sound[] = await response.json();
       setSoundsUsed(soundsData);
       console.log("Sounds used : ", soundsData);
     } catch (error) {

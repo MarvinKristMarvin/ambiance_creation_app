@@ -13,8 +13,7 @@ interface Props {
   initialReverb: number;
   initialDirection?: number;
   number: number;
-  paused: boolean;
-  soundId: number;
+  id: number;
 }
 
 export default function SimpleSound({
@@ -25,12 +24,18 @@ export default function SimpleSound({
   initialReverb,
   initialDirection,
   number,
+  id,
 }: Props) {
   const [volume, setVolume] = useState(initialVolume);
   const [reverb, setReverb] = useState(initialReverb);
   const [direction, setDirection] = useState(initialDirection);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const globalVolume = useGlobalStore((state) => state.globalVolume);
+  const paused = useGlobalStore((state) => state.paused);
+  const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
+  const setCurrentAmbiance = useGlobalStore(
+    (state) => state.setCurrentAmbiance
+  );
 
   useEffect(() => {
     if (audioRef.current) {
@@ -38,20 +43,67 @@ export default function SimpleSound({
     }
   }, [volume, globalVolume]);
 
+  useEffect(() => {
+    if (audioRef.current) {
+      if (!paused) {
+        audioRef.current.play().catch((e) => {
+          console.warn("Playback failed:", e);
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [paused]);
+
+  const handleRemove = () => {
+    if (!currentAmbiance) return;
+
+    const updatedSounds = currentAmbiance.ambiance_sounds.filter(
+      (s) => s.id !== id
+    );
+
+    setCurrentAmbiance({
+      ...currentAmbiance,
+      ambiance_sounds: updatedSounds,
+    });
+  };
+
+  const handleCopy = () => {
+    if (!currentAmbiance) return;
+
+    const original = currentAmbiance.ambiance_sounds.find((s) => s.id === id);
+    if (!original) return;
+
+    const maxId = Math.max(
+      ...currentAmbiance.ambiance_sounds.map((s) => s.id),
+      0
+    );
+
+    const newSound = {
+      ...original,
+      id: maxId + 1,
+    };
+
+    setCurrentAmbiance({
+      ...currentAmbiance,
+      ambiance_sounds: [...currentAmbiance.ambiance_sounds, newSound],
+    });
+  };
+
   return (
     <div className="w-40 text-lg font-bold text-center text-gray-400 bg-gray-900 group hover:bg-gray-800">
       <div className="relative bg-blue-800 h-30">
         <Image src={imagePath} alt={soundName} fill className="object-cover" />
         <div className="absolute flex space-x-1 transition-opacity opacity-0 top-1 right-1 group-hover:opacity-100 duration-10">
           <button
-            // onClick={handleCopy}
+            onClick={handleCopy}
             className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
             title="Copy sound"
           >
             <Copy size={14} />
           </button>
           <button
-            // onClick={handleRemove}
+            onClick={handleRemove}
             className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-red-700/60 hover:cursor-pointer"
             title="Remove sound"
           >

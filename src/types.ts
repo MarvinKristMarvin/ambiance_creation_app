@@ -5,6 +5,7 @@ export interface Ambiance {
   ambiance_sounds: AmbianceSound[];
 }
 
+// Sound used in an ambiance with its own volume, reverb etc
 export interface AmbianceSound {
   id: number;
   sound_id: number;
@@ -13,6 +14,7 @@ export interface AmbianceSound {
   direction: number;
 }
 
+// Sound data with default values
 export interface Sound {
   id: number;
   sound_name: string;
@@ -25,6 +27,7 @@ export interface Sound {
   category: string;
 }
 
+// Sound for display purposes in the search sounds menu
 export interface SoundBasicInformations {
   id: number;
   sound_name: string;

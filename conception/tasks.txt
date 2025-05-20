@@ -51,6 +51,8 @@ TASKS
 19/05/2025
 - remove all section logic from the app and conception docs, it was a bad idea
 
+20/05/2025
+
 TO DO
 - make the app work again with new ambiance logic
 - refactor some code and rename files
