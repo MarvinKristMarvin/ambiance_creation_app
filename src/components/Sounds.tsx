@@ -2,15 +2,18 @@ import SimpleSound from "./SimpleSound";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 
 export default function Sounds() {
+  // Zustand
   const soundsCentering = useGlobalStore((state) => state.soundsCentering);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const soundsUsed = useGlobalStore((state) => state.soundsUsed);
 
+  // If there is no ambiance or no sounds used, don't show Sounds.tsx
   if (!currentAmbiance || !soundsUsed || soundsUsed.length === 0) {
     return null;
   }
 
-  const soundCounters: Record<number, number> = {}; // sound_id -> count
+  // Track how many times each sound_id has appeared
+  const soundCounts = new Map<number, number>();
 
   return (
     <div
@@ -26,9 +29,10 @@ export default function Sounds() {
         const matchingSound = soundsUsed.find((s) => s.id === sound.sound_id);
 
         if (matchingSound) {
-          // Increment count for this sound_id
-          soundCounters[sound.sound_id] =
-            (soundCounters[sound.sound_id] || 0) + 1;
+          // Get current count, or default to 0
+          const currentCount = soundCounts.get(sound.sound_id) || 0;
+          const number = currentCount + 1;
+          soundCounts.set(sound.sound_id, number);
 
           return (
             <SimpleSound
@@ -39,11 +43,12 @@ export default function Sounds() {
               initialVolume={sound.volume}
               initialReverb={sound.reverb}
               initialDirection={sound.direction}
-              number={soundCounters[sound.sound_id]} // 1, 2, 3 for same sound
+              number={number}
               id={sound.id}
             />
           );
         }
+
         return null;
       })}
     </div>

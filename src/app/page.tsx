@@ -3,14 +3,13 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Sounds from "@/components/Sounds";
-import { useEffect } from "react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Modal from "@/components/Modal";
 import SearchSoundsMenu from "@/components/SearchSoundsMenu";
 import SettingsMenu from "@/components/SettingsMenu";
 
 export default function Home() {
-  // Zustand states
+  // Zustand
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const searchSoundsMenu = useGlobalStore((state) => state.searchSoundsMenu);
   const setSearchSoundsMenu = useGlobalStore(
@@ -19,25 +18,21 @@ export default function Home() {
   const settingsMenu = useGlobalStore((state) => state.settingsMenu);
   const setSettingsMenu = useGlobalStore((state) => state.setSettingsMenu);
 
-  // When the ambiance changes, set the current section to 1
-  useEffect(() => {
-    console.log(currentAmbiance);
-  }, [currentAmbiance]);
-
-  const handleCloseSearchSoundsMenu = () => setSearchSoundsMenu(false);
-  const handleCloseSettingsMenu = () => setSettingsMenu(false);
-
+  // Show the hero component if there is no ambiance loaded, otherwise show the sounds component. manages modals too
   return (
     <main className="flex flex-col w-screen h-screen bg-gray-950">
       <Header />
       {currentAmbiance ? <Sounds /> : <Hero />}
       {searchSoundsMenu && (
-        <Modal onClose={handleCloseSearchSoundsMenu} title="Add a new sound">
+        <Modal
+          onClose={() => setSearchSoundsMenu(false)}
+          title="Add a new sound"
+        >
           <SearchSoundsMenu />
         </Modal>
       )}
       {settingsMenu && (
-        <Modal onClose={handleCloseSettingsMenu} title="Settings">
+        <Modal onClose={() => setSettingsMenu(false)} title="Settings">
           {<SettingsMenu />}
         </Modal>
       )}

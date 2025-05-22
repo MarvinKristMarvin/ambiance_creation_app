@@ -52,8 +52,11 @@ TASKS
 - remove all section logic from the app and conception docs, it was a bad idea
 
 20/05/2025
+- make the app work again with new ambiance logic
+- clean the code and project architecture
+- add comments
+
+22/05/2025
+- play and load sound from the sounds menu modal
 
 TO DO
-- make the app work again with new ambiance logic
-- refactor some code and rename files
-- comment code for maintenability and refresh memory
