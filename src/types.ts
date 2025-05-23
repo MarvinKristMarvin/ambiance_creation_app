@@ -32,4 +32,7 @@ export interface SoundBasicInformations {
   id: number;
   sound_name: string;
   image_path: string;
+  audio_paths: string[];
+  looping: boolean;
+  volume: number;
 }

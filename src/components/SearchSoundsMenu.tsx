@@ -16,6 +16,7 @@ export default function SearchSoundsMenu() {
   const setCurrentAmbiance = useGlobalStore(
     (state) => state.setCurrentAmbiance
   );
+  const globalVolume = useGlobalStore((state) => state.globalVolume);
 
   // Fetch sounds basic informations which serve to display sounds in the search menu
   useEffect(() => {
@@ -67,6 +68,128 @@ export default function SearchSoundsMenu() {
       });
     } catch (error) {
       console.error("Error adding sound to ambiance:", error);
+    }
+  };
+
+  // Keep track of currently playing audio to stop it when playing a new sound
+  let currentAudio: HTMLAudioElement | null = null;
+
+  // Function to play a random audio from the sound's audio_paths
+  const handlePlaySound = (soundId: number) => {
+    // Find the sound by id
+    const sound = searchedSoundsBasicInformations.find((s) => s.id === soundId);
+
+    if (!sound || !sound.audio_paths || sound.audio_paths.length === 0) {
+      console.error("Sound not found or no audio paths available");
+      return;
+    }
+
+    // Stop currently playing audio if any
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
+    // Select a random audio path
+    const randomIndex = Math.floor(Math.random() * sound.audio_paths.length);
+    const selectedAudioPath = sound.audio_paths[randomIndex];
+
+    if (sound.looping) {
+      // For looping sounds, use range request to download only first 2 seconds
+      playPartialAudio(selectedAudioPath, sound.volume);
+    } else {
+      // For non-looping sounds, play normally
+      playFullAudio(selectedAudioPath, sound.volume);
+    }
+
+    console.log(
+      `Playing ${sound.sound_name}: ${selectedAudioPath} at volume ${sound.volume}%`
+    );
+  };
+
+  // Function to play full audio (for non-looping sounds)
+  const playFullAudio = (audioPath: string, volume: number) => {
+    const audio = new Audio(audioPath);
+    audio.volume = (volume / 100) * globalVolume;
+
+    audio.play().catch((error) => {
+      console.error("Error playing audio:", error);
+    });
+
+    currentAudio = audio;
+  };
+
+  // Function to play only first 3 seconds of audio (for looping sounds)
+  const playPartialAudio = async (audioPath: string, volume: number) => {
+    try {
+      // First, get the audio file size to calculate range
+      const headResponse = await fetch(audioPath, { method: "HEAD" });
+      const totalSize = parseInt(
+        headResponse.headers.get("content-length") || "0"
+      );
+
+      if (totalSize === 0) {
+        // Fallback to full audio if we can't get size
+        playFullAudio(audioPath, volume);
+        return;
+      }
+
+      // Calculate bytes for first 3 seconds based on file duration
+      // Assuming typical web audio bitrate of ~128kbps = 16KB/s
+      // For 3 seconds: 3 * 16KB = 48KB, but we'll be more generous to account for headers/metadata
+      const estimatedBytesFor3Seconds = Math.min(80000, totalSize); // ~80KB should cover 3 seconds + metadata
+
+      // Fetch partial audio with range header
+      const response = await fetch(audioPath, {
+        headers: {
+          Range: `bytes=0-${Math.floor(estimatedBytesFor3Seconds)}`,
+        },
+      });
+
+      if (!response.ok || response.status !== 206) {
+        // Server doesn't support range requests, fallback to full audio
+        playFullAudio(audioPath, volume);
+        return;
+      }
+
+      // Create blob URL from partial data
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const audio = new Audio(blobUrl);
+      audio.volume = (volume / 100) * globalVolume;
+
+      // Clean up blob URL when audio ends or on error
+      const cleanup = () => {
+        URL.revokeObjectURL(blobUrl);
+      };
+
+      audio.addEventListener("ended", cleanup);
+      audio.addEventListener("error", cleanup);
+
+      // Limit playback to 3 seconds max
+      const timeoutId = setTimeout(() => {
+        if (audio && !audio.paused) {
+          audio.pause();
+          cleanup();
+        }
+      }, 3000);
+
+      audio.play().catch((error) => {
+        console.error("Error playing partial audio:", error);
+        cleanup();
+      });
+
+      currentAudio = audio;
+
+      // Clear timeout if audio ends naturally before 2 seconds
+      audio.addEventListener("ended", () => {
+        clearTimeout(timeoutId);
+      });
+    } catch (error) {
+      console.error("Error with partial audio playback:", error);
+      // Fallback to full audio
+      playFullAudio(audioPath, volume);
     }
   };
 
@@ -148,6 +271,7 @@ export default function SearchSoundsMenu() {
                   </button>
                   <button
                     aria-label="listen the sound button"
+                    onClick={() => handlePlaySound(sound.id)}
                     className="px-2 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700"
                   >
                     <Play className="w-5 h-5" />

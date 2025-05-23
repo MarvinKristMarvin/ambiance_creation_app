@@ -5,7 +5,7 @@ import pool from "@/lib/db_client";
 export async function GET() {
   try {
     const result = await pool.query(
-      "SELECT id, sound_name, image_path FROM sounds"
+      "SELECT id, sound_name, image_path, audio_paths, looping, volume FROM sounds"
     );
     return NextResponse.json(result.rows);
   } catch (error) {
