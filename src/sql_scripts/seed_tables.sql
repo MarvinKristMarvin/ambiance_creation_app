@@ -38,6 +38,10 @@ INSERT INTO ambiances (ambiance_name, author_id)
 VALUES (
   'Morning Jungle',
   1
+),
+(
+  'Evening Jungle',
+  1
 );
 
 
@@ -46,4 +50,5 @@ INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, direction)
 VALUES 
   (1, 1, 50, 0, 0),
   (1, 1, 30, 0, 0),
-  (1, 2, 10, 0, 0);
+  (1, 2, 10, 0, 0),
+  (2, 1, 80, 0, 0);

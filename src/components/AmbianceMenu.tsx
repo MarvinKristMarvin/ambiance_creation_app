@@ -15,6 +15,9 @@ export default function AmbianceMenu() {
   const setSearchSoundsMenu = useGlobalStore(
     (state) => state.setSearchSoundsMenu
   );
+  const setSearchAmbianceMenu = useGlobalStore(
+    (state) => state.setSearchAmbianceMenu
+  );
 
   // Refs
   const volumeBeforeMuting = useRef(1);
@@ -111,6 +114,7 @@ export default function AmbianceMenu() {
         </button>
         <button
           aria-label="current ambiance button"
+          onClick={() => setSearchAmbianceMenu(true)}
           className="flex flex-col justify-center flex-1 px-6 py-1 bg-gray-900 border-0 align-center border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
         >
           <p className="w-full overflow-hidden whitespace-nowrap text-ellipsis">

@@ -14,6 +14,11 @@ export interface AmbianceSound {
   direction: number;
 }
 
+export interface AmbianceBasicInformations {
+  id: number;
+  ambiance_name: string;
+}
+
 // Sound data with default values
 export interface Sound {
   id: number;
