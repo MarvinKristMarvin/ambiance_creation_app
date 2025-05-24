@@ -1,9 +1,14 @@
-import VolumeIcon from "@/components/icons/VolumeIcon";
 import PauseIcon from "@/components/icons/PauseIcon";
 import PlayIcon from "@/components/icons/PlayIcon";
 import { useCallback, useEffect, useRef } from "react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Repeat, SkipForward, SkipBack, Plus } from "lucide-react";
+import {
+  SkipForward,
+  SkipBack,
+  Plus,
+  SlidersHorizontal,
+  Volume2,
+} from "lucide-react";
 
 export default function AmbianceMenu() {
   // Zustand
@@ -45,23 +50,23 @@ export default function AmbianceMenu() {
   return (
     <div
       aria-label="main buttons"
-      className="flex flex-row h-full text-lg font-bold text-gray-300 "
+      className="flex flex-row items-center h-full text-lg font-bold text-gray-300"
     >
       <div
         aria-label="mute button, volume slider and play button"
-        className="flex flex-row flex-1 gap-4 mx-2 w-90"
+        className="flex flex-row flex-1 h-12 gap-4 mx-2 w-90"
       >
         <div className="relative flex flex-row items-center flex-1 h-full border-0 border-gray-800 rounded-full text-md bg-emerald-900 hover:cursor-pointer">
           <button
             aria-label="mute button"
             onClick={updateGlobalVolume}
-            className="flex items-center justify-center h-full px-6 py-2 text-xs bg-gray-900 rounded-full hover:bg-gray-800 z-5 hover:cursor-pointer"
+            className="flex items-center h-full px-3.5 py-2 text-xs bg-gray-900 rounded-full hover:bg-gray-800 z-5 hover:cursor-pointer"
           >
-            <VolumeIcon
-              className={`w-4 h-4 ${
-                globalVolume === 0 ? "text-gray-500" : "text-gray-200"
+            <Volume2
+              className={`w-5 h-5 ${
+                globalVolume < 0.001 ? "text-gray-500" : "text-gray-200"
               }`}
-            />
+            />{" "}
           </button>
           <div
             aria-label="ambiance volume slider"
@@ -71,8 +76,8 @@ export default function AmbianceMenu() {
             <div className="absolute inset-0 h-full rounded-full bg-emerald-900"></div>
             {/* Filled portion */}
             <div
-              className="absolute inset-x-[-56] bg-emerald-400 h-full rounded-full"
-              style={{ width: `${globalVolume * 100 + 26}%` }}
+              className="absolute inset-x-[-47] bg-emerald-400 h-full rounded-full"
+              style={{ width: `${globalVolume * 100 + 18.5}%` }}
             ></div>
             {/* Range input (functional but invisible) */}
             <input
@@ -92,7 +97,7 @@ export default function AmbianceMenu() {
         <button
           aria-label="play pause button"
           onClick={() => setPaused(!paused)}
-          className="flex flex-col justify-center h-full px-6 py-3 text-xs bg-gray-900 border-0 border-gray-800 rounded-full align-center hover:bg-gray-800 hover:cursor-pointer"
+          className="flex flex-col justify-center h-full px-4 py-3 text-xs bg-gray-900 border-0 border-gray-800 rounded-full align-center hover:bg-gray-800 hover:cursor-pointer"
         >
           {paused ? (
             <PlayIcon className="w-4 h-4 text-gray-200" />
@@ -104,11 +109,11 @@ export default function AmbianceMenu() {
 
       <div
         aria-label="ambiance swapper"
-        className="flex flex-row flex-1 mx-2 bg-gray-900 rounded-full w-90"
+        className="flex flex-row flex-1 h-12 mx-2 bg-gray-900 rounded-full w-90"
       >
         <button
           aria-label="previous ambiance button"
-          className="flex flex-col justify-center px-6 py-1 pr-4 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
+          className="flex flex-col justify-center px-3 py-1 pr-2 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
           <SkipBack />
         </button>
@@ -120,15 +125,15 @@ export default function AmbianceMenu() {
           <p className="w-full overflow-hidden whitespace-nowrap text-ellipsis">
             {currentAmbiance
               ? currentAmbiance.ambiance_name
-              : "Load an ambiance"}
+              : "Search an ambiance"}
           </p>
           {currentAmbiance && (
-            <p className="text-sm font-bold text-gray-400">PLAYING</p>
+            <p className="hidden text-sm font-bold text-gray-400">PLAYING</p>
           )}
         </button>
         <button
           aria-label="next ambiance button"
-          className="flex flex-col justify-center px-6 py-1 pl-4 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
+          className="flex flex-col justify-center px-3 py-1 pl-2 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
           <SkipForward />
         </button>
@@ -136,20 +141,23 @@ export default function AmbianceMenu() {
 
       <div
         aria-label="repeat button and add sound button"
-        className="flex flex-1 mx-2 w-90"
+        className="flex flex-1 h-12 mx-2 w-90"
       >
         <button
           aria-label="repeat button"
-          className="flex flex-col justify-center h-full px-5 py-5 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
+          className="flex flex-col justify-center h-full px-3.5 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
         >
-          <Repeat className="text-gray-200" />
+          <SlidersHorizontal
+            className="w-5 h-5 text-gray-200"
+            strokeWidth={3}
+          />
         </button>
         <button
           aria-label="add sound button"
           onClick={() => setSearchSoundsMenu(true)}
-          className="flex items-center justify-between flex-1 h-full px-5 py-4 pr-6 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
+          className="flex items-center justify-between flex-1 h-full px-3 py-1 pr-6 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
         >
-          <Plus className="w-8 h-8 justify-self-start" />
+          <Plus className="w-7 h-7 justify-self-start" />
           <p>Add a new sound</p>
         </button>
       </div>

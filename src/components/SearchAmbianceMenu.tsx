@@ -16,6 +16,9 @@ export default function SearchAmbianceMenu() {
     (state) => state.setCurrentAmbiance
   );
   const setSoundsUsed = useGlobalStore((state) => state.setSoundsUsed);
+  const setSearchAmbianceMenu = useGlobalStore(
+    (state) => state.setSearchAmbianceMenu
+  );
 
   // Fetch ambiances basic informations which serve to display ambiances in the search menu
   useEffect(() => {
@@ -37,6 +40,7 @@ export default function SearchAmbianceMenu() {
     fetchAmbiances();
   }, [setSearchedAmbiancesBasicInformations]);
 
+  // When clicking an ambiance, load the ambiance and its sounds
   const handleLoadAmbiance = async (ambianceId: number) => {
     try {
       const loadedAmbiance = await fetch(`/api/ambiances/${ambianceId}`);
@@ -66,6 +70,7 @@ export default function SearchAmbianceMenu() {
       const soundsData: Sound[] = await response.json();
       setSoundsUsed(soundsData);
       console.log("Sounds used : ", soundsData);
+      setSearchAmbianceMenu(false);
     } catch (error) {
       console.error("Error loading ambiance or sounds :", error);
     }
@@ -132,7 +137,7 @@ export default function SearchAmbianceMenu() {
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-1">
                   <Leaf className="w-4 h-4 text-green-400" />
-                  <Ghost className="w-4 h-4 text-gray-400 stroke-3" />
+                  <Ghost className="w-4 h-4 text-purple-600 stroke-3" />
                 </div>
                 <p className="text-gray-400">12 Sounds</p>
               </div>
