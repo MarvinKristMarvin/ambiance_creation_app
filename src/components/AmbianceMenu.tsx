@@ -113,9 +113,9 @@ export default function AmbianceMenu() {
       >
         <button
           aria-label="previous ambiance button"
-          className="flex flex-col justify-center px-3 py-1 pr-2 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
+          className="flex flex-col justify-center px-3.5 py-1 pr-2.5 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
-          <SkipBack />
+          <SkipBack className="w-5 h-5" />
         </button>
         <button
           aria-label="current ambiance button"
@@ -133,9 +133,9 @@ export default function AmbianceMenu() {
         </button>
         <button
           aria-label="next ambiance button"
-          className="flex flex-col justify-center px-3 py-1 pl-2 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
+          className="flex flex-col justify-center px-3.5 py-1 pl-2.5 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
-          <SkipForward />
+          <SkipForward className="w-5 h-5" />
         </button>
       </div>
 
@@ -149,7 +149,7 @@ export default function AmbianceMenu() {
         >
           <SlidersHorizontal
             className="w-5 h-5 text-gray-200"
-            strokeWidth={3}
+            strokeWidth={2.5}
           />
         </button>
         <button

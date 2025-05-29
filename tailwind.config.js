@@ -1,13 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/app/**/*.{js,ts,jsx,tsx}",
-    "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", // ← match everything under src
   ],
   theme: {
     extend: {
       colors: {
-        "gray-925": "#a8412b",
+        gray: {
+          925: "rgb(7, 12, 23)", // ← your custom gray
+        },
       },
     },
   },

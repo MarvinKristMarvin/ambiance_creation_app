@@ -7,16 +7,6 @@ CREATE TYPE sound_category AS ENUM (
   'Objects'
 );
 
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  hashed_password TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  pseudo TEXT UNIQUE NOT NULL,
-  settings JSONB,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NULL
-);
-
 CREATE TABLE sounds (
   id SERIAL PRIMARY KEY,
   sound_name TEXT UNIQUE NOT NULL,

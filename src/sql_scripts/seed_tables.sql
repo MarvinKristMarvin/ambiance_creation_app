@@ -1,13 +1,4 @@
--- insert 1 user
-INSERT INTO users (hashed_password, email, pseudo, settings, created_at, updated_at)
-VALUES (
-  'hashed_password_example',
-  'user@example.com',
-  'UserOne',
-  '{"theme": "dark", "volume": 80}'::jsonb,
-  NOW(),
-  NOW()
-);
+
 
 -- insert 2 sounds
 INSERT INTO sounds (sound_name, audio_paths, image_path, looping, volume, reverb, direction, category)
