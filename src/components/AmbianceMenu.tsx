@@ -8,6 +8,7 @@ import {
   Plus,
   SlidersHorizontal,
   Volume2,
+  Star,
 } from "lucide-react";
 
 export default function AmbianceMenu() {
@@ -22,6 +23,9 @@ export default function AmbianceMenu() {
   );
   const setSearchAmbianceMenu = useGlobalStore(
     (state) => state.setSearchAmbianceMenu
+  );
+  const setAmbianceSettingsMenu = useGlobalStore(
+    (state) => state.setAmbianceSettingsMenu
   );
 
   // Refs
@@ -46,6 +50,45 @@ export default function AmbianceMenu() {
       }
     }
   }, [setGlobalVolume, globalVolume]);
+
+  // Save ambiance without id => creates a new ambiance, with id => updates the ambiance
+  const handleSaveAmbiance = async () => {
+    try {
+      if (!currentAmbiance) return;
+
+      // Remove both id and author_id - server will handle author_id from session
+      const { id, author_id, ...ambianceWithoutId } = currentAmbiance;
+
+      const response = await fetch("/api/post_ambiance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ambianceWithoutId),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Handle unauthorized - user needs to log in
+          console.error("Please log in to save ambiances");
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log("Ambiance saved successfully:", result.data);
+        // Optionally update the current ambiance with the returned data (including new ID)
+        // setCurrentAmbiance(result.data);
+      } else {
+        console.error("Failed to save ambiance:", result.error);
+      }
+    } catch (error) {
+      console.error("Error saving ambiance:", error);
+    }
+  };
 
   return (
     <div
@@ -140,11 +183,12 @@ export default function AmbianceMenu() {
       </div>
 
       <div
-        aria-label="repeat button and add sound button"
+        aria-label="ambiance settings button and add sound button"
         className="flex flex-1 h-12 mx-2 w-90"
       >
         <button
-          aria-label="repeat button"
+          aria-label="ambiance settings button"
+          onClick={() => setAmbianceSettingsMenu(true)}
           className="flex flex-col justify-center h-full px-3.5 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
         >
           <SlidersHorizontal
@@ -153,12 +197,20 @@ export default function AmbianceMenu() {
           />
         </button>
         <button
+          aria-label="save ambiance button"
+          onClick={handleSaveAmbiance}
+          className="flex items-center justify-between h-full px-3 py-1 pr-5 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
+        >
+          <Star className="w-6 h-6 pr-1 justify-self-start" />
+          <p className="ml-2">Save</p>
+        </button>
+        <button
           aria-label="add sound button"
           onClick={() => setSearchSoundsMenu(true)}
-          className="flex items-center justify-between flex-1 h-full px-3 py-1 pr-6 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
+          className="flex items-center justify-between flex-1 h-full px-3 py-1 pr-5 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
         >
-          <Plus className="w-7 h-7 justify-self-start" />
-          <p>Add a new sound</p>
+          <Plus className="w-6 h-6 justify-self-start" />
+          <p className="ml-2">Add a sound</p>
         </button>
       </div>
     </div>

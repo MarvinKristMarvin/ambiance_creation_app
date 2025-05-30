@@ -22,7 +22,7 @@ CREATE TABLE sounds (
 CREATE TABLE ambiances (
   id SERIAL PRIMARY KEY,
   ambiance_name TEXT NOT NULL,
-  author_id INT REFERENCES users(id) ON DELETE SET NULL
+  author_id TEXT REFERENCES "user"(id) ON DELETE SET NULL
 );
 
 CREATE TABLE ambiances_sounds (

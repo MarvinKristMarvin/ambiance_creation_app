@@ -1,5 +1,4 @@
 
-
 -- insert 2 sounds
 INSERT INTO sounds (sound_name, audio_paths, image_path, looping, volume, reverb, direction, category)
 VALUES 
@@ -28,11 +27,11 @@ VALUES
 INSERT INTO ambiances (ambiance_name, author_id)
 VALUES (
   'Morning Jungle',
-  1
+  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1' -- marv@example.com marvmarv
 ),
 (
   'Evening Jungle',
-  1
+  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1'
 );
 
 

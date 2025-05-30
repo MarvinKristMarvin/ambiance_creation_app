@@ -59,4 +59,11 @@ TASKS
 22/05/2025
 - play and load sound from the sounds menu modal
 
+30/05/2025
+- authentication
+- user should be able to save ambiance into db
+- user should be able to change ambiance name
+- ambiance should be saved with the right user id
+
+
 TO DO

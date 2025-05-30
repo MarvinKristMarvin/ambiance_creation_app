@@ -31,6 +31,9 @@ interface Store {
   searchAmbianceMenu: boolean;
   setSearchAmbianceMenu: (value: boolean) => void;
 
+  ambianceSettingsMenu: boolean;
+  setAmbianceSettingsMenu: (value: boolean) => void;
+
   // Search sounds menu
   searchedSoundsBasicInformations: SoundBasicInformations[];
   setSearchedSoundsBasicInformations: (value: SoundBasicInformations[]) => void;
@@ -66,6 +69,9 @@ export const useGlobalStore = create<Store>((set) => ({
 
   searchAmbianceMenu: false,
   setSearchAmbianceMenu: (value) => set({ searchAmbianceMenu: value }),
+
+  ambianceSettingsMenu: false,
+  setAmbianceSettingsMenu: (value) => set({ ambianceSettingsMenu: value }),
 
   // Search sounds menu
   searchedSoundsBasicInformations: [],

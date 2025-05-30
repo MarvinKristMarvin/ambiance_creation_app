@@ -8,6 +8,7 @@ import Modal from "@/components/Modal";
 import SearchSoundsMenu from "@/components/SearchSoundsMenu";
 import SettingsMenu from "@/components/SettingsMenu";
 import SearchAmbianceMenu from "@/components/SearchAmbianceMenu";
+import AmbianceSettingsMenu from "@/components/AmbianceSettingsMenu";
 
 export default function Home() {
   // Zustand
@@ -23,6 +24,12 @@ export default function Home() {
   );
   const setSearchAmbianceMenu = useGlobalStore(
     (state) => state.setSearchAmbianceMenu
+  );
+  const ambianceSettingsMenu = useGlobalStore(
+    (state) => state.ambianceSettingsMenu
+  );
+  const setAmbianceSettingsMenu = useGlobalStore(
+    (state) => state.setAmbianceSettingsMenu
   );
 
   // Show the hero component if there is no ambiance loaded, otherwise show the sounds component. manages modals too
@@ -49,6 +56,14 @@ export default function Home() {
           title="Search an ambiance"
         >
           {<SearchAmbianceMenu />}
+        </Modal>
+      )}
+      {ambianceSettingsMenu && (
+        <Modal
+          onClose={() => setAmbianceSettingsMenu(false)}
+          title="Ambiance settings"
+        >
+          {<AmbianceSettingsMenu />}
         </Modal>
       )}
     </main>
