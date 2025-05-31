@@ -46,7 +46,7 @@ interface Store {
 }
 
 export const useGlobalStore = create<Store>((set) => ({
-  soundsCentering: "center",
+  soundsCentering: "Center",
   setSoundsCentering: (value) => set({ soundsCentering: value }),
 
   currentAmbiance: null,

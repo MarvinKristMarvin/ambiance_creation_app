@@ -1,6 +1,6 @@
 import PauseIcon from "@/components/icons/PauseIcon";
 import PlayIcon from "@/components/icons/PlayIcon";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import {
   SkipForward,
@@ -28,6 +28,9 @@ export default function AmbianceMenu() {
     (state) => state.setAmbianceSettingsMenu
   );
 
+  // States
+  const [saveState, setSaveState] = useState("idle"); // 'idle', 'loading', 'saved'
+
   // Refs
   const volumeBeforeMuting = useRef(1);
 
@@ -54,11 +57,12 @@ export default function AmbianceMenu() {
   // Save ambiance without id => creates a new ambiance, with id => updates the ambiance
   const handleSaveAmbiance = async () => {
     try {
-      if (!currentAmbiance) return;
+      if (!currentAmbiance || saveState === "loading") return;
+
+      setSaveState("loading");
 
       // Remove both id and author_id - server will handle author_id from session
       const { id, author_id, ...ambianceWithoutId } = currentAmbiance;
-
       const response = await fetch("/api/post_ambiance", {
         method: "POST",
         headers: {
@@ -71,24 +75,32 @@ export default function AmbianceMenu() {
         if (response.status === 401) {
           // Handle unauthorized - user needs to log in
           console.error("Please log in to save ambiances");
+          setSaveState("idle");
           return;
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
-
       if (result.success) {
         console.log("Ambiance saved successfully:", result.data);
+        setSaveState("saved");
         // Optionally update the current ambiance with the returned data (including new ID)
         // setCurrentAmbiance(result.data);
       } else {
         console.error("Failed to save ambiance:", result.error);
+        setSaveState("idle");
       }
     } catch (error) {
       console.error("Error saving ambiance:", error);
+      setSaveState("idle");
     }
   };
+
+  // Reset save button state when ambiance changes
+  useEffect(() => {
+    setSaveState("idle");
+  }, [currentAmbiance]);
 
   return (
     <div
@@ -199,18 +211,27 @@ export default function AmbianceMenu() {
         <button
           aria-label="save ambiance button"
           onClick={handleSaveAmbiance}
-          className="flex items-center justify-between h-full px-3 py-1 pr-5 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
+          disabled={saveState === "loading"}
+          className="flex items-center justify-center h-full py-1 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full w-26 text-md hover:bg-gray-800 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Star className="w-6 h-6 pr-1 justify-self-start" />
-          <p className="ml-2">Save</p>
+          {saveState === "loading" && (
+            <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin" />
+          )}
+          {saveState === "saved" && <p>Saved</p>}
+          {saveState === "idle" && (
+            <>
+              <Star className="w-6 h-6 pr-1 justify-self-start" />
+              <p className="ml-1">Save</p>
+            </>
+          )}
         </button>
         <button
           aria-label="add sound button"
           onClick={() => setSearchSoundsMenu(true)}
-          className="flex items-center justify-between flex-1 h-full px-3 py-1 pr-5 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full text-md hover:bg-gray-800 hover:cursor-pointer"
+          className="flex items-center justify-center h-full px-3 py-1 pr-5 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full flex-2 text-md hover:bg-gray-800 hover:cursor-pointer"
         >
           <Plus className="w-6 h-6 justify-self-start" />
-          <p className="ml-2">Add a sound</p>
+          <p className="ml-1.5">Add a sound</p>
         </button>
       </div>
     </div>

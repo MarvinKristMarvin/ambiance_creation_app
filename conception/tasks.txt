@@ -65,5 +65,11 @@ TASKS
 - user should be able to change ambiance name
 - ambiance should be saved with the right user id
 
+31/05/2025
+
+- make ui feedback for saving ambiance
+- make sound filtering
+- make ambiance filtering
+
 
 TO DO
