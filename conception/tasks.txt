@@ -66,9 +66,12 @@ TASKS
 - ambiance should be saved with the right user id
 
 31/05/2025
-
 - make ui feedback for saving ambiance
+
+01/06/2025
 - make sound filtering
+- refine sound search menu UI
+
 - make ambiance filtering
 
 

@@ -24,9 +24,9 @@ export default function Modal({ onClose, children, title }: Props) {
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/80 ">
       <div
         aria-label="modal window"
-        className="relative w-full bg-gray-800 border-4 border-t-0 border-gray-800 rounded-md shadow-lg max-w-90"
+        className="relative w-full bg-gray-900 border-4 border-t-0 border-gray-900 rounded-md shadow-lg max-w-90"
       >
-        <div className="bg-gray-800 flex justify-between text-md items-center rounded-t-md py-0.5 px-0.5 border-y-2 border-gray-800 ">
+        <div className="bg-gray-900 flex justify-between text-md items-center rounded-t-md py-0.5 px-0.5 border-y-2 border-gray-900 ">
           <h2
             aria-label="modal title"
             className="pl-2 font-bold text-gray-300 text-md"

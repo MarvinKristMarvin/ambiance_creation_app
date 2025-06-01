@@ -1,10 +1,19 @@
 -- create ENUM type for sound category
-CREATE TYPE sound_category AS ENUM (
+CREATE TYPE category AS ENUM (
+  'Elemental',
   'Vegetation',
   'Animals',
   'Insects',
   'Human',
-  'Objects'
+  'Objects',
+  'Music',
+  'Machines'
+);
+
+CREATE TYPE theme AS ENUM (
+  'Spooky',
+  'Aquatic',
+  'Night'
 );
 
 CREATE TABLE sounds (
@@ -16,7 +25,8 @@ CREATE TABLE sounds (
   volume INT,
   reverb INT,
   direction INT,
-  category sound_category
+  category category,
+  themes theme[]
 );
 
 CREATE TABLE ambiances (
@@ -33,4 +43,16 @@ CREATE TABLE ambiances_sounds (
   volume INT,
   reverb INT,
   direction INT
+);
+
+CREATE TABLE user_has_favorite_sounds (
+  id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  sound_id INT NOT NULL REFERENCES sounds(id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_has_favorite_ambiances (
+  id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  ambiance_id INT NOT NULL REFERENCES ambiances(id) ON DELETE CASCADE
 );

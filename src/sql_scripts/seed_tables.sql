@@ -1,6 +1,6 @@
 
 -- insert 2 sounds
-INSERT INTO sounds (sound_name, audio_paths, image_path, looping, volume, reverb, direction, category)
+INSERT INTO sounds (sound_name, audio_paths, image_path, looping, volume, reverb, direction, category, themes)
 VALUES 
   (
     'Rain',
@@ -10,7 +10,8 @@ VALUES
     80,
     0,
     0,
-    'Vegetation'
+    'Elemental',
+    ARRAY['Aquatic']::theme[]
   ),
   (
     'Frog croaking',
@@ -20,7 +21,8 @@ VALUES
     50,
     0,
     0,
-    'Animals'
+    'Animals',
+    ARRAY['Aquatic', 'Night', 'Spooky']::theme[]
   );
 
 -- insert 1 ambiance
@@ -42,3 +44,7 @@ VALUES
   (1, 1, 30, 0, 0),
   (1, 2, 10, 0, 0),
   (2, 1, 80, 0, 0);
+
+INSERT INTO user_has_favorite_sounds (user_id, sound_id)
+VALUES
+  ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 2);

@@ -1,5 +1,7 @@
 DROP TABLE IF EXISTS ambiances_sounds CASCADE;
 DROP TABLE IF EXISTS ambiances CASCADE;
 DROP TABLE IF EXISTS sounds CASCADE;
-
-DROP TYPE IF EXISTS sound_category;
+DROP TABLE IF EXISTS user_has_favorite_sounds CASCADE;
+DROP TABLE IF EXISTS user_has_favorite_ambiances CASCADE;
+DROP TYPE IF EXISTS category;
+DROP TYPE IF EXISTS theme;

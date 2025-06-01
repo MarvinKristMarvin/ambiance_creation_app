@@ -29,7 +29,7 @@ export default function AmbianceMenu() {
   );
 
   // States
-  const [saveState, setSaveState] = useState("idle"); // 'idle', 'loading', 'saved'
+  const [saveState, setSaveState] = useState("idle");
 
   // Refs
   const volumeBeforeMuting = useRef(1);
@@ -97,7 +97,7 @@ export default function AmbianceMenu() {
     }
   };
 
-  // Reset save button state when ambiance changes
+  // Reset save button load state when ambiance changes
   useEffect(() => {
     setSaveState("idle");
   }, [currentAmbiance]);
