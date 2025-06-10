@@ -6,9 +6,9 @@ import {
   SkipForward,
   SkipBack,
   Plus,
-  SlidersHorizontal,
   Volume2,
   Star,
+  Pencil,
 } from "lucide-react";
 
 export default function AmbianceMenu() {
@@ -112,16 +112,22 @@ export default function AmbianceMenu() {
         className="flex flex-row flex-1 h-12 gap-4 mx-2 w-90"
       >
         <div className="relative flex flex-row items-center flex-1 h-full border-0 border-gray-800 rounded-full text-md bg-emerald-900 hover:cursor-pointer">
+          <div
+            aria-label="fake border"
+            className="absolute w-14 h-14 rounded-full bg-gray-950 left-[-2] top-[-4]"
+            style={{ zIndex: 1 }}
+          ></div>
           <button
             aria-label="mute button"
             onClick={updateGlobalVolume}
-            className="flex items-center h-full px-3.5 py-2 text-xs bg-gray-900 rounded-full hover:bg-gray-800 z-5 hover:cursor-pointer"
+            className="flex items-center h-full px-3.5 py-2 text-xs bg-gray-900 rounded-full hover:bg-gray-800 hover:cursor-pointer relative"
+            style={{ zIndex: 2 }}
           >
             <Volume2
               className={`w-5 h-5 ${
                 globalVolume < 0.001 ? "text-gray-500" : "text-gray-200"
               }`}
-            />{" "}
+            />
           </button>
           <div
             aria-label="ambiance volume slider"
@@ -201,12 +207,9 @@ export default function AmbianceMenu() {
         <button
           aria-label="ambiance settings button"
           onClick={() => setAmbianceSettingsMenu(true)}
-          className="flex flex-col justify-center h-full px-3.5 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
+          className="flex flex-col justify-center h-full px-3.75 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
         >
-          <SlidersHorizontal
-            className="w-5 h-5 text-gray-200"
-            strokeWidth={2.5}
-          />
+          <Pencil className="w-4.5 h-4.5 text-gray-200" strokeWidth={2.5} />
         </button>
         <button
           aria-label="save ambiance button"

@@ -17,6 +17,9 @@ export interface AmbianceSound {
 export interface AmbianceBasicInformations {
   id: number;
   ambiance_name: string;
+  categories: string[];
+  themes: string[];
+  author_id: string;
 }
 
 // Sound data with default values

@@ -22,18 +22,22 @@ VALUES
     0,
     0,
     'Animals',
-    ARRAY['Aquatic', 'Night', 'Spooky']::theme[]
+    ARRAY['Night', 'Spooky']::theme[]
   );
 
 -- insert 1 ambiance
-INSERT INTO ambiances (ambiance_name, author_id)
+INSERT INTO ambiances (ambiance_name, author_id, categories, themes)
 VALUES (
   'Morning Jungle',
-  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1' -- marv@example.com marvmarv
+  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', -- marv@example.com marvmarv
+  ARRAY['Elemental', 'Animals']::category[],
+  ARRAY['Night', 'Spooky']::theme[]
 ),
 (
   'Evening Jungle',
-  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1'
+  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
+  ARRAY['Elemental']::category[],
+  ARRAY['Aquatic']::theme[]
 );
 
 

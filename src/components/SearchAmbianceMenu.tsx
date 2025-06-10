@@ -1,8 +1,80 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Ghost, Leaf, Search, Star } from "lucide-react";
-import React from "react";
+import { Check, ChevronDown, Star, X, Dot } from "lucide-react"; // global icons
+import { Leaf, PawPrint, Bug, PersonStanding, Wind, Music } from "lucide-react"; // categories icons
+import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
+import React, { useState } from "react";
 import { useEffect } from "react";
 import type { Ambiance, AmbianceBasicInformations, Sound } from "@/types";
+
+// Categories and types based on db
+const CATEGORIES = [
+  "Elemental", // wind
+  "Vegetation", // leaf
+  "Animals", // paw print
+  "Insects", // bug
+  "Human", // person standing
+  "Music", // music
+] as const;
+
+const THEMES = [
+  "Spooky", // ghost
+  "Aquatic", // droplet
+  "Night", // moon
+] as const;
+
+type Category = (typeof CATEGORIES)[number];
+type Theme = (typeof THEMES)[number];
+
+// Category icon mapping with colors
+const getCategoryIcon = (category: Category) => {
+  const iconProps = { className: "w-4 h-4" };
+
+  switch (category) {
+    case "Elemental":
+      return <Wind {...iconProps} className="w-4 h-4 text-sky-400" />;
+    case "Vegetation":
+      return <Leaf {...iconProps} className="w-4 h-4 text-green-400" />;
+    case "Animals":
+      return <PawPrint {...iconProps} className="w-4 h-4 text-amber-400" />;
+    case "Insects":
+      return <Bug {...iconProps} className="w-4 h-4 text-lime-400" />;
+    case "Human":
+      return (
+        <PersonStanding {...iconProps} className="w-4 h-4 text-orange-400" />
+      );
+    case "Music":
+      return <Music {...iconProps} className="w-4 h-4 text-purple-400" />;
+    default:
+      return null;
+  }
+};
+
+// Theme icon mapping with colors
+const getThemeIcon = (theme: Theme) => {
+  const iconProps = { className: "w-4 h-4" };
+
+  switch (theme) {
+    case "Spooky":
+      return <Ghost {...iconProps} className="w-4 h-4 text-gray-400" />;
+    case "Aquatic":
+      return <Droplet {...iconProps} className="w-4 h-4 text-blue-400" />;
+    case "Night":
+      return <Moon {...iconProps} className="w-4 h-4 text-indigo-400" />;
+    default:
+      return null;
+  }
+};
+
+// Utility function to parse Postgres ENUM array like categories or themes to be able to map on them
+function parsePostgresEnumArray(str: string | string[]): string[] {
+  if (Array.isArray(str)) return str; // already a JS array
+  if (!str || typeof str !== "string") return [];
+
+  return str
+    .replace(/^{|}$/g, "") // remove curly braces
+    .split(",")
+    .map((s) => s.trim().replace(/^"(.*)"$/, "$1")); // remove quotes
+}
 
 export default function SearchAmbianceMenu() {
   // Zustand
@@ -20,25 +92,88 @@ export default function SearchAmbianceMenu() {
     (state) => state.setSearchAmbianceMenu
   );
 
-  // Fetch ambiances basic informations which serve to display ambiances in the search menu
-  useEffect(() => {
-    const fetchAmbiances = async () => {
-      try {
-        const response = await fetch("/api/get_search_menu_ambiances");
-        if (!response.ok)
-          throw new Error(
-            "Failed to fetch ambiances basic informations which serve to display ambiances in the search menu"
-          );
-        const data: AmbianceBasicInformations[] = await response.json();
-        // Update zustand with fetched ambiances
-        setSearchedAmbiancesBasicInformations(data);
-      } catch (error) {
-        console.error("Error fetching sounds:", error);
-      }
-    };
+  // Filtering states
+  const [searchString, setSearchString] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [selectedThemes, setSelectedThemes] = useState<Theme[]>([]);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
 
-    fetchAmbiances();
-  }, [setSearchedAmbiancesBasicInformations]);
+  // Function to build query string
+  const buildQueryString = () => {
+    const params = new URLSearchParams();
+
+    if (searchString.trim()) {
+      params.append("search", searchString.trim());
+    }
+
+    if (selectedCategories.length > 0) {
+      selectedCategories.forEach((category) => {
+        params.append("category", category);
+      });
+    }
+
+    if (selectedThemes.length > 0) {
+      selectedThemes.forEach((theme) => {
+        params.append("theme", theme);
+      });
+    }
+
+    return params.toString();
+  };
+
+  // Function to perform search
+  const performSearch = async () => {
+    const queryString = buildQueryString();
+    try {
+      const response = await fetch(
+        `/api/get_search_menu_ambiances?${queryString}`
+      );
+      if (!response.ok)
+        throw new Error(
+          "Filtering search : Failed to fetch ambiances basic informations which serve to display ambiances in the search menu"
+        );
+      const data: AmbianceBasicInformations[] = await response.json();
+      setSearchedAmbiancesBasicInformations(data);
+    } catch (error) {
+      console.error("Error fetching ambiances with filtering search:", error);
+    }
+  };
+
+  // Handle category selection (multiple selection)
+  const handleCategoryToggle = (category: Category) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  // Handle theme selection (multiple selection)
+  const handleThemeToggle = (theme: Theme) => {
+    setSelectedThemes((prev) =>
+      prev.includes(theme) ? prev.filter((t) => t !== theme) : [...prev, theme]
+    );
+  };
+
+  // Handle search input
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchString(e.target.value);
+  };
+
+  // Debounced search effect - triggers search 500ms after filter changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      performSearch();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchString, selectedCategories, selectedThemes]);
+
+  // Initial fetch on component mount
+  useEffect(() => {
+    performSearch();
+  }, []);
 
   // When clicking an ambiance, load the ambiance and its sounds
   const handleLoadAmbiance = async (ambianceId: number) => {
@@ -79,67 +214,189 @@ export default function SearchAmbianceMenu() {
   return (
     <div
       aria-label="search sounds menu"
-      className="p-4 text-gray-300 rounded-md bg-gray-950"
-      style={{ background: "rgb(7, 12, 23)" }}
-      // Gray 925
+      className="text-gray-300 bg-gray-800 rounded-md "
     >
-      <div className="flex flex-col gap-3 mt-1 mb-3 align-center ">
-        <button
-          aria-label="category button"
-          className="flex-1 py-2 pl-4 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-full hover:bg-gray-700 hover:cursor-pointer"
-        >
-          Category
-        </button>
-        <button
-          aria-label="themes button"
-          className="flex-1 py-2 pl-4 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-full hover:bg-gray-700 hover:cursor-pointer"
-        >
-          Themes
-        </button>
-      </div>
-      <div aria-label="sound search bar" className="flex mb-3 align-center">
-        <input
-          type="text"
-          placeholder="Search an ambiance"
-          className="flex-1 p-1 pl-4 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-800 rounded-l-full bg-gray-950 focus:outline-none focus:border-emerald-700"
-        />
-        <button
-          aria-label="search button"
-          className="px-4 py-2 pl-3 text-sm font-bold text-gray-300 bg-gray-800 rounded-r-full hover:bg-gray-700 hover:cursor-pointer"
-        >
-          <Search className="w-5 h-5 transform scale-x-[-1]" />
-        </button>
-      </div>
-      <div
-        aria-label="results"
-        className="border-2 border-t-0 border-gray-800 rounded-xs"
-      >
-        <p className="px-3 py-2 text-sm font-bold text-left text-gray-400 bg-gray-800">
-          Results : {searchedAmbiancesBasicInformations.length} ambiance
-          {searchedAmbiancesBasicInformations.length !== 1 ? "s" : ""}
-        </p>
+      <div className="flex flex-col gap-2 mb-2 align-center ">
+        <div className="relative">
+          <button
+            aria-label="category button"
+            onClick={() => {
+              setShowCategoryDropdown(!showCategoryDropdown);
+              setShowThemeDropdown(false);
+            }}
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 rounded-sm bg-gray-950 hover:bg-gray-900 hover:cursor-pointer"
+          >
+            <span className="flex items-center gap-2">
+              {selectedCategories.length > 0 ? (
+                <>
+                  <span>Categories:</span>
+                  <div className="flex items-center gap-1">
+                    {selectedCategories.map((category) => (
+                      <React.Fragment key={category}>
+                        {getCategoryIcon(category)}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                "Categories"
+              )}
+            </span>
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                showCategoryDropdown ? "rotate-180" : ""
+              }`}
+            />
+          </button>
 
-        <div className="flex flex-col gap-0.5 p-0.5">
+          {showCategoryDropdown && (
+            <div className="absolute z-10 w-full mt-1 overflow-y-scroll bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5">
+              <button
+                onClick={() => {
+                  setSelectedCategories([]);
+                  setShowCategoryDropdown(false);
+                }}
+                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+                <span>All Categories</span>
+              </button>
+              {CATEGORIES.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => handleCategoryToggle(category)}
+                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                    selectedCategories.includes(category)
+                      ? "text-emerald-400 bg-gray-700"
+                      : "text-gray-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {getCategoryIcon(category)}
+                    <span>{category}</span>
+                  </div>
+                  {selectedCategories.includes(category) && (
+                    <Check className="w-4 h-4" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="relative">
+          <button
+            aria-label="themes button"
+            onClick={() => {
+              setShowThemeDropdown(!showThemeDropdown);
+              setShowCategoryDropdown(false);
+            }}
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 rounded-sm bg-gray-950 hover:bg-gray-900 hover:cursor-pointer"
+          >
+            <span className="flex items-center gap-2">
+              {selectedThemes.length > 0 ? (
+                <>
+                  <span>Themes:</span>
+                  <div className="flex items-center gap-1">
+                    {selectedThemes.map((theme) => (
+                      <React.Fragment key={theme}>
+                        {getThemeIcon(theme)}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                "Themes"
+              )}
+            </span>
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${
+                showThemeDropdown ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {showThemeDropdown && (
+            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-scroll">
+              <button
+                onClick={() => {
+                  setSelectedThemes([]);
+                  setShowThemeDropdown(false);
+                }}
+                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+                <span>All Themes</span>
+              </button>
+              {THEMES.map((theme) => (
+                <button
+                  key={theme}
+                  onClick={() => handleThemeToggle(theme)}
+                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                    selectedThemes.includes(theme)
+                      ? "text-emerald-400 bg-gray-700"
+                      : "text-gray-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {getThemeIcon(theme)}
+                    <span>{theme}</span>
+                  </div>
+                  {selectedThemes.includes(theme) && (
+                    <Check className="w-4 h-4" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div aria-label="sound search bar" className="flex mb-2 align-center">
+        <div className="w-full">
+          <input
+            alia-label="search bar"
+            type="text"
+            placeholder="Search an ambiance or author"
+            value={searchString}
+            onChange={handleSearchChange}
+            className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
+          />
+        </div>
+      </div>
+      <div aria-label="results" className="rounded-sm bg-gray-950">
+        <div className="flex flex-col gap-2 px-2 overflow-y-scroll rounded-sm border-y-8 border-gray-950 h-80">
           {searchedAmbiancesBasicInformations.map((ambiance) => (
             <article
               aria-label="ambiance found"
               key={ambiance.id}
               onClick={() => handleLoadAmbiance(ambiance.id)}
-              className="flex flex-col items-center px-4 py-2 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-xs hover:bg-gray-700 hover:cursor-pointer"
+              className="flex flex-col items-center px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
             >
               <div className="flex items-center justify-between w-full mb-1">
-                <p>{ambiance.ambiance_name}</p>
+                <p className="text-sm text-gray-300">
+                  {ambiance.ambiance_name}
+                </p>
                 <div className="flex items-center">
-                  <Star className="w-4 h-4 text-yellow-200/80" />
-                  <span className="pl-1 text-yellow-200/80">27</span>
+                  <Star className="w-4 h-4 text-yellow-200/20" />
+                  <span className="pl-1 text-yellow-200/20">27</span>
                 </div>
               </div>
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-1">
-                  <Leaf className="w-4 h-4 text-green-400" />
-                  <Ghost className="w-4 h-4 text-purple-600 stroke-3" />
+                  {parsePostgresEnumArray(ambiance.categories).map(
+                    (category) => (
+                      <React.Fragment key={category}>
+                        {getCategoryIcon(category as Category)}
+                      </React.Fragment>
+                    )
+                  )}
+                  <Dot className="w-4 h-4 text-gray-600 mx-[-3px]" />
+                  {parsePostgresEnumArray(ambiance.themes).map((theme) => (
+                    <React.Fragment key={theme}>
+                      {getThemeIcon(theme as Theme)}
+                    </React.Fragment>
+                  ))}
                 </div>
-                <p className="text-gray-400">12 Sounds</p>
+                <p className="text-gray-600">12 Sounds</p>
               </div>
             </article>
           ))}

@@ -5,9 +5,7 @@ CREATE TYPE category AS ENUM (
   'Animals',
   'Insects',
   'Human',
-  'Objects',
-  'Music',
-  'Machines'
+  'Music'
 );
 
 CREATE TYPE theme AS ENUM (
@@ -32,7 +30,9 @@ CREATE TABLE sounds (
 CREATE TABLE ambiances (
   id SERIAL PRIMARY KEY,
   ambiance_name TEXT NOT NULL,
-  author_id TEXT REFERENCES "user"(id) ON DELETE SET NULL
+  author_id TEXT REFERENCES "user"(id) ON DELETE SET NULL,
+  categories category[],
+  themes theme[]
 );
 
 CREATE TABLE ambiances_sounds (

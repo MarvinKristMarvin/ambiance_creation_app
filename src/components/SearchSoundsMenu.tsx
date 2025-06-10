@@ -1,9 +1,9 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, Play, Star, ChevronDown } from "lucide-react";
+import { Check, Star, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
-// Define the filter types based on your database enums
+// Categories and types based on db
 const CATEGORIES = [
   "Elemental",
   "Vegetation",
@@ -34,7 +34,7 @@ export default function SearchSoundsMenu() {
   );
   const globalVolume = useGlobalStore((state) => state.globalVolume);
 
-  // New filter state
+  // Filtering states
   const [searchString, setSearchString] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
@@ -243,7 +243,7 @@ export default function SearchSoundsMenu() {
   return (
     <div
       aria-label="search sounds menu"
-      className="p-2 pt-0 text-gray-300 bg-gray-900 rounded-md"
+      className="p-0 pt-0 text-gray-300 bg-gray-800 rounded-md"
     >
       <div className="flex flex-col gap-2 mt-1 mb-2">
         {/* Category Filter */}
@@ -254,7 +254,7 @@ export default function SearchSoundsMenu() {
               setShowCategoryDropdown(!showCategoryDropdown);
               setShowThemeDropdown(false);
             }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm hover:bg-gray-600 hover:cursor-pointer"
           >
             <span>
               {selectedCategory ? `Category: ${selectedCategory}` : "Category"}
@@ -267,13 +267,13 @@ export default function SearchSoundsMenu() {
           </button>
 
           {showCategoryDropdown && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg">
+            <div className="absolute z-10 w-full mt-1 overflow-y-scroll bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5">
               <button
                 onClick={() => {
                   setSelectedCategory(null);
                   setShowCategoryDropdown(false);
                 }}
-                className="w-full px-4 py-2 text-sm text-left text-gray-300 hover:bg-gray-700"
+                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700"
               >
                 All Categories
               </button>
@@ -284,7 +284,7 @@ export default function SearchSoundsMenu() {
                     setSelectedCategory(category);
                     setShowCategoryDropdown(false);
                   }}
-                  className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-700 ${
+                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 last:border-b-0 ${
                     selectedCategory === category
                       ? "text-emerald-400 bg-gray-700"
                       : "text-gray-300"
@@ -305,7 +305,7 @@ export default function SearchSoundsMenu() {
               setShowThemeDropdown(!showThemeDropdown);
               setShowCategoryDropdown(false);
             }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-xs hover:bg-gray-700 hover:cursor-pointer"
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm hover:bg-gray-600 hover:cursor-pointer"
           >
             <span>
               {selectedThemes.length > 0
@@ -320,13 +320,13 @@ export default function SearchSoundsMenu() {
           </button>
 
           {showThemeDropdown && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg">
+            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-scroll">
               <button
                 onClick={() => {
                   setSelectedThemes([]);
                   setShowThemeDropdown(false);
                 }}
-                className="w-full px-4 py-2 text-sm text-left text-gray-300 hover:bg-gray-700"
+                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700"
               >
                 All Themes
               </button>
@@ -334,7 +334,7 @@ export default function SearchSoundsMenu() {
                 <button
                   key={theme}
                   onClick={() => handleThemeToggle(theme)}
-                  className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-700 flex items-center justify-between ${
+                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
                     selectedThemes.includes(theme)
                       ? "text-emerald-400 bg-gray-700"
                       : "text-gray-300"
@@ -358,11 +358,11 @@ export default function SearchSoundsMenu() {
           placeholder="Search a sound by name"
           value={searchString}
           onChange={handleSearchChange}
-          className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-gray-950 rounded-xs bg-gray-950 focus:outline-none focus:border-emerald-700"
+          className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
         />
       </div>
 
-      <div aria-label="results" className=" bg-gray-950 rounded-xs">
+      <div aria-label="results" className="rounded-sm bg-gray-950">
         {/* <p className="px-3 py-2 text-sm font-bold text-left text-gray-400 border-gray-900 bg-gray-950 border-b-1">
           Results : {searchedSoundsBasicInformations.length} sound
           {searchedSoundsBasicInformations.length !== 1 ? "s" : ""}
@@ -373,18 +373,18 @@ export default function SearchSoundsMenu() {
             <article
               aria-label="sound found"
               key={sound.id}
-              className="flex items-center bg-gray-800 rounded-xs"
+              className="flex items-center bg-gray-800 rounded-sm"
             >
-              <div className="overflow-hidden w-14 h-14">
+              <div className="overflow-hidden w-13 h-13">
                 <Image
                   src={sound.image_path}
                   alt={sound.sound_name}
                   width={100}
                   height={100}
-                  className="object-cover w-full h-full rounded-l-xs"
+                  className="object-cover w-full h-full rounded-l-sm"
                 />
               </div>
-              <div className="flex flex-row justify-between flex-1 rounded-r-md h-14">
+              <div className="flex flex-row justify-between flex-1 rounded-r-md h-13">
                 <div
                   aria-label="sound details"
                   onClick={() => handlePlaySound(sound.id)}

@@ -2,13 +2,10 @@ import { NextResponse } from "next/server";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
 
-// Create a new ambiance or update an existing one when user saves his current ambiance
+// Create a new ambiance or update an existing one when user saves their ambiance
 export async function POST(request: Request) {
   try {
-    // Get the authenticated user from the session
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session) {
       return NextResponse.json(
@@ -20,7 +17,6 @@ export async function POST(request: Request) {
     const userId = session.user.id;
     const ambianceData = await request.json();
 
-    // Validate required fields (author_id is now set from session)
     if (!ambianceData.ambiance_name) {
       return NextResponse.json(
         { error: "Missing required field: ambiance_name" },
@@ -31,13 +27,10 @@ export async function POST(request: Request) {
     const client = await pool.connect();
 
     try {
-      // Start transaction
       await client.query("BEGIN");
-
       let ambianceId;
 
       if (ambianceData.id) {
-        // Update existing ambiance
         const updateAmbianceQuery = `
           UPDATE ambiances 
           SET ambiance_name = $1, author_id = $2 
@@ -48,7 +41,7 @@ export async function POST(request: Request) {
           ambianceData.ambiance_name,
           userId,
           ambianceData.id,
-          userId, // Ensure user can only update their own ambiances
+          userId,
         ]);
 
         if (ambianceResult.rows.length === 0) {
@@ -57,13 +50,11 @@ export async function POST(request: Request) {
 
         ambianceId = ambianceData.id;
 
-        // Delete existing ambiance_sounds for this ambiance
         await client.query(
           "DELETE FROM ambiances_sounds WHERE ambiance_id = $1",
           [ambianceId]
         );
       } else {
-        // Insert new ambiance
         const insertAmbianceQuery = `
           INSERT INTO ambiances (ambiance_name, author_id) 
           VALUES ($1, $2) 
@@ -77,11 +68,7 @@ export async function POST(request: Request) {
         ambianceId = ambianceResult.rows[0].id;
       }
 
-      // Insert ambiance_sounds if they exist
-      if (
-        ambianceData.ambiance_sounds &&
-        ambianceData.ambiance_sounds.length > 0
-      ) {
+      if (ambianceData.ambiance_sounds?.length > 0) {
         const insertSoundsQuery = `
           INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, direction)
           VALUES ($1, $2, $3, $4, $5)
@@ -91,17 +78,81 @@ export async function POST(request: Request) {
           await client.query(insertSoundsQuery, [
             ambianceId,
             sound.sound_id,
-            sound.volume || 50, // Default volume if not provided
-            sound.reverb || 0, // Default reverb if not provided
-            sound.direction || 0, // Default direction if not provided
+            sound.volume ?? 50,
+            sound.reverb ?? 0,
+            sound.direction ?? 0,
           ]);
         }
       }
 
-      // Commit transaction
+      // ✅ Fixed: Get frequency counts directly from PostgreSQL
+      const aggregateQuery = `
+        SELECT 
+          s.category::text as category,
+          COUNT(*) as category_count
+        FROM ambiances_sounds ass
+        JOIN sounds s ON s.id = ass.sound_id
+        WHERE ass.ambiance_id = $1
+        GROUP BY s.category
+        ORDER BY COUNT(*) DESC
+      `;
+
+      const aggregateResult = await client.query(aggregateQuery, [ambianceId]);
+
+      // Get all themes with frequency counts
+      const themesQuery = `
+        SELECT 
+          unnested_theme::text as theme,
+          COUNT(*) as theme_count
+        FROM ambiances_sounds ass
+        JOIN sounds s ON s.id = ass.sound_id
+        LEFT JOIN LATERAL unnest(s.themes) AS unnested_theme ON true
+        WHERE ass.ambiance_id = $1 AND unnested_theme IS NOT NULL
+        GROUP BY unnested_theme
+        ORDER BY COUNT(*) DESC
+      `;
+
+      const themesResult = await client.query(themesQuery, [ambianceId]);
+
+      // Extract sorted categories and themes as strings
+      const sortedCategories = aggregateResult.rows.map((row) => row.category);
+      const sortedThemes = themesResult.rows.map((row) => row.theme);
+
+      console.log(
+        "Categories with counts:",
+        aggregateResult.rows.map((r) => `${r.category}: ${r.category_count}`)
+      );
+      console.log(
+        "Themes with counts:",
+        themesResult.rows.map((r) => `${r.theme}: ${r.theme_count}`)
+      );
+      console.log("Final sorted categories:", sortedCategories);
+      console.log("Final sorted themes:", sortedThemes);
+
+      // ✅ Build the arrays manually to preserve frequency-based order
+      const categoriesArrayLiteral =
+        sortedCategories.length > 0
+          ? `{${sortedCategories.map((cat) => `"${cat}"`).join(",")}}`
+          : "{}";
+      const themesArrayLiteral =
+        sortedThemes.length > 0
+          ? `{${sortedThemes.map((theme) => `"${theme}"`).join(",")}}`
+          : "{}";
+
+      console.log("Categories array literal:", categoriesArrayLiteral);
+      console.log("Themes array literal:", themesArrayLiteral);
+
+      await client.query(
+        `
+          UPDATE ambiances
+          SET categories = $1::category[], themes = $2::theme[]
+          WHERE id = $3
+        `,
+        [categoriesArrayLiteral, themesArrayLiteral, ambianceId]
+      );
+
       await client.query("COMMIT");
 
-      // Fetch the complete ambiance with sounds to return
       const selectQuery = `
         SELECT 
           a.id,
@@ -127,12 +178,8 @@ export async function POST(request: Request) {
 
       const result = await client.query(selectQuery, [ambianceId]);
 
-      return NextResponse.json({
-        success: true,
-        data: result.rows[0],
-      });
+      return NextResponse.json({ success: true, data: result.rows[0] });
     } catch (error) {
-      // Rollback transaction on error
       await client.query("ROLLBACK");
       throw error;
     } finally {
