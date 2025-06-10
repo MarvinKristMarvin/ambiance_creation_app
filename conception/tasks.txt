@@ -76,8 +76,8 @@ TASKS
 
 10/06/2025
 - make ambiance filtering (and sort ambiance categories and themes in db)
+- show favorites ambiances first when connected
 
 TO DO
 - show favorites sounds first
-- show favorites ambiances first
 

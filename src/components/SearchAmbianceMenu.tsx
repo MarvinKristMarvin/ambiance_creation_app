@@ -376,8 +376,24 @@ export default function SearchAmbianceMenu() {
                   {ambiance.ambiance_name}
                 </p>
                 <div className="flex items-center">
-                  <Star className="w-4 h-4 text-yellow-200/20" />
-                  <span className="pl-1 text-yellow-200/20">27</span>
+                  <div className="flex items-center">
+                    <Star
+                      className={`w-4 h-4 ${
+                        ambiance.is_favorite
+                          ? "text-yellow-200/70"
+                          : "text-yellow-200/20"
+                      }`}
+                    />
+                    <span
+                      className={`pl-1 ${
+                        ambiance.is_favorite
+                          ? "text-yellow-200/70"
+                          : "text-yellow-200/20"
+                      }`}
+                    >
+                      27
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-between w-full">
