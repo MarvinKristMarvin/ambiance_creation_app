@@ -1,44 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db_client";
+import { auth } from "@/lib/auth";
 
-// Get searched sounds basic information to display in the search sound menu
 export async function GET(request: NextRequest) {
   try {
+    // Get user session
+    const session = await auth.api.getSession({ headers: request.headers });
+    const userId = session?.user?.id || null;
+
     const { searchParams } = new URL(request.url);
 
     // Extract query parameters
     const searchString = searchParams.get("search");
     const category = searchParams.get("category");
-    const themes = searchParams.getAll("theme"); // Get all theme parameters
+    const themes = searchParams.getAll("theme");
 
     // Build the SQL query dynamically
     let query = `
-      SELECT id, sound_name, image_path, audio_paths, looping, volume, category, themes
-      FROM sounds
+      SELECT 
+        s.id, 
+        s.sound_name, 
+        s.image_path, 
+        s.audio_paths, 
+        s.looping, 
+        s.volume, 
+        s.category, 
+        s.themes,
+        ${
+          userId
+            ? "CASE WHEN uf.user_id IS NOT NULL THEN true ELSE false END as is_favorite"
+            : "false as is_favorite"
+        }
+      FROM sounds s
     `;
+
+    // Add LEFT JOIN for favorites if user is logged in
+    if (userId) {
+      query += `
+        LEFT JOIN user_has_favorite_sounds uf
+        ON s.id = uf.sound_id AND uf.user_id = $1
+      `;
+    }
 
     const conditions: string[] = [];
     const values: (string | string[])[] = [];
-    let paramCounter = 1;
+    let paramCounter = userId ? 2 : 1; // Start from 2 if userId is used
 
-    // Add search string condition (case insensitive)
+    // Add userId to values if logged in
+    if (userId) {
+      values.push(userId);
+    }
+
+    // Add search string condition
     if (searchString && searchString.trim()) {
-      conditions.push(`sound_name ILIKE $${paramCounter}`);
+      conditions.push(`s.sound_name ILIKE $${paramCounter}`);
       values.push(`%${searchString.trim()}%`);
       paramCounter++;
     }
 
     // Add category condition
     if (category) {
-      conditions.push(`category = $${paramCounter}`);
+      conditions.push(`s.category = $${paramCounter}`);
       values.push(category);
       paramCounter++;
     }
 
-    // Add themes condition (OR logic - sound must have at least one of the selected themes)
+    // Add themes condition
     if (themes.length > 0) {
-      // Use array overlap operator to check if any selected theme exists in the sound's themes array
-      conditions.push(`themes && $${paramCounter}`);
+      conditions.push(`s.themes && $${paramCounter}`);
       values.push(themes);
       paramCounter++;
     }
@@ -48,19 +77,16 @@ export async function GET(request: NextRequest) {
       query += ` WHERE ${conditions.join(" AND ")}`;
     }
 
-    // Add ORDER BY clause for alphabetical sorting
-    query += ` ORDER BY sound_name ASC`;
+    // Modify ORDER BY to show favorites first, then alphabetically
+    query += ` ORDER BY ${userId ? "is_favorite DESC, " : ""}s.sound_name ASC`;
 
     console.log("Executing query:", query);
     console.log("With values:", values);
 
     const result = await pool.query(query, values);
-
     return NextResponse.json(result.rows);
   } catch (error) {
-    // Send the error message on the console
     console.error("Database error:", error);
-    // Send the error to the front
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

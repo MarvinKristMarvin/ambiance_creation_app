@@ -400,7 +400,13 @@ export default function SearchSoundsMenu() {
                     aria-label="save sound in favorites button"
                     className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700"
                   >
-                    <Star className="w-5 h-5" />
+                    <Star
+                      className={`w-5 h-5 ${
+                        sound.is_favorite
+                          ? "text-yellow-200/80 fill-yellow-200/80"
+                          : "text-yellow-200/70"
+                      }`}
+                    />
                   </button>
 
                   <button

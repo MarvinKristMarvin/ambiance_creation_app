@@ -77,7 +77,9 @@ TASKS
 10/06/2025
 - make ambiance filtering (and sort ambiance categories and themes in db)
 - show favorites ambiances first when connected
+- show favorites sounds first
+- saving an ambiance adds it in favorites
 
 TO DO
-- show favorites sounds first
+- make the "add to favorite sounds" button work
 

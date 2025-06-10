@@ -48,11 +48,13 @@ CREATE TABLE ambiances_sounds (
 CREATE TABLE user_has_favorite_sounds (
   id SERIAL PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-  sound_id INT NOT NULL REFERENCES sounds(id) ON DELETE CASCADE
+  sound_id INT NOT NULL REFERENCES sounds(id) ON DELETE CASCADE,
+  CONSTRAINT unique_user_sound UNIQUE (user_id, sound_id)
 );
 
 CREATE TABLE user_has_favorite_ambiances (
   id SERIAL PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-  ambiance_id INT NOT NULL REFERENCES ambiances(id) ON DELETE CASCADE
+  ambiance_id INT NOT NULL REFERENCES ambiances(id) ON DELETE CASCADE,
+  CONSTRAINT unique_user_ambiance UNIQUE (user_id, ambiance_id)
 );

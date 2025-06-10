@@ -1,6 +1,13 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import { Check, ChevronDown, Star, X, Dot } from "lucide-react"; // global icons
-import { Leaf, PawPrint, Bug, PersonStanding, Wind, Music } from "lucide-react"; // categories icons
+import {
+  Leaf,
+  PawPrint,
+  Bug,
+  PersonStanding,
+  Earth,
+  Music,
+} from "lucide-react"; // categories icons
 import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
 import React, { useState } from "react";
 import { useEffect } from "react";
@@ -8,7 +15,7 @@ import type { Ambiance, AmbianceBasicInformations, Sound } from "@/types";
 
 // Categories and types based on db
 const CATEGORIES = [
-  "Elemental", // wind
+  "Elemental", // earth
   "Vegetation", // leaf
   "Animals", // paw print
   "Insects", // bug
@@ -31,7 +38,7 @@ const getCategoryIcon = (category: Category) => {
 
   switch (category) {
     case "Elemental":
-      return <Wind {...iconProps} className="w-4 h-4 text-sky-400" />;
+      return <Earth {...iconProps} className="w-4 h-4 text-red-300" />;
     case "Vegetation":
       return <Leaf {...iconProps} className="w-4 h-4 text-green-400" />;
     case "Animals":

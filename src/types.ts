@@ -44,4 +44,5 @@ export interface SoundBasicInformations {
   audio_paths: string[];
   looping: boolean;
   volume: number;
+  is_favorite: boolean;
 }

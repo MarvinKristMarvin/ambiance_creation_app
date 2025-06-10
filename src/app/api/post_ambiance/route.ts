@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
 
-// Create a new ambiance or update an existing one when user saves their ambiance
 export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
@@ -31,6 +30,7 @@ export async function POST(request: Request) {
       let ambianceId;
 
       if (ambianceData.id) {
+        // Update existing ambiance
         const updateAmbianceQuery = `
           UPDATE ambiances 
           SET ambiance_name = $1, author_id = $2 
@@ -55,6 +55,7 @@ export async function POST(request: Request) {
           [ambianceId]
         );
       } else {
+        // Create new ambiance
         const insertAmbianceQuery = `
           INSERT INTO ambiances (ambiance_name, author_id) 
           VALUES ($1, $2) 
@@ -68,6 +69,15 @@ export async function POST(request: Request) {
         ambianceId = ambianceResult.rows[0].id;
       }
 
+      // Add to favorites (works for both new and updated ambiances)
+      const addFavoriteQuery = `
+        INSERT INTO user_has_favorite_ambiances (user_id, ambiance_id)
+        VALUES ($1, $2)
+        ON CONFLICT (user_id, ambiance_id) DO NOTHING
+      `;
+      await client.query(addFavoriteQuery, [userId, ambianceId]);
+
+      // Add sounds to ambiance
       if (ambianceData.ambiance_sounds?.length > 0) {
         const insertSoundsQuery = `
           INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, direction)
@@ -85,7 +95,7 @@ export async function POST(request: Request) {
         }
       }
 
-      // ✅ Fixed: Get frequency counts directly from PostgreSQL
+      // Get category frequencies
       const aggregateQuery = `
         SELECT 
           s.category::text as category,
@@ -96,10 +106,9 @@ export async function POST(request: Request) {
         GROUP BY s.category
         ORDER BY COUNT(*) DESC
       `;
-
       const aggregateResult = await client.query(aggregateQuery, [ambianceId]);
 
-      // Get all themes with frequency counts
+      // Get theme frequencies
       const themesQuery = `
         SELECT 
           unnested_theme::text as theme,
@@ -111,25 +120,12 @@ export async function POST(request: Request) {
         GROUP BY unnested_theme
         ORDER BY COUNT(*) DESC
       `;
-
       const themesResult = await client.query(themesQuery, [ambianceId]);
 
-      // Extract sorted categories and themes as strings
+      // Prepare categories and themes arrays
       const sortedCategories = aggregateResult.rows.map((row) => row.category);
       const sortedThemes = themesResult.rows.map((row) => row.theme);
 
-      console.log(
-        "Categories with counts:",
-        aggregateResult.rows.map((r) => `${r.category}: ${r.category_count}`)
-      );
-      console.log(
-        "Themes with counts:",
-        themesResult.rows.map((r) => `${r.theme}: ${r.theme_count}`)
-      );
-      console.log("Final sorted categories:", sortedCategories);
-      console.log("Final sorted themes:", sortedThemes);
-
-      // ✅ Build the arrays manually to preserve frequency-based order
       const categoriesArrayLiteral =
         sortedCategories.length > 0
           ? `{${sortedCategories.map((cat) => `"${cat}"`).join(",")}}`
@@ -139,9 +135,7 @@ export async function POST(request: Request) {
           ? `{${sortedThemes.map((theme) => `"${theme}"`).join(",")}}`
           : "{}";
 
-      console.log("Categories array literal:", categoriesArrayLiteral);
-      console.log("Themes array literal:", themesArrayLiteral);
-
+      // Update ambiance with categories and themes
       await client.query(
         `
           UPDATE ambiances
@@ -153,6 +147,7 @@ export async function POST(request: Request) {
 
       await client.query("COMMIT");
 
+      // Get the complete ambiance data to return
       const selectQuery = `
         SELECT 
           a.id,
