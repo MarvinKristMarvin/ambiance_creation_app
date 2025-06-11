@@ -80,6 +80,11 @@ TASKS
 - show favorites sounds first
 - saving an ambiance adds it in favorites
 
-TO DO
+11/06/2025
 - make the "add to favorite sounds" button work
+
+TO DO
+- make a cool toast system
+- change the unexpanded sound card design
+- restyle the sound search menu like the search ambiance menu
 

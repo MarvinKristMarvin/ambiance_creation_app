@@ -43,6 +43,11 @@ export default function SearchSoundsMenu() {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
 
+  // State to track optimistic updates for favorites
+  const [optimisticFavorites, setOptimisticFavorites] = useState<
+    Record<number, boolean>
+  >({});
+
   // Function to build query string
   const buildQueryString = () => {
     const params = new URLSearchParams();
@@ -62,6 +67,60 @@ export default function SearchSoundsMenu() {
     }
 
     return params.toString();
+  };
+
+  // Function to handle adding/removing sound from favorites
+  const handleSaveSoundInFavorites = async (soundId: number) => {
+    // Get current favorite status (either from optimistic state or original data)
+    const currentFavoriteStatus =
+      optimisticFavorites[soundId] !== undefined
+        ? optimisticFavorites[soundId]
+        : searchedSoundsBasicInformations.find((sound) => sound.id === soundId)
+            ?.is_favorite || false;
+
+    // Immediately update UI for better UX (optimistic update)
+    const newFavoriteStatus = !currentFavoriteStatus;
+    setOptimisticFavorites((prev) => ({
+      ...prev,
+      [soundId]: newFavoriteStatus,
+    }));
+
+    try {
+      const response = await fetch(`/api/toggle_favorite_sound`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ soundId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to toggle favorite sound");
+      }
+
+      const result = await response.json();
+
+      // Update the optimistic state with the actual result from the server
+      setOptimisticFavorites((prev) => ({
+        ...prev,
+        [soundId]: result.is_favorite,
+      }));
+
+      // Success toast
+      console.log(
+        `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`
+      );
+    } catch (error) {
+      console.error("Error toggling favorite sound:", error);
+
+      // Revert the optimistic update on error
+      setOptimisticFavorites((prev) => ({
+        ...prev,
+        [soundId]: currentFavoriteStatus,
+      }));
+
+      // Error toast
+    }
   };
 
   // Function to perform search
@@ -398,11 +457,17 @@ export default function SearchSoundsMenu() {
                 <div aria-label="buttons" className="flex flex-row justify-end">
                   <button
                     aria-label="save sound in favorites button"
+                    onClick={() => handleSaveSoundInFavorites(sound.id)}
                     className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700"
                   >
                     <Star
                       className={`w-5 h-5 ${
-                        sound.is_favorite
+                        // Use optimistic state if available, otherwise use original data
+                        (
+                          optimisticFavorites[sound.id] !== undefined
+                            ? optimisticFavorites[sound.id]
+                            : sound.is_favorite
+                        )
                           ? "text-yellow-200/80 fill-yellow-200/80"
                           : "text-yellow-200/70"
                       }`}
