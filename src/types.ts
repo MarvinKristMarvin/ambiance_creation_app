@@ -46,3 +46,23 @@ export interface SoundBasicInformations {
   volume: number;
   is_favorite: boolean;
 }
+
+// Toasts
+export type ToastType = "success" | "warning" | "error" | "info";
+
+export type ToastIcon =
+  | "star"
+  | "note"
+  | "ghost"
+  | "check"
+  | "warning"
+  | "error"
+  | "info";
+
+export interface ToastConfig {
+  id: string;
+  type: ToastType;
+  icon: ToastIcon;
+  message: string;
+  duration?: number;
+}

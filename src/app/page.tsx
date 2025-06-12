@@ -9,6 +9,7 @@ import SearchSoundsMenu from "@/components/SearchSoundsMenu";
 import SettingsMenu from "@/components/SettingsMenu";
 import SearchAmbianceMenu from "@/components/SearchAmbianceMenu";
 import AmbianceSettingsMenu from "@/components/AmbianceSettingsMenu";
+import ToastContainer from "@/components/ToastContainer";
 
 export default function Home() {
   // Zustand
@@ -66,6 +67,7 @@ export default function Home() {
           {<AmbianceSettingsMenu />}
         </Modal>
       )}
+      <ToastContainer />
     </main>
   );
 }

@@ -2,6 +2,7 @@ import { useGlobalStore } from "@/stores/useGlobalStore";
 import { Check, Star, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
+import { useShowToast } from "@/hooks/useShowToast";
 
 // Categories and types based on db
 const CATEGORIES = [
@@ -33,6 +34,9 @@ export default function SearchSoundsMenu() {
     (state) => state.setCurrentAmbiance
   );
   const globalVolume = useGlobalStore((state) => state.globalVolume);
+
+  // Toasts
+  const { ShowToast } = useShowToast();
 
   // Filtering states
   const [searchString, setSearchString] = useState("");
@@ -107,10 +111,17 @@ export default function SearchSoundsMenu() {
       }));
 
       // Success toast
+      ShowToast(
+        `${result.is_favorite ? "success" : "warning"}`,
+        "star",
+        `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`,
+        3000
+      );
       console.log(
         `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`
       );
     } catch (error) {
+      ShowToast("error", "error", "Failed to update favorites");
       console.error("Error toggling favorite sound:", error);
 
       // Revert the optimistic update on error
@@ -118,8 +129,6 @@ export default function SearchSoundsMenu() {
         ...prev,
         [soundId]: currentFavoriteStatus,
       }));
-
-      // Error toast
     }
   };
 
