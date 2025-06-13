@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   X,
   Info,
+  Music,
 } from "lucide-react";
 import { ToastType, ToastIcon } from "@/types";
 
@@ -30,7 +31,7 @@ const Toast: React.FC<ToastProps> = ({
   onClose,
   index,
   zIndex,
-  duration = 4000,
+  duration = 5000,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isInstantClose, setIsInstantClose] = useState(false);
@@ -93,6 +94,12 @@ const Toast: React.FC<ToastProps> = ({
     note: {
       component: FileText,
       color: "text-blue-200",
+      strokeWidth: 2,
+      fill: false,
+    },
+    music: {
+      component: Music,
+      color: "text-green-300",
       strokeWidth: 2,
       fill: false,
     },

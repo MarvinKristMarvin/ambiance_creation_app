@@ -202,6 +202,8 @@ export default function SearchSoundsMenu() {
         ...currentAmbiance,
         ambiance_sounds: [...currentAmbiance.ambiance_sounds, newAmbianceSound],
       });
+
+      ShowToast("success", "check", "Sound added to the ambiance");
     } catch (error) {
       console.error("Error adding sound to ambiance:", error);
     }

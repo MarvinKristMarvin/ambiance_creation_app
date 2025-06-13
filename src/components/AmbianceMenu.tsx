@@ -10,8 +10,10 @@ import {
   Star,
   Pencil,
 } from "lucide-react";
+import { useShowToast } from "@/hooks/useShowToast";
 
 export default function AmbianceMenu() {
+  const { ShowToast } = useShowToast();
   // Zustand
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const paused = useGlobalStore((state) => state.paused);
@@ -85,6 +87,7 @@ export default function AmbianceMenu() {
       if (result.success) {
         console.log("Ambiance saved successfully:", result.data);
         setSaveState("saved");
+        ShowToast("success", "star", "Ambiance saved successfully");
         // Optionally update the current ambiance with the returned data (including new ID)
         // setCurrentAmbiance(result.data);
       } else {

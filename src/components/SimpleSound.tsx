@@ -38,6 +38,8 @@ export default function SimpleSound({
   const [volume, setVolume] = useState(initialVolume);
   const [reverb, setReverb] = useState(initialReverb);
   const [direction, setDirection] = useState(initialDirection);
+  const [expanded, setExpanded] = useState(false);
+  const [hoverButton, setHoverButton] = useState(false);
 
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -104,11 +106,51 @@ export default function SimpleSound({
   return (
     <div
       aria-label={soundName + " sound"}
-      className="w-40 text-lg font-bold text-center text-gray-400 bg-gray-900 group hover:bg-gray-800"
+      className={`w-40 text-lg font-bold text-center bg-gray-900 text-gray-400 group  ${
+        expanded ? "h-full" : ""
+      }`}
     >
-      <div className="relative bg-blue-800 h-30">
-        <Image src={imagePath} alt={soundName} fill className="object-cover" />
-        <div className="absolute flex space-x-1 transition-opacity opacity-0 top-1 right-1 group-hover:opacity-100 duration-10">
+      <div className="relative bg-blue-800 h-38 group/image">
+        <Image
+          src={imagePath}
+          alt={soundName}
+          fill
+          className="object-cover hover:cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+        />
+
+        {/* Show “more options” or “less options” when image is hovered */}
+        <div
+          onClick={() => setExpanded(!expanded)}
+          className={`absolute bottom-0 left-0 right-0 flex items-center ${
+            hoverButton ? "justify-between" : "justify-center"
+          } rounded-full m-1.5 mb-2 px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity hover:cursor-pointer`}
+        >
+          {expanded && !hoverButton && <span>close</span>}
+          {!expanded && !hoverButton && <span>more options</span>}
+          {hoverButton && (
+            <>
+              <span>{soundName}</span>
+              <span>{number}</span>
+            </>
+          )}
+        </div>
+
+        {/* Hide original label when image is hovered */}
+        <div
+          onClick={() => setExpanded(!expanded)}
+          className="absolute bottom-0 left-0 right-0 flex items-center justify-between rounded-full m-1.5 mb-2 px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 group-hover/image:opacity-0 transition-opacity hover:cursor-pointer"
+        >
+          <span>{soundName}</span>
+          <span>{number}</span>
+        </div>
+
+        {/* Buttons visible only when image is hovered */}
+        <div
+          onMouseEnter={() => setHoverButton(true)}
+          onMouseLeave={() => setHoverButton(false)}
+          className="absolute flex space-x-1 transition-opacity opacity-0 top-1 right-1 group-hover/image:opacity-100 duration-10"
+        >
           <button
             aria-label="copy sound button"
             onClick={handleCopy}
@@ -127,85 +169,130 @@ export default function SimpleSound({
           </button>
         </div>
       </div>
-      <div className="flex items-center justify-between mx-4 mt-3">
-        <span className="text-xs text-gray-300">{soundName}</span>
-        <span className="text-xs text-gray-300">{number}</span>
-      </div>
 
-      <div className="flex items-center justify-between h-5 mx-4 mt-3">
-        <span className="text-xs text-gray-400">Volume</span>
-        <span className="text-xs text-gray-400">{volume}%</span>
-      </div>
-      <div className="px-4">
-        <div aria-label="volume slider" className="relative h-3">
-          {/* Track background */}
-          <div className="absolute inset-0 bg-emerald-900"></div>
-          {/* Filled portion */}
+      {!expanded && (
+        <div className="relative px-0 mt-0 group/slider">
+          <div aria-label="volume slider" className="relative h-2.5">
+            {/* Track background */}
+            <div className="absolute inset-0 bg-emerald-900"></div>
+            {/* Filled portion */}
+            <div
+              className="absolute inset-y-0 bg-emerald-400"
+              style={{ width: `${volume}%` }}
+            ></div>
+            {/* Invisible but functional input */}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={volume}
+              onChange={(e) => setVolume(Number(e.target.value))}
+              className="w-full h-8 opacity-0 cursor-pointer"
+            />
+          </div>
+          {/* Triangle indicator - only shows on hover*/}
           <div
-            className="absolute inset-y-0 bg-emerald-500"
-            style={{ width: `${volume}%` }}
-          ></div>
-          {/* Invisible but functional input */}
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={volume}
-            onChange={(e) => setVolume(Number(e.target.value))}
-            className="w-full opacity-0 cursor-pointer"
-          />
+            className="absolute mt-2 transition-opacity opacity-0 pointer-events-none duration-0 top-full group-hover/slider:opacity-100"
+            style={{ left: `calc(${volume}% - 4px)` }}
+          >
+            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-emerald-300"></div>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="flex items-center justify-between h-5 mx-4 mt-3">
-        <span className="text-xs text-gray-400">Reverb</span>
-        <span className="text-xs text-gray-400">{reverb}%</span>
-      </div>
-      <div className="px-4">
-        <div aria-label="reverb slider" className="relative h-3">
-          {/* Track background */}
-          <div className="absolute inset-0 bg-emerald-900"></div>
-          {/* Filled portion */}
+      {expanded && (
+        <div aria-label="expanded options">
           <div
-            className="absolute inset-y-0 bg-emerald-500"
-            style={{ width: `${reverb}%` }}
-          ></div>
-          {/* Invisible but functional input */}
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={reverb}
-            onChange={(e) => setReverb(Number(e.target.value))}
-            className="w-full opacity-0 cursor-pointer"
-          />
-        </div>
-      </div>
+            aria-label="volume"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Volume</span>
+              <span className="text-xs text-gray-400">{volume}%</span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="volume slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-emerald-900"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-emerald-500"
+                  style={{ width: `${volume}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={(e) => setVolume(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
 
-      <div className="flex items-center justify-between h-5 mx-4 mt-3">
-        <span className="text-xs text-gray-400">Direction</span>
-        <span className="text-xs text-gray-400">{direction}%</span>
-      </div>
-      <div className="px-4">
-        <div aria-label="direction slider" className="relative h-3">
-          {/* Track background */}
-          <div className="absolute inset-0 bg-emerald-900"></div>
-          {/* Filled portion */}
           <div
-            className="absolute inset-y-0 bg-emerald-500"
-            style={{ width: `${direction}%` }}
-          ></div>
-          {/* Invisible but functional input */}
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={direction}
-            onChange={(e) => setDirection(Number(e.target.value))}
-            className="w-full opacity-0 cursor-pointer"
-          />
+            aria-label="reverb"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Reverb</span>
+              <span className="text-xs text-gray-400">{reverb}%</span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="reverb slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-orange-950"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-orange-500"
+                  style={{ width: `${reverb}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={reverb}
+                  onChange={(e) => setReverb(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            aria-label="direction"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Direction</span>
+              <span className="text-xs text-gray-400">{direction}%</span>
+            </div>
+            <div className="px-2 mb-2">
+              <div aria-label="direction slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-stone-900"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-stone-400"
+                  style={{ width: `${direction}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={direction}
+                  onChange={(e) => setDirection(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {audioPaths[0] && (
         <audio

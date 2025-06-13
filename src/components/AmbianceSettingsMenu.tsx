@@ -39,10 +39,10 @@ export default function AmbianceSettingsMenu() {
         />
         <button
           aria-label="save button"
-          className="px-4 py-2 pl-3 text-sm font-bold text-gray-300 bg-gray-800 hover:bg-gray-700 hover:cursor-pointer"
+          className="px-4 py-2 pl-3 text-sm font-bold text-gray-200 bg-emerald-600 hover:bg-emerald-500 hover:cursor-pointer"
           onClick={handleSave}
         >
-          Save
+          Confirm
         </button>
       </div>
     </div>

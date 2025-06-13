@@ -53,6 +53,7 @@ export type ToastType = "success" | "warning" | "error" | "info";
 export type ToastIcon =
   | "star"
   | "note"
+  | "music"
   | "ghost"
   | "check"
   | "warning"

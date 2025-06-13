@@ -1,5 +1,5 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, ChevronDown, Star, X, Dot } from "lucide-react"; // global icons
+import { Check, ChevronDown, Star, X } from "lucide-react"; // global icons
 import {
   Leaf,
   PawPrint,
@@ -12,6 +12,7 @@ import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
 import React, { useState } from "react";
 import { useEffect } from "react";
 import type { Ambiance, AmbianceBasicInformations, Sound } from "@/types";
+import { useShowToast } from "@/hooks/useShowToast";
 
 // Categories and types based on db
 const CATEGORIES = [
@@ -84,6 +85,8 @@ function parsePostgresEnumArray(str: string | string[]): string[] {
 }
 
 export default function SearchAmbianceMenu() {
+  const { ShowToast } = useShowToast();
+
   // Zustand
   const setSearchedAmbiancesBasicInformations = useGlobalStore(
     (state) => state.setSearchedAmbiancesBasicInformations
@@ -213,6 +216,7 @@ export default function SearchAmbianceMenu() {
       setSoundsUsed(soundsData);
       console.log("Sounds used : ", soundsData);
       setSearchAmbianceMenu(false);
+      ShowToast("success", "music", "Ambiance loaded");
     } catch (error) {
       console.error("Error loading ambiance or sounds :", error);
     }
@@ -376,50 +380,53 @@ export default function SearchAmbianceMenu() {
               aria-label="ambiance found"
               key={ambiance.id}
               onClick={() => handleLoadAmbiance(ambiance.id)}
-              className="flex flex-col items-center px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
+              className="flex flex-col items-center px-2 py-2 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
             >
-              <div className="flex items-center justify-between w-full mb-1">
+              <div className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-t-sm border-2 border-b-0 border-gray-900">
                 <p className="text-sm text-gray-300">
                   {ambiance.ambiance_name}
                 </p>
-                <div className="flex items-center">
-                  <div className="flex items-center">
-                    <Star
-                      className={`w-4 h-4 ${
-                        ambiance.is_favorite
-                          ? "text-yellow-200/70"
-                          : "text-yellow-200/20"
-                      }`}
-                    />
-                    <span
-                      className={`pl-1 ${
-                        ambiance.is_favorite
-                          ? "text-yellow-200/70"
-                          : "text-yellow-200/20"
-                      }`}
-                    >
-                      27
-                    </span>
+                <div className="flex items-center"></div>
+              </div>
+              <div className="flex items-center justify-between w-full ">
+                <div className="flex items-center flex-1">
+                  <div className="flex flex-1 items-center gap-1 px-2.5 py-2 bg-gray-900 rounded-bl-sm">
+                    {parsePostgresEnumArray(ambiance.categories).map(
+                      (category) => (
+                        <React.Fragment key={category}>
+                          {getCategoryIcon(category as Category)}
+                        </React.Fragment>
+                      )
+                    )}
+
+                    {parsePostgresEnumArray(ambiance.themes).map((theme) => (
+                      <React.Fragment key={theme}>
+                        {getThemeIcon(theme as Theme)}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-1">
-                  {parsePostgresEnumArray(ambiance.categories).map(
-                    (category) => (
-                      <React.Fragment key={category}>
-                        {getCategoryIcon(category as Category)}
-                      </React.Fragment>
-                    )
-                  )}
-                  <Dot className="w-4 h-4 text-gray-600 mx-[-3px]" />
-                  {parsePostgresEnumArray(ambiance.themes).map((theme) => (
-                    <React.Fragment key={theme}>
-                      {getThemeIcon(theme as Theme)}
-                    </React.Fragment>
-                  ))}
+
+                <div className="flex items-center gap-1"></div>
+                {/* <p className="text-gray-600">12 Sounds</p> */}
+                <div className="flex items-center px-2.5 py-1.5 bg-gray-900 rounded-br-sm">
+                  <span
+                    className={`text-sm ${
+                      ambiance.is_favorite
+                        ? "text-yellow-200/70"
+                        : "text-yellow-200/20"
+                    }`}
+                  >
+                    27
+                  </span>
+                  <Star
+                    className={`ml-1 w-4 h-4 ${
+                      ambiance.is_favorite
+                        ? "text-yellow-200/70"
+                        : "text-yellow-200/20"
+                    }`}
+                  />
                 </div>
-                <p className="text-gray-600">12 Sounds</p>
               </div>
             </article>
           ))}

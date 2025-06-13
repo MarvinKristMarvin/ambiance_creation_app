@@ -4,6 +4,10 @@ import { useGlobalStore } from "@/stores/useGlobalStore";
 
 export default function Header() {
   const setSettingsMenu = useGlobalStore((state) => state.setSettingsMenu);
+  const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
+  const setCurrentAmbiance = useGlobalStore(
+    (state) => state.setCurrentAmbiance
+  );
 
   // after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-gray-800 after:to-transparent (tw classes to had into header to make a gradient border)
 
@@ -14,6 +18,7 @@ export default function Header() {
     >
       <h1
         aria-label="logo"
+        onClick={() => setCurrentAmbiance(null)}
         className="tracking-[-0] font-title font-mansalva text-4xl text-emerald-300 py-2 px-6
         hover:cursor-pointer flex items-center transform -translate-y-1"
       >
@@ -21,7 +26,7 @@ export default function Header() {
       </h1>
 
       <div className="absolute z-10 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
-        <AmbianceMenu />
+        {currentAmbiance && <AmbianceMenu />}
       </div>
 
       <button

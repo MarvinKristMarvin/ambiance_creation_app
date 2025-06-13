@@ -1,49 +1,23 @@
 "use client";
 
-import type { Ambiance, Sound } from "../types";
+import type { Ambiance } from "../types";
 import { useGlobalStore } from "@/stores/useGlobalStore";
+
+const defaultAmbiance: Ambiance = {
+  id: 0,
+  ambiance_name: "My new ambiance",
+  author_id: 0,
+  ambiance_sounds: [],
+};
 
 export default function Hero() {
   // Zustand
+  const setSearchAmbianceMenu = useGlobalStore(
+    (state) => state.setSearchAmbianceMenu
+  );
   const setCurrentAmbiance = useGlobalStore(
     (state) => state.setCurrentAmbiance
   );
-  const setSoundsUsed = useGlobalStore((state) => state.setSoundsUsed);
-
-  // Function to GET an ambiance and its sounds. Then GET used sounds default data
-  const loadAmbianceAndSounds = async () => {
-    try {
-      const loadedAmbiance = await fetch("/api/ambiances/1");
-      // If the response is not ok, throw an error (stops execution and go to catch)
-      if (!loadedAmbiance.ok) throw new Error("Failed to load ambiance");
-      // Data retrieved must be of type Ambiance
-      const data: Ambiance = await loadedAmbiance.json();
-      setCurrentAmbiance(data);
-      console.log("Ambiance loaded : ", data);
-
-      // Extract unique sound ids from the loaded ambiance
-      const soundIds = [
-        ...new Set(data.ambiance_sounds.map((sound) => sound.sound_id)),
-      ];
-
-      // Fetch sounds default data by their ids
-      const response = await fetch("/api/get_used_sounds", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ soundIds }),
-      });
-
-      // Put the sounds data in the zustand array soundsUsed
-      if (!response.ok) throw new Error("Failed to load sounds");
-      const soundsData: Sound[] = await response.json();
-      setSoundsUsed(soundsData);
-      console.log("Sounds used : ", soundsData);
-    } catch (error) {
-      console.error("Error loading ambiance or sounds :", error);
-    }
-  };
 
   return (
     <div
@@ -61,12 +35,15 @@ export default function Hero() {
           <button
             aria-label="load ambiance button"
             className="px-6 py-4 font-bold text-white rounded-full bg-emerald-600 hover:bg-emerald-500 hover:cursor-pointer text-md"
-            onClick={loadAmbianceAndSounds}
+            onClick={() => {
+              setSearchAmbianceMenu(true);
+            }}
           >
-            Load an ambiance
+            Find and modify an ambiance
           </button>
           <button
             aria-label="create ambiance button"
+            onClick={() => setCurrentAmbiance(defaultAmbiance)}
             className="px-6 py-4 font-bold text-white border rounded-full hover:bg-emerald-950 border-emerald-700 hover:cursor-pointer text-md"
           >
             Or create a new one
