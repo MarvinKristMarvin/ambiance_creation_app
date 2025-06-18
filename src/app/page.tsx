@@ -10,6 +10,8 @@ import SettingsMenu from "@/components/SettingsMenu";
 import SearchAmbianceMenu from "@/components/SearchAmbianceMenu";
 import AmbianceSettingsMenu from "@/components/AmbianceSettingsMenu";
 import ToastContainer from "@/components/ToastContainer";
+import * as Tone from "tone";
+import { useEffect } from "react";
 
 export default function Home() {
   // Zustand
@@ -32,6 +34,30 @@ export default function Home() {
   const setAmbianceSettingsMenu = useGlobalStore(
     (state) => state.setAmbianceSettingsMenu
   );
+
+  // Start Tone.js on first interaction
+  useEffect(() => {
+    const startAudioContext = async () => {
+      try {
+        await Tone.start();
+        console.log("✅ Tone.js started");
+        // Remove the event listeners after starting
+        window.removeEventListener("click", startAudioContext);
+        window.removeEventListener("touchstart", startAudioContext);
+      } catch (err) {
+        console.error("Failed to start Tone.js", err);
+      }
+    };
+
+    // Add once-only user interaction handlers
+    window.addEventListener("click", startAudioContext, { once: true });
+    window.addEventListener("touchstart", startAudioContext, { once: true });
+
+    return () => {
+      window.removeEventListener("click", startAudioContext);
+      window.removeEventListener("touchstart", startAudioContext);
+    };
+  }, []);
 
   // Show the hero component if there is no ambiance loaded, otherwise show the sounds component. manages modals too
   return (

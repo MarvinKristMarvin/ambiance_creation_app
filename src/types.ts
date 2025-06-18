@@ -12,6 +12,7 @@ export interface AmbianceSound {
   volume: number;
   reverb: number;
   direction: number;
+  repeat_delay: number[] | null;
 }
 
 export interface AmbianceBasicInformations {
@@ -34,6 +35,7 @@ export interface Sound {
   reverb: number;
   direction: number;
   category: string;
+  repeat_delay: number[] | null;
 }
 
 // Sound for display purposes in the search sounds menu

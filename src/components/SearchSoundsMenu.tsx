@@ -1,503 +1,485 @@
+"use client";
+
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, Star, ChevronDown } from "lucide-react";
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
-import { useShowToast } from "@/hooks/useShowToast";
+import { useEffect, useRef, useState } from "react";
+import { X, Copy } from "lucide-react";
+import * as Tone from "tone";
 
-// Categories and types based on db
-const CATEGORIES = [
-  "Elemental",
-  "Vegetation",
-  "Animals",
-  "Insects",
-  "Human",
-  "Objects",
-  "Music",
-  "Machines",
-] as const;
+interface Props {
+  imagePath: string;
+  audioPaths: string[];
+  soundName: string;
+  initialVolume: number;
+  initialReverb: number;
+  initialDirection?: number;
+  number: number;
+  id: number;
+  looping: boolean;
+  repeat_delay: number[] | null;
+}
 
-const THEMES = ["Spooky", "Aquatic", "Night"] as const;
-
-type Category = (typeof CATEGORIES)[number];
-type Theme = (typeof THEMES)[number];
-
-export default function SearchSoundsMenu() {
-  // Existing Zustand state
-  const setSearchedSoundsBasicInformations = useGlobalStore(
-    (state) => state.setSearchedSoundsBasicInformations
-  );
-  const searchedSoundsBasicInformations = useGlobalStore(
-    (state) => state.searchedSoundsBasicInformations
-  );
+export default function SimpleSound({
+  imagePath,
+  audioPaths,
+  soundName,
+  initialVolume,
+  initialReverb,
+  initialDirection,
+  number,
+  id,
+  looping,
+  repeat_delay,
+}: Props) {
+  const globalVolume = useGlobalStore((state) => state.globalVolume);
+  const paused = useGlobalStore((state) => state.paused);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const setCurrentAmbiance = useGlobalStore(
     (state) => state.setCurrentAmbiance
   );
-  const globalVolume = useGlobalStore((state) => state.globalVolume);
 
-  // Toasts
-  const { ShowToast } = useShowToast();
+  const [volume, setVolume] = useState(initialVolume);
+  const [reverb, setReverb] = useState(initialReverb);
+  const [direction, setDirection] = useState(initialDirection);
+  const [expanded, setExpanded] = useState(false);
+  const [hoverButton, setHoverButton] = useState(false);
 
-  // Filtering states
-  const [searchString, setSearchString] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
-  const [selectedThemes, setSelectedThemes] = useState<Theme[]>([]);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const playerRef = useRef<Tone.Player | null>(null);
+  const gainNodeRef = useRef<Tone.Gain | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // State to track optimistic updates for favorites
-  const [optimisticFavorites, setOptimisticFavorites] = useState<
-    Record<number, boolean>
-  >({});
-
-  // Function to build query string
-  const buildQueryString = () => {
-    const params = new URLSearchParams();
-
-    if (searchString.trim()) {
-      params.append("search", searchString.trim());
-    }
-
-    if (selectedCategory) {
-      params.append("category", selectedCategory);
-    }
-
-    if (selectedThemes.length > 0) {
-      selectedThemes.forEach((theme) => {
-        params.append("theme", theme);
-      });
-    }
-
-    return params.toString();
-  };
-
-  // Function to handle adding/removing sound from favorites
-  const handleSaveSoundInFavorites = async (soundId: number) => {
-    // Get current favorite status (either from optimistic state or original data)
-    const currentFavoriteStatus =
-      optimisticFavorites[soundId] !== undefined
-        ? optimisticFavorites[soundId]
-        : searchedSoundsBasicInformations.find((sound) => sound.id === soundId)
-            ?.is_favorite || false;
-
-    // Immediately update UI for better UX (optimistic update)
-    const newFavoriteStatus = !currentFavoriteStatus;
-    setOptimisticFavorites((prev) => ({
-      ...prev,
-      [soundId]: newFavoriteStatus,
-    }));
-
-    try {
-      const response = await fetch(`/api/toggle_favorite_sound`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ soundId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to toggle favorite sound");
-      }
-
-      const result = await response.json();
-
-      // Update the optimistic state with the actual result from the server
-      setOptimisticFavorites((prev) => ({
-        ...prev,
-        [soundId]: result.is_favorite,
-      }));
-
-      // Success toast
-      ShowToast(
-        `${result.is_favorite ? "success" : "warning"}`,
-        "star",
-        `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`,
-        3000
-      );
-      console.log(
-        `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`
-      );
-    } catch (error) {
-      ShowToast("error", "error", "Failed to update favorites");
-      console.error("Error toggling favorite sound:", error);
-
-      // Revert the optimistic update on error
-      setOptimisticFavorites((prev) => ({
-        ...prev,
-        [soundId]: currentFavoriteStatus,
-      }));
-    }
-  };
-
-  // Function to perform search
-  const performSearch = async () => {
-    const queryString = buildQueryString();
-    try {
-      const response = await fetch(
-        `/api/get_search_menu_sounds?${queryString}`
-      );
-      if (!response.ok)
-        throw new Error(
-          "Filtering search : Failed to fetch sounds basic informations which serve to display sounds in the search menu"
-        );
-      const data = await response.json();
-      setSearchedSoundsBasicInformations(data);
-    } catch (error) {
-      console.error("Error fetching sounds with filtering search:", error);
-    }
-  };
-
-  // Handle theme selection (multiple selection)
-  const handleThemeToggle = (theme: Theme) => {
-    setSelectedThemes((prev) =>
-      prev.includes(theme) ? prev.filter((t) => t !== theme) : [...prev, theme]
-    );
-  };
-
-  // Handle search input
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchString(e.target.value);
-  };
-
-  // Debounced search effect - triggers search 500ms after filter changes
+  // Initialize Tone.js player for looping sounds
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      performSearch();
-    }, 500);
+    if (!audioPaths[0] || !looping) return;
 
-    return () => clearTimeout(timeoutId);
-  }, [searchString, selectedCategory, selectedThemes]);
+    const gainNode = new Tone.Gain(
+      (volume / 100) * globalVolume
+    ).toDestination();
+    gainNodeRef.current = gainNode;
 
-  // Initial fetch on component mount
-  useEffect(() => {
-    performSearch();
-  }, []);
-
-  const handleAddSoundToAmbiance = async (soundId: number) => {
-    try {
-      console.log("Adding sound to ambiance:", soundId);
-      const res = await fetch(`/api/sound/${soundId}`);
-      if (!res.ok) throw new Error("Failed to fetch full sound data");
-      const loadedSound = await res.json();
-      console.log("Loaded sound:", loadedSound[0]);
-      if (!currentAmbiance) return;
-
-      const maxId = Math.max(
-        ...currentAmbiance.ambiance_sounds.map((s) => s.id),
-        0
-      );
-
-      const newAmbianceSound = {
-        id: maxId + 1,
-        sound_id: loadedSound[0].id,
-        volume: loadedSound[0].volume,
-        reverb: loadedSound[0].reverb,
-        direction: loadedSound[0].direction,
-      };
-
-      setCurrentAmbiance({
-        ...currentAmbiance,
-        ambiance_sounds: [...currentAmbiance.ambiance_sounds, newAmbianceSound],
-      });
-
-      ShowToast("success", "check", "Sound added to the ambiance");
-    } catch (error) {
-      console.error("Error adding sound to ambiance:", error);
-    }
-  };
-
-  let currentAudio: HTMLAudioElement | null = null;
-
-  const handlePlaySound = (soundId: number) => {
-    const sound = searchedSoundsBasicInformations.find((s) => s.id === soundId);
-
-    if (!sound || !sound.audio_paths || sound.audio_paths.length === 0) {
-      console.error("Sound not found or no audio paths available");
-      return;
-    }
-
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-    }
-
-    const randomIndex = Math.floor(Math.random() * sound.audio_paths.length);
-    const selectedAudioPath = sound.audio_paths[randomIndex];
-
-    if (sound.looping) {
-      playPartialAudio(selectedAudioPath, sound.volume);
-    } else {
-      playFullAudio(selectedAudioPath, sound.volume);
-    }
-
-    console.log(
-      `Playing ${sound.sound_name}: ${selectedAudioPath} at volume ${sound.volume}%`
-    );
-  };
-
-  const playFullAudio = (audioPath: string, volume: number) => {
-    const audio = new Audio(audioPath);
-    audio.volume = (volume / 100) * globalVolume;
-
-    audio.play().catch((error) => {
-      console.error("Error playing audio:", error);
-    });
-
-    currentAudio = audio;
-  };
-
-  const playPartialAudio = async (audioPath: string, volume: number) => {
-    try {
-      const headResponse = await fetch(audioPath, { method: "HEAD" });
-      const totalSize = parseInt(
-        headResponse.headers.get("content-length") || "0"
-      );
-
-      if (totalSize === 0) {
-        playFullAudio(audioPath, volume);
-        return;
-      }
-
-      const estimatedBytesFor3Seconds = Math.min(80000, totalSize);
-
-      const response = await fetch(audioPath, {
-        headers: {
-          Range: `bytes=0-${Math.floor(estimatedBytesFor3Seconds)}`,
-        },
-      });
-
-      if (!response.ok || response.status !== 206) {
-        playFullAudio(audioPath, volume);
-        return;
-      }
-
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const audio = new Audio(blobUrl);
-      audio.volume = (volume / 100) * globalVolume;
-
-      const cleanup = () => {
-        URL.revokeObjectURL(blobUrl);
-      };
-
-      audio.addEventListener("ended", cleanup);
-      audio.addEventListener("error", cleanup);
-
-      const timeoutId = setTimeout(() => {
-        if (audio && !audio.paused) {
-          audio.pause();
-          cleanup();
+    const player = new Tone.Player({
+      url: audioPaths[0],
+      loop: looping,
+      autostart: false,
+      onload: () => {
+        if (!paused) {
+          player.start();
         }
-      }, 3000);
+      },
+    }).connect(gainNode);
 
-      audio.play().catch((error) => {
-        console.error("Error playing partial audio:", error);
-        cleanup();
-      });
+    playerRef.current = player;
 
-      currentAudio = audio;
+    return () => {
+      player.dispose();
+      gainNode.dispose();
+    };
+  }, [audioPaths[0], looping]);
 
-      audio.addEventListener("ended", () => {
-        clearTimeout(timeoutId);
-      });
-    } catch (error) {
-      console.error("Error with partial audio playback:", error);
-      playFullAudio(audioPath, volume);
+  // Handle volume update for looping sounds
+  useEffect(() => {
+    if (gainNodeRef.current && looping) {
+      gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
     }
+  }, [volume, globalVolume, looping]);
+
+  // Handle play/pause for looping sounds
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !looping) return;
+
+    if (paused) {
+      if (player.state === "started") {
+        player.stop();
+      }
+    } else {
+      if (player.buffer.loaded) {
+        Tone.start().then(() => {
+          player.start();
+        });
+      }
+    }
+  }, [paused, looping]);
+
+  const handleRemove = () => {
+    if (!currentAmbiance) return;
+
+    const updatedSounds = currentAmbiance.ambiance_sounds.filter(
+      (sound) => sound.id !== id
+    );
+
+    setCurrentAmbiance({
+      ...currentAmbiance,
+      ambiance_sounds: updatedSounds,
+    });
   };
+
+  const handleCopy = () => {
+    if (!currentAmbiance) return;
+
+    const original = currentAmbiance.ambiance_sounds.find(
+      (sound) => sound.id === id
+    );
+    if (!original) return;
+
+    const maxId = Math.max(
+      ...currentAmbiance.ambiance_sounds.map((sound) => sound.id),
+      0
+    );
+
+    const newSound = {
+      ...original,
+      id: maxId + 1,
+    };
+
+    setCurrentAmbiance({
+      ...currentAmbiance,
+      ambiance_sounds: [...currentAmbiance.ambiance_sounds, newSound],
+    });
+  };
+
+  // Helper function to get random audio path
+  const getRandomAudioPath = () => {
+    if (audioPaths.length === 1) return audioPaths[0];
+    const randomIndex = Math.floor(Math.random() * audioPaths.length);
+    return audioPaths[randomIndex];
+  };
+
+  // Setup and play non-looping sounds with random audio selection
+  useEffect(() => {
+    if (!audioPaths.length || looping) return;
+
+    let currentPlayer: Tone.Player | null = null;
+
+    const playWithRandomDelay = () => {
+      if (paused) return;
+
+      // Dispose of previous player if it exists
+      if (currentPlayer) {
+        currentPlayer.dispose();
+      }
+
+      // Select random audio path
+      const randomAudioPath = getRandomAudioPath();
+
+      // Create new player with random audio
+      currentPlayer = new Tone.Player(randomAudioPath, () => {
+        // Called once the buffer is loaded
+        if (!paused && currentPlayer) {
+          currentPlayer.start();
+        }
+      }).toDestination();
+
+      currentPlayer.autostart = false;
+      currentPlayer.loop = false;
+      currentPlayer.volume.value = Tone.gainToDb((volume / 100) * globalVolume);
+
+      // Set up next play cycle
+      currentPlayer.onstop = () => {
+        const duration = currentPlayer?.buffer?.duration || 0;
+        const randomDelay = repeat_delay
+          ? Math.random() * (repeat_delay[1] - repeat_delay[0]) +
+            repeat_delay[0]
+          : 0;
+
+        const totalDelay = (duration + randomDelay) * 1000;
+
+        timeoutRef.current = setTimeout(playWithRandomDelay, totalDelay);
+      };
+
+      playerRef.current = currentPlayer;
+    };
+
+    // Start the first play
+    playWithRandomDelay();
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      if (currentPlayer) {
+        if (currentPlayer.state === "started") {
+          currentPlayer.stop();
+        }
+        currentPlayer.dispose();
+      }
+    };
+  }, [audioPaths, repeat_delay, paused, volume, globalVolume, looping]);
+
+  // Handle pause for non-looping sounds
+  useEffect(() => {
+    if (looping) return; // Skip for looping sounds, handled above
+
+    if (paused) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (playerRef.current) {
+        playerRef.current.stop();
+      }
+    }
+  }, [paused, looping]);
 
   return (
     <div
-      aria-label="search sounds menu"
-      className="p-0 pt-0 text-gray-300 bg-gray-800 rounded-md"
+      aria-label={soundName + " sound"}
+      className={`w-40 text-lg font-bold text-center bg-gray-900 text-gray-400 group  ${
+        expanded ? "h-full" : ""
+      }`}
     >
-      <div className="flex flex-col gap-2 mt-1 mb-2">
-        {/* Category Filter */}
-        <div className="relative">
-          <button
-            aria-label="category button"
-            onClick={() => {
-              setShowCategoryDropdown(!showCategoryDropdown);
-              setShowThemeDropdown(false);
-            }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm hover:bg-gray-600 hover:cursor-pointer"
-          >
-            <span>
-              {selectedCategory ? `Category: ${selectedCategory}` : "Category"}
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 transition-transform ${
-                showCategoryDropdown ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {showCategoryDropdown && (
-            <div className="absolute z-10 w-full mt-1 overflow-y-scroll bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5">
-              <button
-                onClick={() => {
-                  setSelectedCategory(null);
-                  setShowCategoryDropdown(false);
-                }}
-                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700"
-              >
-                All Categories
-              </button>
-              {CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setShowCategoryDropdown(false);
-                  }}
-                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 last:border-b-0 ${
-                    selectedCategory === category
-                      ? "text-emerald-400 bg-gray-700"
-                      : "text-gray-300"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Theme Filter */}
-        <div className="relative">
-          <button
-            aria-label="themes button"
-            onClick={() => {
-              setShowThemeDropdown(!showThemeDropdown);
-              setShowCategoryDropdown(false);
-            }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm hover:bg-gray-600 hover:cursor-pointer"
-          >
-            <span>
-              {selectedThemes.length > 0
-                ? `Themes: ${selectedThemes.join(", ")}`
-                : "Themes"}
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 transition-transform ${
-                showThemeDropdown ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {showThemeDropdown && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-scroll">
-              <button
-                onClick={() => {
-                  setSelectedThemes([]);
-                  setShowThemeDropdown(false);
-                }}
-                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700"
-              >
-                All Themes
-              </button>
-              {THEMES.map((theme) => (
-                <button
-                  key={theme}
-                  onClick={() => handleThemeToggle(theme)}
-                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
-                    selectedThemes.includes(theme)
-                      ? "text-emerald-400 bg-gray-700"
-                      : "text-gray-300"
-                  }`}
-                >
-                  <span>{theme}</span>
-                  {selectedThemes.includes(theme) && (
-                    <Check className="w-4 h-4" />
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Search Input */}
-      <div className="mb-2">
-        <input
-          type="text"
-          placeholder="Search a sound by name"
-          value={searchString}
-          onChange={handleSearchChange}
-          className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
+      <div className="relative bg-blue-800 h-38 group/image">
+        <Image
+          src={imagePath}
+          alt={soundName}
+          fill
+          className="object-cover hover:cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
         />
+
+        {/* Show "more options" or "less options" when image is hovered */}
+        <div
+          onClick={() => setExpanded(!expanded)}
+          className={`absolute bottom-0 left-0 right-0 flex items-center ${
+            hoverButton ? "justify-between" : "justify-center"
+          } rounded-full m-1.5 mb-2 px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity hover:cursor-pointer`}
+        >
+          {expanded && !hoverButton && <span>close</span>}
+          {!expanded && !hoverButton && <span>more options</span>}
+          {hoverButton && (
+            <>
+              <span>{soundName}</span>
+              <span>{number}</span>
+            </>
+          )}
+        </div>
+
+        {/* Hide original label when image is hovered */}
+        <div
+          onClick={() => setExpanded(!expanded)}
+          className="absolute bottom-0 left-0 right-0 flex items-center justify-between rounded-full m-1.5 mb-2 px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 group-hover/image:opacity-0 transition-opacity hover:cursor-pointer"
+        >
+          <span>{soundName}</span>
+          <span>{number}</span>
+        </div>
+
+        {/* Buttons visible only when image is hovered */}
+        <div
+          onMouseEnter={() => setHoverButton(true)}
+          onMouseLeave={() => setHoverButton(false)}
+          className="absolute flex space-x-1 transition-opacity opacity-0 top-1 right-1 group-hover/image:opacity-100 duration-10"
+        >
+          <button
+            aria-label="copy sound button"
+            onClick={handleCopy}
+            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
+            title="Copy sound"
+          >
+            <Copy size={14} />
+          </button>
+          <button
+            aria-label="remove sound button"
+            onClick={handleRemove}
+            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-red-700/60 hover:cursor-pointer"
+            title="Remove sound"
+          >
+            <X size={20} />
+          </button>
+        </div>
       </div>
 
-      <div aria-label="results" className="rounded-sm bg-gray-950">
-        {/* <p className="px-3 py-2 text-sm font-bold text-left text-gray-400 border-gray-900 bg-gray-950 border-b-1">
-          Results : {searchedSoundsBasicInformations.length} sound
-          {searchedSoundsBasicInformations.length !== 1 ? "s" : ""}
-        </p> */}
+      {!expanded && (
+        <div className="relative px-0 mt-0 group/slider">
+          <div aria-label="volume slider" className="relative h-2.5">
+            {/* Track background */}
+            <div className="absolute inset-0 bg-emerald-900"></div>
+            {/* Filled portion */}
+            <div
+              className="absolute inset-y-0 bg-emerald-400"
+              style={{ width: `${volume}%` }}
+            ></div>
+            {/* Invisible but functional input */}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={volume}
+              onChange={(e) => setVolume(Number(e.target.value))}
+              className="w-full h-8 opacity-0 cursor-pointer"
+            />
+          </div>
+          {/* Triangle indicator - only shows on hover*/}
+          <div
+            className="absolute mt-2 transition-opacity opacity-0 pointer-events-none duration-0 top-full group-hover/slider:opacity-100"
+            style={{ left: `calc(${volume}% - 4px)` }}
+          >
+            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-emerald-300"></div>
+          </div>
+        </div>
+      )}
 
-        <div className="flex flex-col gap-2 p-2 overflow-y-scroll h-80">
-          {searchedSoundsBasicInformations.map((sound) => (
-            <article
-              aria-label="sound found"
-              key={sound.id}
-              className="flex items-center bg-gray-800 rounded-sm"
-            >
-              <div className="overflow-hidden w-13 h-13">
-                <Image
-                  src={sound.image_path}
-                  alt={sound.sound_name}
-                  width={100}
-                  height={100}
-                  className="object-cover w-full h-full rounded-l-sm"
+      {expanded && (
+        <div aria-label="expanded options">
+          <div
+            aria-label="volume"
+            className="m-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Volume</span>
+              <span className="text-xs text-gray-400">{volume}%</span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="volume slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-emerald-900"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-emerald-500"
+                  style={{ width: `${volume}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={(e) => setVolume(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
                 />
               </div>
-              <div className="flex flex-row justify-between flex-1 rounded-r-md h-13">
-                <div
-                  aria-label="sound details"
-                  onClick={() => handlePlaySound(sound.id)}
-                  className="flex flex-col justify-center flex-1 gap-1 pl-2 hover:bg-gray-700 hover:cursor-pointer"
-                >
-                  <h3 className="text-xs font-bold text-gray-300">
-                    {sound.sound_name}
-                  </h3>
-                  <p className="text-xs font-bold text-gray-500">Listen</p>
-                </div>
-                <div aria-label="buttons" className="flex flex-row justify-end">
-                  <button
-                    aria-label="save sound in favorites button"
-                    onClick={() => handleSaveSoundInFavorites(sound.id)}
-                    className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700"
-                  >
-                    <Star
-                      className={`w-5 h-5 ${
-                        // Use optimistic state if available, otherwise use original data
-                        (
-                          optimisticFavorites[sound.id] !== undefined
-                            ? optimisticFavorites[sound.id]
-                            : sound.is_favorite
-                        )
-                          ? "text-yellow-200/80 fill-yellow-200/80"
-                          : "text-yellow-200/70"
-                      }`}
-                    />
-                  </button>
+            </div>
+          </div>
 
-                  <button
-                    aria-label="add the sound to the current ambiance button"
-                    onClick={() => handleAddSoundToAmbiance(sound.id)}
-                    className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700 rounded-r-md"
-                  >
-                    <Check className="w-5 h-5" />
-                  </button>
+          <div
+            aria-label="reverb"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Reverb</span>
+              <span className="text-xs text-gray-400">{reverb}%</span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="reverb slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-orange-950"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-orange-500"
+                  style={{ width: `${reverb}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={reverb}
+                  onChange={(e) => setReverb(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            aria-label="direction"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Direction</span>
+              <span className="text-xs text-gray-400">{direction}%</span>
+            </div>
+            <div className="px-2 mb-2">
+              <div aria-label="direction slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-stone-900"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-stone-400"
+                  style={{ width: `${direction}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={direction}
+                  onChange={(e) => setDirection(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {repeat_delay && (
+            <div
+              aria-label="Repeat delay"
+              className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+            >
+              <div className="flex items-center justify-between h-5 mx-2 mt-1">
+                <span className="text-xs text-gray-400">Repeat delay</span>
+                <span className="text-xs text-gray-400">
+                  {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
+                </span>
+              </div>
+              <div className="w-full px-2 mb-2">
+                <div className="flex items-center mt-1 text-xs">
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-12 px-2 py-1 bg-gray-800 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    value={repeat_delay[0]}
+                    onChange={(e) => {
+                      const newMin = Number(e.target.value);
+                      if (!currentAmbiance) return;
+
+                      const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                        (sound) =>
+                          sound.id === id
+                            ? {
+                                ...sound,
+                                repeat_delay: [newMin, repeat_delay[1]],
+                              }
+                            : sound
+                      );
+
+                      setCurrentAmbiance({
+                        ...currentAmbiance,
+                        ambiance_sounds: updatedSounds,
+                      });
+                    }}
+                  />
+                  <span className="mx-2 text-xs text-gray-600">to</span>
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-12.5 px-2 py-1 bg-gray-800 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    value={repeat_delay[1]}
+                    onChange={(e) => {
+                      const newMax = Number(e.target.value);
+                      if (!currentAmbiance) return;
+
+                      const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                        (sound) =>
+                          sound.id === id
+                            ? {
+                                ...sound,
+                                repeat_delay: [repeat_delay[0], newMax],
+                              }
+                            : sound
+                      );
+
+                      setCurrentAmbiance({
+                        ...currentAmbiance,
+                        ambiance_sounds: updatedSounds,
+                      });
+                    }}
+                  />
                 </div>
               </div>
-            </article>
-          ))}
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -22,7 +22,8 @@ export async function GET(request: Request) {
     'sound_id', asound.sound_id,
     'volume', asound.volume,
     'reverb', asound.reverb,
-    'direction', asound.direction
+    'direction', asound.direction,
+    'repeat_delay', asound.repeat_delay
   )) AS ambiance_sounds
 FROM ambiances a
 LEFT JOIN ambiances_sounds asound ON asound.ambiance_id = a.id

@@ -44,9 +44,11 @@ export default function Sounds() {
               soundName={matchingSound.sound_name}
               imagePath={matchingSound.image_path}
               audioPaths={matchingSound.audio_paths}
+              looping={matchingSound.looping}
               initialVolume={sound.volume}
               initialReverb={sound.reverb}
               initialDirection={sound.direction}
+              repeat_delay={sound.repeat_delay}
               number={number}
               id={sound.id}
             />

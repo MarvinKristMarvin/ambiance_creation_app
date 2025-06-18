@@ -91,6 +91,13 @@ TASKS
 - restyle sound card designs expanded and unexpanded
 - general styling and UX
 
+17/06/2025
+- add looping and repeat delay into db
+
+18/06/2025
+- add repeat delay functionnality for ponctual sounds
+
 TO DO
 - restyle the sound search menu like the search ambiance menu
+- use tone.js for new options
 

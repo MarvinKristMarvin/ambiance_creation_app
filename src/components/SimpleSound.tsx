@@ -4,6 +4,7 @@ import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { X, Copy } from "lucide-react";
+import * as Tone from "tone";
 
 interface Props {
   imagePath: string;
@@ -14,6 +15,8 @@ interface Props {
   initialDirection?: number;
   number: number;
   id: number;
+  looping: boolean;
+  repeat_delay: number[] | null;
 }
 
 export default function SimpleSound({
@@ -25,8 +28,9 @@ export default function SimpleSound({
   initialDirection,
   number,
   id,
+  looping,
+  repeat_delay,
 }: Props) {
-  // Zustand
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const paused = useGlobalStore((state) => state.paused);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
@@ -34,37 +38,69 @@ export default function SimpleSound({
     (state) => state.setCurrentAmbiance
   );
 
-  // States
   const [volume, setVolume] = useState(initialVolume);
   const [reverb, setReverb] = useState(initialReverb);
   const [direction, setDirection] = useState(initialDirection);
   const [expanded, setExpanded] = useState(false);
   const [hoverButton, setHoverButton] = useState(false);
 
-  // Refs
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playerRef = useRef<Tone.Player | null>(null);
+  const gainNodeRef = useRef<Tone.Gain | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // When volume or global volume changes, update the simple sound volume
+  // Initialize Tone.js player
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = (volume / 100) * globalVolume;
+    if (!audioPaths[0]) return;
+
+    const gainNode = new Tone.Gain(
+      (volume / 100) * globalVolume
+    ).toDestination();
+    gainNodeRef.current = gainNode;
+
+    const player = new Tone.Player({
+      url: audioPaths[0],
+      loop: looping,
+      autostart: false,
+      onload: () => {
+        if (!paused) {
+          player.start();
+        }
+      },
+    }).connect(gainNode);
+
+    playerRef.current = player;
+
+    return () => {
+      player.dispose();
+      gainNode.dispose();
+    };
+  }, [audioPaths[0], looping]);
+
+  // Handle volume update
+  useEffect(() => {
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
     }
   }, [volume, globalVolume]);
 
-  // Pause audio
+  // Handle play/pause
   useEffect(() => {
-    if (audioRef.current) {
-      if (!paused) {
-        audioRef.current.play().catch((e) => {
-          console.warn("Playback failed:", e);
+    const player = playerRef.current;
+    if (!player) return;
+
+    if (paused) {
+      if (player.state === "started") {
+        player.stop();
+      }
+    } else {
+      if (player.buffer.loaded) {
+        Tone.start().then(() => {
+          player.start();
         });
-      } else {
-        audioRef.current.pause();
       }
     }
   }, [paused]);
 
-  // Handler to remove the sound when clicking on its remove button, removing it from the current ambiance
   const handleRemove = () => {
     if (!currentAmbiance) return;
 
@@ -78,7 +114,6 @@ export default function SimpleSound({
     });
   };
 
-  // Handler to copy the sound when clicking on its copy button, adding it to the current ambiance
   const handleCopy = () => {
     if (!currentAmbiance) return;
 
@@ -102,6 +137,74 @@ export default function SimpleSound({
       ambiance_sounds: [...currentAmbiance.ambiance_sounds, newSound],
     });
   };
+
+  // Setup and play sound
+  useEffect(() => {
+    if (!audioPaths.length || looping) return;
+
+    let isCancelled = false;
+
+    const playWithRandomDelay = () => {
+      if (paused || isCancelled) return;
+
+      // Random audio path
+      const randomPath =
+        audioPaths[Math.floor(Math.random() * audioPaths.length)];
+
+      // Dispose previous player
+      if (playerRef.current) {
+        playerRef.current.dispose();
+      }
+
+      // Create new player
+      const player = new Tone.Player({
+        url: randomPath,
+        autostart: false,
+        onload: () => {
+          if (paused || isCancelled) return;
+
+          Tone.start().then(() => {
+            player.start();
+
+            const duration = player.buffer?.duration ?? 0;
+            const randomDelay = repeat_delay
+              ? Math.random() * (repeat_delay[1] - repeat_delay[0]) +
+                repeat_delay[0]
+              : 0;
+
+            const totalDelay = (duration + randomDelay) * 1000;
+
+            timeoutRef.current = setTimeout(playWithRandomDelay, totalDelay);
+          });
+        },
+      }).toDestination();
+
+      player.volume.value = Tone.gainToDb((volume / 100) * globalVolume);
+      playerRef.current = player;
+    };
+
+    playWithRandomDelay();
+
+    return () => {
+      isCancelled = true;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (playerRef.current) {
+        playerRef.current.stop();
+        playerRef.current.dispose();
+      }
+    };
+  }, [audioPaths, repeat_delay, paused, volume, globalVolume]);
+
+  useEffect(() => {
+    if (paused) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (playerRef.current) {
+        playerRef.current.stop();
+      }
+    }
+  }, [paused]);
 
   return (
     <div
@@ -204,7 +307,7 @@ export default function SimpleSound({
         <div aria-label="expanded options">
           <div
             aria-label="volume"
-            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="m-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Volume</span>
@@ -291,17 +394,76 @@ export default function SimpleSound({
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {audioPaths[0] && (
-        <audio
-          ref={audioRef}
-          src={audioPaths[0]}
-          loop
-          preload="auto"
-          style={{ display: "none" }}
-        />
+          {repeat_delay && (
+            <div
+              aria-label="Repeat delay"
+              className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+            >
+              <div className="flex items-center justify-between h-5 mx-2 mt-1">
+                <span className="text-xs text-gray-400">Repeat delay</span>
+                <span className="text-xs text-gray-400">
+                  {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
+                </span>
+              </div>
+              <div className="w-full px-2 mb-2">
+                <div className="flex items-center mt-1 text-xs">
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-12 px-2 py-1 bg-gray-800 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    value={repeat_delay[0]}
+                    onChange={(e) => {
+                      const newMin = Number(e.target.value);
+                      if (!currentAmbiance) return;
+
+                      const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                        (sound) =>
+                          sound.id === id
+                            ? {
+                                ...sound,
+                                repeat_delay: [newMin, repeat_delay[1]],
+                              }
+                            : sound
+                      );
+
+                      setCurrentAmbiance({
+                        ...currentAmbiance,
+                        ambiance_sounds: updatedSounds,
+                      });
+                    }}
+                  />
+                  <span className="mx-2 text-xs text-gray-600">to</span>
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-12.5 px-2 py-1 bg-gray-800 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    value={repeat_delay[1]}
+                    onChange={(e) => {
+                      const newMax = Number(e.target.value);
+                      if (!currentAmbiance) return;
+
+                      const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                        (sound) =>
+                          sound.id === id
+                            ? {
+                                ...sound,
+                                repeat_delay: [repeat_delay[0], newMax],
+                              }
+                            : sound
+                      );
+
+                      setCurrentAmbiance({
+                        ...currentAmbiance,
+                        ambiance_sounds: updatedSounds,
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

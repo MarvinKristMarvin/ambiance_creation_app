@@ -24,7 +24,9 @@ CREATE TABLE sounds (
   reverb INT,
   direction INT,
   category category,
-  themes theme[]
+  themes theme[],
+  -- Ponctual sounds options
+  repeat_delay DECIMAL[]
 );
 
 CREATE TABLE ambiances (
@@ -42,7 +44,8 @@ CREATE TABLE ambiances_sounds (
   sound_id INT NOT NULL REFERENCES sounds(id) ON DELETE CASCADE,
   volume INT,
   reverb INT,
-  direction INT
+  direction INT,
+  repeat_delay DECIMAL[]
 );
 
 CREATE TABLE user_has_favorite_sounds (
