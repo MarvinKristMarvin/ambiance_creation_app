@@ -12,7 +12,7 @@ interface Props {
   soundName: string;
   initialVolume: number;
   initialReverb: number;
-  initialDirection?: number;
+  initialDirection: number;
   number: number;
   id: number;
   looping: boolean;
@@ -39,23 +39,39 @@ export default function SimpleSound({
   );
 
   const [volume, setVolume] = useState(initialVolume);
-  const [reverb, setReverb] = useState(initialReverb);
+  const [reverbWet, setReverbWet] = useState(initialReverb);
+  const [reverbDecay, setReverbDecay] = useState(1.5);
+  const [reverbPreDelay, setReverbPreDelay] = useState(0.01);
   const [direction, setDirection] = useState(initialDirection);
   const [expanded, setExpanded] = useState(false);
   const [hoverButton, setHoverButton] = useState(false);
 
   const playerRef = useRef<Tone.Player | null>(null);
   const gainNodeRef = useRef<Tone.Gain | null>(null);
+  const reverbRef = useRef<Tone.Reverb | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pannerRef = useRef<Tone.Panner | null>(null);
 
-  // Initialize Tone.js player
+  // Non looping sounds
   useEffect(() => {
-    if (!audioPaths[0]) return;
+    if (!audioPaths[0] || !looping) return;
 
-    const gainNode = new Tone.Gain(
-      (volume / 100) * globalVolume
-    ).toDestination();
+    const gainNode = new Tone.Gain((volume / 100) * globalVolume);
+    const panner = new Tone.Panner(((direction ?? 50) - 50) / 50); // -1 to 1
+    const reverb = new Tone.Reverb({
+      decay: reverbDecay,
+      preDelay: reverbPreDelay,
+      wet: reverbWet / 100,
+    });
+
+    // Connect: gain -> reverb -> destination
+    gainNode.connect(panner);
+    panner.connect(reverb);
+    reverb.toDestination();
+
     gainNodeRef.current = gainNode;
+    reverbRef.current = reverb;
+    pannerRef.current = panner;
 
     const player = new Tone.Player({
       url: audioPaths[0],
@@ -73,20 +89,43 @@ export default function SimpleSound({
     return () => {
       player.dispose();
       gainNode.dispose();
+      panner.dispose();
+      reverb.dispose();
     };
   }, [audioPaths[0], looping]);
 
-  // Handle volume update
+  // Looping sounds
   useEffect(() => {
+    if (!looping) return;
+
     if (gainNodeRef.current) {
       gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
     }
-  }, [volume, globalVolume]);
 
-  // Handle play/pause
+    if (reverbRef.current) {
+      reverbRef.current.wet.value = reverbWet / 100;
+      reverbRef.current.decay = reverbDecay;
+      reverbRef.current.preDelay = reverbPreDelay;
+    }
+
+    if (pannerRef.current) {
+      // -1 to 1
+      pannerRef.current.pan.value = (direction - 50) / 50;
+    }
+  }, [
+    volume,
+    globalVolume,
+    direction,
+    reverbWet,
+    reverbDecay,
+    reverbPreDelay,
+    looping,
+  ]);
+
+  // Handle play/pause for looping sounds
   useEffect(() => {
     const player = playerRef.current;
-    if (!player) return;
+    if (!player || !looping) return;
 
     if (paused) {
       if (player.state === "started") {
@@ -99,7 +138,7 @@ export default function SimpleSound({
         });
       }
     }
-  }, [paused]);
+  }, [paused, looping]);
 
   const handleRemove = () => {
     if (!currentAmbiance) return;
@@ -138,7 +177,7 @@ export default function SimpleSound({
     });
   };
 
-  // Setup and play sound
+  // Setup and play sound for non-looping sounds
   useEffect(() => {
     if (!audioPaths.length || looping) return;
 
@@ -164,6 +203,8 @@ export default function SimpleSound({
           if (paused || isCancelled) return;
 
           Tone.start().then(() => {
+            if (paused || isCancelled) return; // Check again after async operation
+
             player.start();
 
             const duration = player.buffer?.duration ?? 0;
@@ -177,10 +218,27 @@ export default function SimpleSound({
             timeoutRef.current = setTimeout(playWithRandomDelay, totalDelay);
           });
         },
-      }).toDestination();
+      });
 
-      player.volume.value = Tone.gainToDb((volume / 100) * globalVolume);
+      // Create reverb and gain for non-looping sounds
+      const gainNode = new Tone.Gain((volume / 100) * globalVolume);
+      const panner = new Tone.Panner(((direction ?? 50) - 50) / 50); // -1 to 1
+      const reverb = new Tone.Reverb({
+        decay: reverbDecay,
+        preDelay: reverbPreDelay,
+        wet: reverbWet / 100,
+      });
+
+      // Connect: player -> gain -> reverb -> destination
+      player.connect(gainNode);
+      gainNode.connect(panner);
+      panner.connect(reverb);
+      reverb.toDestination();
+
       playerRef.current = player;
+      gainNodeRef.current = gainNode;
+      reverbRef.current = reverb;
+      pannerRef.current = panner;
     };
 
     playWithRandomDelay();
@@ -192,10 +250,55 @@ export default function SimpleSound({
         playerRef.current.stop();
         playerRef.current.dispose();
       }
+      if (gainNodeRef.current) {
+        gainNodeRef.current.dispose();
+      }
+      if (pannerRef.current) {
+        pannerRef.current.dispose();
+      }
+      if (reverbRef.current) {
+        reverbRef.current.dispose();
+      }
     };
-  }, [audioPaths, repeat_delay, paused, volume, globalVolume]);
+  }, [audioPaths, repeat_delay, paused]); // Removed volume and globalVolume from dependencies
 
   useEffect(() => {
+    if (pannerRef.current && direction !== undefined) {
+      const panValue = (direction - 50) / 50; // map 0–100 to -1 to 1
+      pannerRef.current.pan.value = panValue;
+    }
+  }, [direction]);
+
+  // Separate effect to handle volume and reverb changes for non-looping sounds
+  useEffect(() => {
+    if (
+      looping ||
+      !gainNodeRef.current ||
+      !reverbRef.current ||
+      !pannerRef.current
+    )
+      return;
+
+    // Update volume and reverb of current player
+    gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
+    pannerRef.current.pan.value = ((direction ?? 50) - 50) / 50;
+    reverbRef.current.wet.value = reverbWet / 100;
+    reverbRef.current.decay = reverbDecay;
+    reverbRef.current.preDelay = reverbPreDelay;
+  }, [
+    volume,
+    globalVolume,
+    direction,
+    reverbWet,
+    reverbDecay,
+    reverbPreDelay,
+    looping,
+  ]);
+
+  // Handle pause for non-looping sounds
+  useEffect(() => {
+    if (looping) return;
+
     if (paused) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -204,7 +307,7 @@ export default function SimpleSound({
         playerRef.current.stop();
       }
     }
-  }, [paused]);
+  }, [paused, looping]);
 
   return (
     <div
@@ -222,7 +325,7 @@ export default function SimpleSound({
           onClick={() => setExpanded(!expanded)}
         />
 
-        {/* Show “more options” or “less options” when image is hovered */}
+        {/* Show "more options" or "less options" when image is hovered */}
         <div
           onClick={() => setExpanded(!expanded)}
           className={`absolute bottom-0 left-0 right-0 flex items-center ${
@@ -336,29 +439,98 @@ export default function SimpleSound({
           </div>
 
           <div
-            aria-label="reverb"
+            aria-label="reverb wet"
             className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Reverb</span>
-              <span className="text-xs text-gray-400">{reverb}%</span>
+              <span className="text-xs text-gray-400">Reverb Mix</span>
+              <span className="text-xs text-gray-400">{reverbWet}%</span>
             </div>
             <div className="px-2 pb-2">
-              <div aria-label="reverb slider" className="relative h-1.5">
+              <div aria-label="reverb wet slider" className="relative h-1.5">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-orange-950"></div>
                 {/* Filled portion */}
                 <div
                   className="absolute inset-y-0 bg-orange-500"
-                  style={{ width: `${reverb}%` }}
+                  style={{ width: `${reverbWet}%` }}
                 ></div>
                 {/* Invisible but functional input */}
                 <input
                   type="range"
                   min="0"
                   max="100"
-                  value={reverb}
-                  onChange={(e) => setReverb(Number(e.target.value))}
+                  value={reverbWet}
+                  onChange={(e) => setReverbWet(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            aria-label="reverb decay"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Decay Time</span>
+              <span className="text-xs text-gray-400">
+                {reverbDecay.toFixed(1)}s
+              </span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="reverb decay slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-blue-950"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-blue-500"
+                  style={{ width: `${(reverbDecay / 10) * 100}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0.1"
+                  max="10"
+                  step="0.1"
+                  value={reverbDecay}
+                  onChange={(e) => setReverbDecay(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            aria-label="reverb pre-delay"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Pre-delay</span>
+              <span className="text-xs text-gray-400">
+                {Math.round(reverbPreDelay * 1000)}ms
+              </span>
+            </div>
+            <div className="px-2 pb-2">
+              <div
+                aria-label="reverb pre-delay slider"
+                className="relative h-1.5"
+              >
+                {/* Track background */}
+                <div className="absolute inset-0 bg-teal-950"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-teal-500"
+                  style={{ width: `${(reverbPreDelay / 0.1) * 100}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="0.1"
+                  step="0.001"
+                  value={reverbPreDelay}
+                  onChange={(e) => setReverbPreDelay(Number(e.target.value))}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
@@ -371,24 +543,54 @@ export default function SimpleSound({
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Direction</span>
-              <span className="text-xs text-gray-400">{direction}%</span>
+              <span className="text-xs text-gray-400">
+                {Math.round((direction * 0.02 - 1) * 10) / 10}
+              </span>
             </div>
             <div className="px-2 mb-2">
               <div aria-label="direction slider" className="relative h-1.5">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-stone-900"></div>
+
                 {/* Filled portion */}
                 <div
-                  className="absolute inset-y-0 bg-stone-400"
+                  className="absolute inset-y-0 bg-stone-900"
                   style={{ width: `${direction}%` }}
                 ></div>
-                {/* Invisible but functional input */}
+
+                {/* Fake slider handle */}
+                <div
+                  className="absolute w-2 h-1.5 -translate-y-1/2 bg-stone-400 top-1/2"
+                  style={{
+                    left: `calc(${direction}% - (${direction}/100 * 8px))`,
+                  }}
+                ></div>
+
+                {/* Transparent range slider with styled thumb */}
                 <input
                   type="range"
                   min="0"
                   max="100"
+                  step="5"
                   value={direction}
-                  onChange={(e) => setDirection(Number(e.target.value))}
+                  onChange={(e) => {
+                    setDirection(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              direction: direction,
+                            }
+                          : sound
+                    );
+
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
@@ -401,7 +603,7 @@ export default function SimpleSound({
               className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
             >
               <div className="flex items-center justify-between h-5 mx-2 mt-1">
-                <span className="text-xs text-gray-400">Repeat delay</span>
+                <span className="text-xs text-gray-400">Plays every</span>
                 <span className="text-xs text-gray-400">
                   {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
                 </span>

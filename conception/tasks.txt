@@ -95,9 +95,22 @@ TASKS
 - add looping and repeat delay into db
 
 18/06/2025
+- use tone.js for new options
 - add repeat delay functionnality for ponctual sounds
 
-TO DO
-- restyle the sound search menu like the search ambiance menu
-- use tone.js for new options
+19/06/2025
+- reverb with tonejs (decay, wet)
+- panning (direction) woth tonejs
+- correct errors when changing slider of ponctual sounds (changing volumme or global volume stops the audio)
+- refactor simple sound component a bit
 
+PLANNED TODAY
+- correct the fact that moving sliders of a ponctual sound does not update the next audio that will play (returns to default options(maybe audio should take sliders values instead of initial values when starting))
+
+TO DO
+- correct the fact that moving sliders of a ponctual sound does not update the next audio that will play (returns to default options(maybe audio should take sliders values instead of initial values when starting))
+- restyle the sound search menu like the search ambiance menu
+- pitch up and down + don't change pitch when changing speed option
+- speed
+- equalizer with 2 sliders (remove low, remove high)
+- study stereo vs mono sounds
