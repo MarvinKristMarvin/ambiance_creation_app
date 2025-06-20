@@ -9,7 +9,7 @@ VALUES
     true,
     80,
     0,
-    0,
+    50,
     'Elemental',
     ARRAY['Aquatic']::theme[],
     null
@@ -21,7 +21,7 @@ VALUES
     true,
     50,
     0,
-    0,
+    50,
     'Animals',
     ARRAY['Night', 'Spooky']::theme[],
     null
@@ -33,7 +33,7 @@ VALUES
     false,
     50,
     0,
-    0,
+    50,
     'Human',
     ARRAY['Night']::theme[],
     -- repeat delay in seconds 1.5 to 10
@@ -65,12 +65,12 @@ VALUES (
 -- link the sounds to the ambiance
 INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, direction, repeat_delay)
 VALUES 
-  (1, 1, 50, 0, 0, null),
-  (1, 1, 30, 0, 0, null),
-  (1, 2, 10, 0, 0, null),
-  (2, 1, 50, 0, 0, null),
-  (2, 3, 50, 0, 0, ARRAY[0, 5.5]::DECIMAL[]),
-  (3, 1, 80, 0, 0, null);
+  (1, 1, 50, 0, 50, null),
+  (1, 1, 30, 0, 50, null),
+  (1, 2, 10, 0, 50, null),
+  (2, 1, 50, 0, 50, null),
+  (2, 3, 50, 0, 50, ARRAY[15, 30]::DECIMAL[]),
+  (3, 1, 80, 0, 50, null);
 
 INSERT INTO user_has_favorite_sounds (user_id, sound_id)
 VALUES

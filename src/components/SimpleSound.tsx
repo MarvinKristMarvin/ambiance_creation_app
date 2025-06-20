@@ -2,7 +2,7 @@
 
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { X, Copy } from "lucide-react";
 import * as Tone from "tone";
 
@@ -41,60 +41,125 @@ export default function SimpleSound({
   const [volume, setVolume] = useState(initialVolume);
   const [reverbWet, setReverbWet] = useState(initialReverb);
   const [reverbDecay, setReverbDecay] = useState(1.5);
-  const [reverbPreDelay, setReverbPreDelay] = useState(0.01);
   const [direction, setDirection] = useState(initialDirection);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [expanded, setExpanded] = useState(false);
   const [hoverButton, setHoverButton] = useState(false);
+  const [lowGain, setLowGain] = useState(0);
+  const [midGain, setMidGain] = useState(0);
+  const [highGain, setHighGain] = useState(0);
 
+  // Tone.js Refs
   const playerRef = useRef<Tone.Player | null>(null);
   const gainNodeRef = useRef<Tone.Gain | null>(null);
   const reverbRef = useRef<Tone.Reverb | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pannerRef = useRef<Tone.Panner | null>(null);
+  const eqRef = useRef<Tone.EQ3 | null>(null);
 
-  // Non looping sounds
+  // Options Refs
+  const volumeRef = useRef(volume);
+  const directionRef = useRef(direction);
+  const reverbWetRef = useRef(reverbWet);
+  const reverbDecayRef = useRef(reverbDecay);
+  const playbackRateRef = useRef(playbackRate);
+  const lowGainRef = useRef(0);
+  const midGainRef = useRef(0);
+  const highGainRef = useRef(0);
+
   useEffect(() => {
-    if (!audioPaths[0] || !looping) return;
+    volumeRef.current = volume;
+  }, [volume]);
 
+  useEffect(() => {
+    directionRef.current = direction;
+  }, [direction]);
+
+  useEffect(() => {
+    reverbWetRef.current = reverbWet;
+  }, [reverbWet]);
+
+  useEffect(() => {
+    reverbDecayRef.current = reverbDecay;
+  }, [reverbDecay]);
+
+  useEffect(() => {
+    playbackRateRef.current = playbackRate;
+  }, [playbackRate]);
+
+  useEffect(() => {
+    lowGainRef.current = lowGain;
+  }, [lowGain]);
+
+  useEffect(() => {
+    midGainRef.current = midGain;
+  }, [midGain]);
+
+  useEffect(() => {
+    highGainRef.current = highGain;
+  }, [highGain]);
+
+  // PONCTUAL SOUNDS SETUP AND PLAYBACK
+  useEffect(() => {
+    if (!audioPaths[0] || !looping) return; // Only run this if there's an audio path and it's looping
+
+    // Create a gain node (volume control)
     const gainNode = new Tone.Gain((volume / 100) * globalVolume);
-    const panner = new Tone.Panner(((direction ?? 50) - 50) / 50); // -1 to 1
-    const reverb = new Tone.Reverb({
-      decay: reverbDecay,
-      preDelay: reverbPreDelay,
-      wet: reverbWet / 100,
+
+    // Create a panner node (for stereo left-right direction)
+    const panner = new Tone.Panner((direction - 50) / 50); // Normalize from [0–100] to [-1–1]
+
+    // Create EQ
+    const eq = new Tone.EQ3({
+      low: lowGain,
+      mid: midGain,
+      high: highGain,
     });
 
-    // Connect: gain -> reverb -> destination
+    // Create a reverb effect with some configuration
+    const reverb = new Tone.Reverb({
+      decay: reverbDecay + 0.001, // how long the reverb lasts
+      wet: reverbWet / 100, // how much reverb to mix in (0–1)
+    });
+
+    // Connect the audio nodes together: Gain → Panner → Reverb → Speakers
     gainNode.connect(panner);
-    panner.connect(reverb);
+    panner.connect(eq);
+    eq.connect(reverb);
     reverb.toDestination();
 
+    // Save references to nodes so we can update/dispose them later
     gainNodeRef.current = gainNode;
     reverbRef.current = reverb;
     pannerRef.current = panner;
+    eqRef.current = eq;
 
+    // Create the actual audio player
     const player = new Tone.Player({
       url: audioPaths[0],
       loop: looping,
       autostart: false,
       onload: () => {
         if (!paused) {
-          player.start();
+          player.start(); // Start playback once loaded, unless paused
         }
       },
-    }).connect(gainNode);
+    }).connect(gainNode); // connect the player to our gain node
 
-    playerRef.current = player;
+    player.playbackRate = playbackRate;
+    playerRef.current = player; // save reference to the player
 
+    // Clean up everything when component unmounts or dependencies change
     return () => {
       player.dispose();
       gainNode.dispose();
       panner.dispose();
       reverb.dispose();
+      eq.dispose();
     };
   }, [audioPaths[0], looping]);
 
-  // Looping sounds
+  // Looping sounds updates when slider changes
   useEffect(() => {
     if (!looping) return;
 
@@ -104,13 +169,21 @@ export default function SimpleSound({
 
     if (reverbRef.current) {
       reverbRef.current.wet.value = reverbWet / 100;
-      reverbRef.current.decay = reverbDecay;
-      reverbRef.current.preDelay = reverbPreDelay;
+      reverbRef.current.decay = reverbDecay + 0.001;
     }
 
     if (pannerRef.current) {
-      // -1 to 1
-      pannerRef.current.pan.value = (direction - 50) / 50;
+      pannerRef.current.pan.value = (direction - 50) / 50; // -1 to 1
+    }
+
+    if (playerRef.current) {
+      playerRef.current.playbackRate = playbackRate;
+    }
+
+    if (eqRef.current) {
+      eqRef.current.low.value = lowGain;
+      eqRef.current.mid.value = midGain;
+      eqRef.current.high.value = highGain;
     }
   }, [
     volume,
@@ -118,8 +191,11 @@ export default function SimpleSound({
     direction,
     reverbWet,
     reverbDecay,
-    reverbPreDelay,
     looping,
+    playbackRate,
+    lowGain,
+    midGain,
+    highGain,
   ]);
 
   // Handle play/pause for looping sounds
@@ -177,7 +253,7 @@ export default function SimpleSound({
     });
   };
 
-  // Setup and play sound for non-looping sounds
+  // PONCTUAL SOUNDS SETUP AND PLAYBACK
   useEffect(() => {
     if (!audioPaths.length || looping) return;
 
@@ -186,11 +262,11 @@ export default function SimpleSound({
     const playWithRandomDelay = () => {
       if (paused || isCancelled) return;
 
-      // Random audio path
+      // Choose a random audio file from the list
       const randomPath =
         audioPaths[Math.floor(Math.random() * audioPaths.length)];
 
-      // Dispose previous player
+      // Clean up any existing player
       if (playerRef.current) {
         playerRef.current.dispose();
       }
@@ -202,47 +278,60 @@ export default function SimpleSound({
         onload: () => {
           if (paused || isCancelled) return;
 
+          // Start audio context and play the sound
           Tone.start().then(() => {
-            if (paused || isCancelled) return; // Check again after async operation
+            if (paused || isCancelled) return;
 
             player.start();
 
+            // Calculate total delay until next sound plays
             const duration = player.buffer?.duration ?? 0;
             const randomDelay = repeat_delay
               ? Math.random() * (repeat_delay[1] - repeat_delay[0]) +
                 repeat_delay[0]
               : 0;
 
-            const totalDelay = (duration + randomDelay) * 1000;
+            const totalDelay =
+              (duration * (1 / playbackRateRef.current) + randomDelay) * 1000;
 
             timeoutRef.current = setTimeout(playWithRandomDelay, totalDelay);
           });
         },
       });
 
-      // Create reverb and gain for non-looping sounds
-      const gainNode = new Tone.Gain((volume / 100) * globalVolume);
-      const panner = new Tone.Panner(((direction ?? 50) - 50) / 50); // -1 to 1
+      player.playbackRate = playbackRateRef.current;
+
+      // Create gain, panner, and reverb nodes
+      const gainNode = new Tone.Gain((volumeRef.current / 100) * globalVolume);
+      const panner = new Tone.Panner(((directionRef.current ?? 50) - 50) / 50);
       const reverb = new Tone.Reverb({
-        decay: reverbDecay,
-        preDelay: reverbPreDelay,
-        wet: reverbWet / 100,
+        decay: reverbDecayRef.current + 0.001,
+        wet: reverbWetRef.current / 100,
+      });
+      const eq = new Tone.EQ3({
+        low: lowGainRef.current,
+        mid: midGainRef.current,
+        high: highGainRef.current,
       });
 
-      // Connect: player -> gain -> reverb -> destination
+      // Connect nodes: Player → Gain → Panner → Reverb → Output
       player.connect(gainNode);
       gainNode.connect(panner);
-      panner.connect(reverb);
+      panner.connect(eq);
+      eq.connect(reverb);
       reverb.toDestination();
 
+      // Save refs
       playerRef.current = player;
       gainNodeRef.current = gainNode;
       reverbRef.current = reverb;
       pannerRef.current = panner;
+      eqRef.current = eq;
     };
 
-    playWithRandomDelay();
+    playWithRandomDelay(); // Start the audio
 
+    // Cleanup on unmount
     return () => {
       isCancelled = true;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -250,24 +339,12 @@ export default function SimpleSound({
         playerRef.current.stop();
         playerRef.current.dispose();
       }
-      if (gainNodeRef.current) {
-        gainNodeRef.current.dispose();
-      }
-      if (pannerRef.current) {
-        pannerRef.current.dispose();
-      }
-      if (reverbRef.current) {
-        reverbRef.current.dispose();
-      }
+      if (gainNodeRef.current) gainNodeRef.current.dispose();
+      if (pannerRef.current) pannerRef.current.dispose();
+      if (reverbRef.current) reverbRef.current.dispose();
+      if (eqRef.current) eqRef.current.dispose();
     };
-  }, [audioPaths, repeat_delay, paused]); // Removed volume and globalVolume from dependencies
-
-  useEffect(() => {
-    if (pannerRef.current && direction !== undefined) {
-      const panValue = (direction - 50) / 50; // map 0–100 to -1 to 1
-      pannerRef.current.pan.value = panValue;
-    }
-  }, [direction]);
+  }, [audioPaths, repeat_delay, paused]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
 
   // Separate effect to handle volume and reverb changes for non-looping sounds
   useEffect(() => {
@@ -275,7 +352,9 @@ export default function SimpleSound({
       looping ||
       !gainNodeRef.current ||
       !reverbRef.current ||
-      !pannerRef.current
+      !pannerRef.current ||
+      !playerRef.current ||
+      !eqRef.current
     )
       return;
 
@@ -283,16 +362,22 @@ export default function SimpleSound({
     gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
     pannerRef.current.pan.value = ((direction ?? 50) - 50) / 50;
     reverbRef.current.wet.value = reverbWet / 100;
-    reverbRef.current.decay = reverbDecay;
-    reverbRef.current.preDelay = reverbPreDelay;
+    reverbRef.current.decay = reverbDecay + 0.001;
+    playerRef.current.playbackRate = playbackRate;
+    eqRef.current.low.value = lowGain;
+    eqRef.current.mid.value = midGain;
+    eqRef.current.high.value = highGain;
   }, [
     volume,
     globalVolume,
     direction,
     reverbWet,
     reverbDecay,
-    reverbPreDelay,
     looping,
+    playbackRate,
+    lowGain,
+    midGain,
+    highGain,
   ]);
 
   // Handle pause for non-looping sounds
@@ -330,7 +415,7 @@ export default function SimpleSound({
           onClick={() => setExpanded(!expanded)}
           className={`absolute bottom-0 left-0 right-0 flex items-center ${
             hoverButton ? "justify-between" : "justify-center"
-          } rounded-full m-1.5 mb-2 px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity hover:cursor-pointer`}
+          } px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity hover:cursor-pointer`}
         >
           {expanded && !hoverButton && <span>close</span>}
           {!expanded && !hoverButton && <span>more options</span>}
@@ -345,7 +430,7 @@ export default function SimpleSound({
         {/* Hide original label when image is hovered */}
         <div
           onClick={() => setExpanded(!expanded)}
-          className="absolute bottom-0 left-0 right-0 flex items-center justify-between rounded-full m-1.5 mb-2 px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 group-hover/image:opacity-0 transition-opacity hover:cursor-pointer"
+          className="absolute bottom-0 left-0 right-0 flex items-center justify-between  px-2 py-1.5 text-xs text-gray-200 bg-black/40 group-hover/image:opacity-0 transition-opacity hover:cursor-pointer"
         >
           <span>{soundName}</span>
           <span>{number}</span>
@@ -380,7 +465,7 @@ export default function SimpleSound({
         <div className="relative px-0 mt-0 group/slider">
           <div aria-label="volume slider" className="relative h-2.5">
             {/* Track background */}
-            <div className="absolute inset-0 bg-emerald-900"></div>
+            <div className="absolute inset-0 bg-emerald-800"></div>
             {/* Filled portion */}
             <div
               className="absolute inset-y-0 bg-emerald-400"
@@ -439,110 +524,11 @@ export default function SimpleSound({
           </div>
 
           <div
-            aria-label="reverb wet"
-            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Reverb Mix</span>
-              <span className="text-xs text-gray-400">{reverbWet}%</span>
-            </div>
-            <div className="px-2 pb-2">
-              <div aria-label="reverb wet slider" className="relative h-1.5">
-                {/* Track background */}
-                <div className="absolute inset-0 bg-orange-950"></div>
-                {/* Filled portion */}
-                <div
-                  className="absolute inset-y-0 bg-orange-500"
-                  style={{ width: `${reverbWet}%` }}
-                ></div>
-                {/* Invisible but functional input */}
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={reverbWet}
-                  onChange={(e) => setReverbWet(Number(e.target.value))}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div
-            aria-label="reverb decay"
-            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Decay Time</span>
-              <span className="text-xs text-gray-400">
-                {reverbDecay.toFixed(1)}s
-              </span>
-            </div>
-            <div className="px-2 pb-2">
-              <div aria-label="reverb decay slider" className="relative h-1.5">
-                {/* Track background */}
-                <div className="absolute inset-0 bg-blue-950"></div>
-                {/* Filled portion */}
-                <div
-                  className="absolute inset-y-0 bg-blue-500"
-                  style={{ width: `${(reverbDecay / 10) * 100}%` }}
-                ></div>
-                {/* Invisible but functional input */}
-                <input
-                  type="range"
-                  min="0.1"
-                  max="10"
-                  step="0.1"
-                  value={reverbDecay}
-                  onChange={(e) => setReverbDecay(Number(e.target.value))}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div
-            aria-label="reverb pre-delay"
-            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Pre-delay</span>
-              <span className="text-xs text-gray-400">
-                {Math.round(reverbPreDelay * 1000)}ms
-              </span>
-            </div>
-            <div className="px-2 pb-2">
-              <div
-                aria-label="reverb pre-delay slider"
-                className="relative h-1.5"
-              >
-                {/* Track background */}
-                <div className="absolute inset-0 bg-teal-950"></div>
-                {/* Filled portion */}
-                <div
-                  className="absolute inset-y-0 bg-teal-500"
-                  style={{ width: `${(reverbPreDelay / 0.1) * 100}%` }}
-                ></div>
-                {/* Invisible but functional input */}
-                <input
-                  type="range"
-                  min="0"
-                  max="0.1"
-                  step="0.001"
-                  value={reverbPreDelay}
-                  onChange={(e) => setReverbPreDelay(Number(e.target.value))}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div
             aria-label="direction"
             className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Direction</span>
+              <span className="text-xs text-gray-400">Left / Right</span>
               <span className="text-xs text-gray-400">
                 {Math.round((direction * 0.02 - 1) * 10) / 10}
               </span>
@@ -597,6 +583,156 @@ export default function SimpleSound({
             </div>
           </div>
 
+          <div
+            aria-label="speed"
+            className="m-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Speed</span>
+              <span className="text-xs text-gray-400">x{playbackRate}</span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="playbackRate slider" className="relative h-1.5">
+                <div className="absolute inset-0 bg-blue-950"></div>
+                <div
+                  className="absolute inset-y-0 bg-blue-400"
+                  style={{ width: `${((playbackRate - 0.1) / 2.9) * 100}%` }}
+                ></div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="3"
+                  step="0.1"
+                  value={playbackRate}
+                  onChange={(e) => setPlaybackRate(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            aria-label="reverb"
+            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Reverb</span>
+              <span className="text-xs text-gray-400">{reverbWet}%</span>
+            </div>
+            <div className="px-2 pb-1">
+              <div aria-label="reverb wet slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-orange-950"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-orange-400"
+                  style={{ width: `${reverbWet}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={reverbWet}
+                  onChange={(e) => setReverbWet(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Length</span>
+              <span className="text-xs text-gray-400">
+                {reverbDecay.toFixed(1)}s
+              </span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="reverb decay slider" className="relative h-1.5">
+                {/* Track background */}
+                <div className="absolute inset-0 bg-orange-950"></div>
+                {/* Filled portion */}
+                <div
+                  className="absolute inset-y-0 bg-orange-400"
+                  style={{ width: `${(reverbDecay / 10) * 100}%` }}
+                ></div>
+                {/* Invisible but functional input */}
+                <input
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  value={reverbDecay}
+                  onChange={(e) => setReverbDecay(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+          {/* Equalizer */}
+          <div className="m-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950">
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Low</span>
+              <span className="text-xs text-gray-400">{lowGain}dB</span>
+            </div>
+            <div className="px-2 pb-1">
+              <div aria-label="low slider" className="relative h-1.5">
+                <div className="absolute inset-0 bg-rose-950"></div>
+                <div
+                  className="absolute inset-y-0 bg-rose-400"
+                  style={{ width: `${((lowGain + 40) / 80) * 100}%` }}
+                ></div>
+                <input
+                  type="range"
+                  min={-40}
+                  max={40}
+                  value={lowGain}
+                  onChange={(e) => setLowGain(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Mid</span>
+              <span className="text-xs text-gray-400">{midGain}dB</span>
+            </div>
+            <div className="px-2 pb-1">
+              <div aria-label="mid slider" className="relative h-1.5">
+                <div className="absolute inset-0 bg-rose-950"></div>
+                <div
+                  className="absolute inset-y-0 bg-rose-400"
+                  style={{ width: `${((midGain + 40) / 80) * 100}%` }}
+                ></div>
+                <input
+                  type="range"
+                  min={-40}
+                  max={40}
+                  value={midGain}
+                  onChange={(e) => setMidGain(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">High</span>
+              <span className="text-xs text-gray-400">{highGain}dB</span>
+            </div>
+            <div className="px-2 pb-2">
+              <div aria-label="high slider" className="relative h-1.5">
+                <div className="absolute inset-0 bg-rose-950"></div>
+                <div
+                  className="absolute inset-y-0 bg-rose-400"
+                  style={{ width: `${((highGain + 40) / 80) * 100}%` }}
+                ></div>
+                <input
+                  type="range"
+                  min={-40}
+                  max={40}
+                  value={highGain}
+                  onChange={(e) => setHighGain(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
           {repeat_delay && (
             <div
               aria-label="Repeat delay"
@@ -605,7 +741,7 @@ export default function SimpleSound({
               <div className="flex items-center justify-between h-5 mx-2 mt-1">
                 <span className="text-xs text-gray-400">Plays every</span>
                 <span className="text-xs text-gray-400">
-                  {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
+                  &#177; {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
                 </span>
               </div>
               <div className="w-full px-2 mb-2">
