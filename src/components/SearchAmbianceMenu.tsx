@@ -1,5 +1,5 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, ChevronDown, Star, X } from "lucide-react"; // global icons
+import { Check, ChevronDown, Star, X, Search } from "lucide-react"; // global icons
 import {
   Leaf,
   PawPrint,
@@ -108,6 +108,7 @@ export default function SearchAmbianceMenu() {
   const [selectedThemes, setSelectedThemes] = useState<Theme[]>([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Function to build query string
   const buildQueryString = () => {
@@ -135,18 +136,20 @@ export default function SearchAmbianceMenu() {
   // Function to perform search
   const performSearch = async () => {
     const queryString = buildQueryString();
+    setLoading(true); // start loading
+
     try {
       const response = await fetch(
         `/api/get_search_menu_ambiances?${queryString}`
       );
-      if (!response.ok)
-        throw new Error(
-          "Filtering search : Failed to fetch ambiances basic informations which serve to display ambiances in the search menu"
-        );
+      if (!response.ok) throw new Error("Failed to fetch ambiances");
+
       const data: AmbianceBasicInformations[] = await response.json();
       setSearchedAmbiancesBasicInformations(data);
     } catch (error) {
-      console.error("Error fetching ambiances with filtering search:", error);
+      console.error("Error fetching ambiances:", error);
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -224,7 +227,7 @@ export default function SearchAmbianceMenu() {
 
   return (
     <div
-      aria-label="search sounds menu"
+      aria-label="search ambiances menu"
       className="text-gray-300 bg-gray-800 rounded-md "
     >
       <div className="flex flex-col gap-2 mb-2 align-center ">
@@ -362,35 +365,60 @@ export default function SearchAmbianceMenu() {
         </div>
       </div>
       <div aria-label="sound search bar" className="flex mb-2 align-center">
-        <div className="w-full">
+        <div className="relative w-full">
+          {/* Left icon */}
+          <div className="absolute inset-y-0 right-0 flex items-center">
+            {searchString.length === 0 ? (
+              <Search className="w-4 h-4 mr-3 text-gray-500 scale-x-[-1]" />
+            ) : (
+              <button
+                aria-label="clear search input"
+                onClick={() =>
+                  handleSearchChange({
+                    target: { value: "" },
+                  } as React.ChangeEvent<HTMLInputElement>)
+                } // Temporary fix
+                className="p-3 text-gray-500 hover:text-gray-300 focus:outline-none hover:cursor-pointer"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Input with extra left padding to avoid overlapping icon */}
           <input
-            alia-label="search bar"
+            aria-label="search bar"
             type="text"
-            placeholder="Search an ambiance or author"
+            placeholder="Search by ambiance name"
             value={searchString}
             onChange={handleSearchChange}
             className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
           />
         </div>
       </div>
-      <div aria-label="results" className="rounded-sm bg-gray-950">
+      <div aria-label="results" className="relative rounded-sm bg-gray-950">
+        {loading && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+            <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
+          </div>
+        )}
         <div className="flex flex-col gap-2 px-2 overflow-y-scroll rounded-sm border-y-8 border-gray-950 h-80">
           {searchedAmbiancesBasicInformations.map((ambiance) => (
             <article
               aria-label="ambiance found"
               key={ambiance.id}
               onClick={() => handleLoadAmbiance(ambiance.id)}
-              className="flex flex-col items-center px-2 py-2 text-sm font-bold text-left text-gray-300 bg-gray-800 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
+              className="flex flex-col items-center px-0.5 py-0.5 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm group hover:bg-gray-600 hover:cursor-pointer"
             >
-              <div className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-t-sm border-2 border-b-0 border-gray-900">
-                <p className="text-sm text-gray-300">
+              <div className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-t-sm border-0 border-b-0 border-gray-900 group-hover:bg-gray-600 group-hover:border-gray-800">
+                <p className="text-sm text-gray-300 group-hover:text-gray-200">
                   {ambiance.ambiance_name}
                 </p>
                 <div className="flex items-center"></div>
               </div>
-              <div className="flex items-center justify-between w-full ">
-                <div className="flex items-center flex-1">
-                  <div className="flex flex-1 items-center gap-1 px-2.5 py-2 bg-gray-900 rounded-bl-sm">
+              <div className="flex items-center justify-between w-full rounded-b-sm group-hover:bg-gray-700">
+                <div className="flex items-center flex-1 ">
+                  <div className="flex flex-1 items-center gap-1 px-2.5 py-2 bg-gray-900 rounded-bl-sm group-hover:bg-gray-800">
                     {parsePostgresEnumArray(ambiance.categories).map(
                       (category) => (
                         <React.Fragment key={category}>
@@ -408,13 +436,16 @@ export default function SearchAmbianceMenu() {
                 </div>
 
                 <div className="flex items-center gap-1"></div>
-                {/* <p className="text-gray-600">12 Sounds</p> */}
-                <div className="flex items-center px-2.5 py-1.5 bg-gray-900 rounded-br-sm">
+                <div className="flex items-center px-2.5 py-1.5 bg-gray-900 rounded-br-sm group-hover:bg-gray-800">
                   <span
                     className={`text-sm ${
                       ambiance.is_favorite
                         ? "text-yellow-200/70"
-                        : "text-yellow-200/20"
+                        : "text-yellow-200/30"
+                    } group-hover:${
+                      ambiance.is_favorite
+                        ? "text-yellow-200/90"
+                        : "text-yellow-200/30"
                     }`}
                   >
                     27
@@ -422,8 +453,12 @@ export default function SearchAmbianceMenu() {
                   <Star
                     className={`ml-1 w-4 h-4 ${
                       ambiance.is_favorite
-                        ? "text-yellow-200/70"
-                        : "text-yellow-200/20"
+                        ? "text-yellow-200/70 fill-yellow-200/80"
+                        : "text-yellow-200/30"
+                    } group-hover:${
+                      ambiance.is_favorite
+                        ? "text-yellow-200/90 fill-yellow-200/90"
+                        : "text-yellow-200/30"
                     }`}
                   />
                 </div>

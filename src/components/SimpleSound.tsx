@@ -48,6 +48,8 @@ export default function SimpleSound({
   const [lowGain, setLowGain] = useState(0);
   const [midGain, setMidGain] = useState(0);
   const [highGain, setHighGain] = useState(0);
+  const [lowCutFreq, setLowCutFreq] = useState(20); // Hz - frequencies below this are cut
+  const [highCutFreq, setHighCutFreq] = useState(20000); // Hz - frequencies above this are cut
 
   // Tone.js Refs
   const playerRef = useRef<Tone.Player | null>(null);
@@ -56,6 +58,8 @@ export default function SimpleSound({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pannerRef = useRef<Tone.Panner | null>(null);
   const eqRef = useRef<Tone.EQ3 | null>(null);
+  const highpassFilterRef = useRef<Tone.Filter | null>(null);
+  const lowpassFilterRef = useRef<Tone.Filter | null>(null);
 
   // Options Refs
   const volumeRef = useRef(volume);
@@ -66,6 +70,8 @@ export default function SimpleSound({
   const lowGainRef = useRef(0);
   const midGainRef = useRef(0);
   const highGainRef = useRef(0);
+  const lowCutFreqRef = useRef(20);
+  const highCutFreqRef = useRef(20000);
 
   useEffect(() => {
     volumeRef.current = volume;
@@ -99,6 +105,14 @@ export default function SimpleSound({
     highGainRef.current = highGain;
   }, [highGain]);
 
+  useEffect(() => {
+    lowCutFreqRef.current = lowCutFreq;
+  }, [lowCutFreq]);
+
+  useEffect(() => {
+    highCutFreqRef.current = highCutFreq;
+  }, [highCutFreq]);
+
   // PONCTUAL SOUNDS SETUP AND PLAYBACK
   useEffect(() => {
     if (!audioPaths[0] || !looping) return; // Only run this if there's an audio path and it's looping
@@ -122,9 +136,23 @@ export default function SimpleSound({
       wet: reverbWet / 100, // how much reverb to mix in (0–1)
     });
 
+    const highpassFilter = new Tone.Filter({
+      type: "highpass",
+      frequency: lowCutFreq,
+      rolloff: -24,
+    });
+
+    const lowpassFilter = new Tone.Filter({
+      type: "lowpass",
+      frequency: highCutFreq,
+      rolloff: -24,
+    });
+
     // Connect the audio nodes together: Gain → Panner → Reverb → Speakers
     gainNode.connect(panner);
-    panner.connect(eq);
+    panner.connect(highpassFilter);
+    highpassFilter.connect(lowpassFilter);
+    lowpassFilter.connect(eq);
     eq.connect(reverb);
     reverb.toDestination();
 
@@ -133,6 +161,8 @@ export default function SimpleSound({
     reverbRef.current = reverb;
     pannerRef.current = panner;
     eqRef.current = eq;
+    highpassFilterRef.current = highpassFilter;
+    lowpassFilterRef.current = lowpassFilter;
 
     // Create the actual audio player
     const player = new Tone.Player({
@@ -154,6 +184,8 @@ export default function SimpleSound({
       player.dispose();
       gainNode.dispose();
       panner.dispose();
+      highpassFilter.dispose();
+      lowpassFilter.dispose();
       reverb.dispose();
       eq.dispose();
     };
@@ -185,6 +217,13 @@ export default function SimpleSound({
       eqRef.current.mid.value = midGain;
       eqRef.current.high.value = highGain;
     }
+
+    if (highpassFilterRef.current) {
+      highpassFilterRef.current.frequency.value = lowCutFreq;
+    }
+    if (lowpassFilterRef.current) {
+      lowpassFilterRef.current.frequency.value = highCutFreq;
+    }
   }, [
     volume,
     globalVolume,
@@ -196,6 +235,8 @@ export default function SimpleSound({
     lowGain,
     midGain,
     highGain,
+    lowCutFreq,
+    highCutFreq,
   ]);
 
   // Handle play/pause for looping sounds
@@ -313,11 +354,24 @@ export default function SimpleSound({
         mid: midGainRef.current,
         high: highGainRef.current,
       });
+      const highpassFilter = new Tone.Filter({
+        type: "highpass",
+        frequency: lowCutFreqRef.current,
+        rolloff: -24,
+      });
+
+      const lowpassFilter = new Tone.Filter({
+        type: "lowpass",
+        frequency: highCutFreqRef.current,
+        rolloff: -24,
+      });
 
       // Connect nodes: Player → Gain → Panner → Reverb → Output
       player.connect(gainNode);
       gainNode.connect(panner);
-      panner.connect(eq);
+      panner.connect(highpassFilter);
+      highpassFilter.connect(lowpassFilter);
+      lowpassFilter.connect(eq);
       eq.connect(reverb);
       reverb.toDestination();
 
@@ -327,6 +381,8 @@ export default function SimpleSound({
       reverbRef.current = reverb;
       pannerRef.current = panner;
       eqRef.current = eq;
+      highpassFilterRef.current = highpassFilter;
+      lowpassFilterRef.current = lowpassFilter;
     };
 
     playWithRandomDelay(); // Start the audio
@@ -343,6 +399,8 @@ export default function SimpleSound({
       if (pannerRef.current) pannerRef.current.dispose();
       if (reverbRef.current) reverbRef.current.dispose();
       if (eqRef.current) eqRef.current.dispose();
+      if (highpassFilterRef.current) highpassFilterRef.current.dispose();
+      if (lowpassFilterRef.current) lowpassFilterRef.current.dispose();
     };
   }, [audioPaths, repeat_delay, paused]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
 
@@ -354,7 +412,9 @@ export default function SimpleSound({
       !reverbRef.current ||
       !pannerRef.current ||
       !playerRef.current ||
-      !eqRef.current
+      !eqRef.current ||
+      !highpassFilterRef.current ||
+      !lowpassFilterRef.current
     )
       return;
 
@@ -367,6 +427,8 @@ export default function SimpleSound({
     eqRef.current.low.value = lowGain;
     eqRef.current.mid.value = midGain;
     eqRef.current.high.value = highGain;
+    highpassFilterRef.current.frequency.value = lowCutFreq;
+    lowpassFilterRef.current.frequency.value = highCutFreq;
   }, [
     volume,
     globalVolume,
@@ -378,6 +440,8 @@ export default function SimpleSound({
     lowGain,
     midGain,
     highGain,
+    lowCutFreq,
+    highCutFreq,
   ]);
 
   // Handle pause for non-looping sounds
@@ -585,7 +649,7 @@ export default function SimpleSound({
 
           <div
             aria-label="speed"
-            className="m-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="m-2 mt-2 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Speed</span>
@@ -668,7 +732,7 @@ export default function SimpleSound({
             </div>
           </div>
           {/* Equalizer */}
-          <div className="m-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950">
+          <div className="m-2 mt-2 border-2 rounded-xs border-gray-950 bg-gray-950">
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Low</span>
               <span className="text-xs text-gray-400">{lowGain}dB</span>
@@ -733,6 +797,63 @@ export default function SimpleSound({
               </div>
             </div>
           </div>
+
+          <div
+            aria-label="frequency cut"
+            className="m-2 mt-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+          >
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">Low Cut</span>
+              <span className="text-xs text-gray-400">{lowCutFreq}Hz</span>
+            </div>
+            <div className="px-2 pb-1">
+              <div
+                aria-label="low cut frequency slider"
+                className="relative h-1.5"
+              >
+                <div className="absolute inset-0 bg-purple-950"></div>
+                <div
+                  className="absolute inset-y-0 bg-purple-400"
+                  style={{ width: `${((lowCutFreq - 20) / 980) * 100}%` }}
+                ></div>
+                <input
+                  type="range"
+                  min="20"
+                  max="1000"
+                  step="10"
+                  value={lowCutFreq}
+                  onChange={(e) => setLowCutFreq(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+              <span className="text-xs text-gray-400">High Cut</span>
+              <span className="text-xs text-gray-400">{highCutFreq}Hz</span>
+            </div>
+            <div className="px-2 pb-2">
+              <div
+                aria-label="high cut frequency slider"
+                className="relative h-1.5"
+              >
+                <div className="absolute inset-0 bg-purple-950"></div>
+                <div
+                  className="absolute inset-y-0 bg-purple-400"
+                  style={{ width: `${((highCutFreq - 1000) / 19000) * 100}%` }}
+                ></div>
+                <input
+                  type="range"
+                  min="1000"
+                  max="20000"
+                  step="100"
+                  value={highCutFreq}
+                  onChange={(e) => setHighCutFreq(Number(e.target.value))}
+                  className="w-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
           {repeat_delay && (
             <div
               aria-label="Repeat delay"

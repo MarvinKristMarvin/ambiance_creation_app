@@ -106,15 +106,23 @@ TASKS
 
 20/06/2025
 - correct the fact that moving sliders of a ponctual sound does not update the next audio that will play (returns to default options(maybe audio should take sliders values instead of initial values when starting))
-- add pitch option
 - add speed option
 - add equalizer bass and highs and mid options
 
+21/06/2025
+- add real equalizer low cut and high cut
+- make some visual changes to ambiance search menu (loader + clearer search input + clearer results mapping + remove search input button)
+
+22/06/2025
+- find the search sound menu code in git and copy paste it (pasted other component code in it by error so it does not work anymore)
+
 PLANNED TODAY
+- restyle the sound search menu like the search ambiance menu and add the same functionnalities
+- add all options to db to be able to save and get default options when loading a sound
 
 TO DO
-- restyle the sound search menu like the search ambiance menu
-- add all options to db to be able to save and get default options when loading a sound
+-
+-
 
 CONSIDER
 - don't change pitch when changing speed option
