@@ -2,8 +2,8 @@
 
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
-import { use, useEffect, useRef, useState } from "react";
-import { X, Copy } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, Copy, Pencil } from "lucide-react";
 import * as Tone from "tone";
 
 interface Props {
@@ -12,7 +12,9 @@ interface Props {
   soundName: string;
   initialVolume: number;
   initialReverb: number;
+  initialReverbDuration: number;
   initialDirection: number;
+  initialSpeed: number;
   number: number;
   id: number;
   looping: boolean;
@@ -25,7 +27,9 @@ export default function SimpleSound({
   soundName,
   initialVolume,
   initialReverb,
+  initialReverbDuration,
   initialDirection,
+  initialSpeed,
   number,
   id,
   looping,
@@ -40,9 +44,9 @@ export default function SimpleSound({
 
   const [volume, setVolume] = useState(initialVolume);
   const [reverbWet, setReverbWet] = useState(initialReverb);
-  const [reverbDecay, setReverbDecay] = useState(1.5);
+  const [reverbDecay, setReverbDecay] = useState(initialReverbDuration);
   const [direction, setDirection] = useState(initialDirection);
-  const [playbackRate, setPlaybackRate] = useState(1);
+  const [playbackRate, setPlaybackRate] = useState(initialSpeed);
   const [expanded, setExpanded] = useState(false);
   const [hoverButton, setHoverButton] = useState(false);
   const [lowGain, setLowGain] = useState(0);
@@ -121,7 +125,7 @@ export default function SimpleSound({
     const gainNode = new Tone.Gain((volume / 100) * globalVolume);
 
     // Create a panner node (for stereo left-right direction)
-    const panner = new Tone.Panner((direction - 50) / 50); // Normalize from [0–100] to [-1–1]
+    const panner = new Tone.Panner(direction); // Normalize from [0–100] to [-1–1]
 
     // Create EQ
     const eq = new Tone.EQ3({
@@ -205,7 +209,7 @@ export default function SimpleSound({
     }
 
     if (pannerRef.current) {
-      pannerRef.current.pan.value = (direction - 50) / 50; // -1 to 1
+      pannerRef.current.pan.value = direction; // -1 to 1
     }
 
     if (playerRef.current) {
@@ -344,7 +348,7 @@ export default function SimpleSound({
 
       // Create gain, panner, and reverb nodes
       const gainNode = new Tone.Gain((volumeRef.current / 100) * globalVolume);
-      const panner = new Tone.Panner(((directionRef.current ?? 50) - 50) / 50);
+      const panner = new Tone.Panner(directionRef.current);
       const reverb = new Tone.Reverb({
         decay: reverbDecayRef.current + 0.001,
         wet: reverbWetRef.current / 100,
@@ -420,7 +424,7 @@ export default function SimpleSound({
 
     // Update volume and reverb of current player
     gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
-    pannerRef.current.pan.value = ((direction ?? 50) - 50) / 50;
+    pannerRef.current.pan.value = direction;
     reverbRef.current.wet.value = reverbWet / 100;
     reverbRef.current.decay = reverbDecay + 0.001;
     playerRef.current.playbackRate = playbackRate;
@@ -458,10 +462,35 @@ export default function SimpleSound({
     }
   }, [paused, looping]);
 
+  // Shortcuts for expand/collapse
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for 'E' key (expand)
+      if (e.key === "E" || e.key === "e") {
+        if (e.ctrlKey) {
+          e.preventDefault();
+          setExpanded(true);
+        }
+      }
+      // Check for 'C' key (collapse)
+      else if (e.key === "C" || e.key === "c") {
+        if (e.shiftKey) {
+          e.preventDefault();
+          setExpanded(false);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [expanded, setExpanded]);
+
   return (
     <div
       aria-label={soundName + " sound"}
-      className={`w-40 text-lg font-bold text-center bg-gray-900 text-gray-400 group  ${
+      className={`w-40 text-lg font-bold text-center bg-gray-900 text-gray-400 group flex flex-col  ${
         expanded ? "h-full" : ""
       }`}
     >
@@ -556,10 +585,13 @@ export default function SimpleSound({
       )}
 
       {expanded && (
-        <div aria-label="expanded options">
+        <div
+          aria-label="expanded options"
+          className="flex flex-col justify-start flex-1 gap-2 pb-2"
+        >
           <div
             aria-label="volume"
-            className="m-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="mx-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Volume</span>
@@ -580,7 +612,24 @@ export default function SimpleSound({
                   min="0"
                   max="100"
                   value={volume}
-                  onChange={(e) => setVolume(Number(e.target.value))}
+                  onChange={(e) => {
+                    setVolume(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              volume: Number(e.target.value),
+                            }
+                          : sound
+                    );
+
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
@@ -589,13 +638,11 @@ export default function SimpleSound({
 
           <div
             aria-label="direction"
-            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Left / Right</span>
-              <span className="text-xs text-gray-400">
-                {Math.round((direction * 0.02 - 1) * 10) / 10}
-              </span>
+              <span className="text-xs text-gray-400">{direction}</span>
             </div>
             <div className="px-2 mb-2">
               <div aria-label="direction slider" className="relative h-1.5">
@@ -605,23 +652,25 @@ export default function SimpleSound({
                 {/* Filled portion */}
                 <div
                   className="absolute inset-y-0 bg-stone-900"
-                  style={{ width: `${direction}%` }}
+                  style={{ width: `${((direction + 1) / 2) * 100}%` }}
                 ></div>
 
                 {/* Fake slider handle */}
                 <div
                   className="absolute w-2 h-1.5 -translate-y-1/2 bg-stone-400 top-1/2"
                   style={{
-                    left: `calc(${direction}% - (${direction}/100 * 8px))`,
+                    left: `calc(${((direction + 1) / 2) * 100}% - (${
+                      ((direction + 1) / 2) * 100
+                    }/100 * 8px))`,
                   }}
                 ></div>
 
                 {/* Transparent range slider with styled thumb */}
                 <input
                   type="range"
-                  min="0"
-                  max="100"
-                  step="5"
+                  min="-1"
+                  max="1"
+                  step="0.1"
                   value={direction}
                   onChange={(e) => {
                     setDirection(Number(e.target.value));
@@ -631,7 +680,7 @@ export default function SimpleSound({
                         sound.id === id
                           ? {
                               ...sound,
-                              direction: direction,
+                              direction: Number(e.target.value),
                             }
                           : sound
                     );
@@ -649,7 +698,7 @@ export default function SimpleSound({
 
           <div
             aria-label="speed"
-            className="m-2 mt-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Speed</span>
@@ -668,7 +717,23 @@ export default function SimpleSound({
                   max="3"
                   step="0.1"
                   value={playbackRate}
-                  onChange={(e) => setPlaybackRate(Number(e.target.value))}
+                  onChange={(e) => {
+                    setPlaybackRate(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              speed: Number(e.target.value),
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
@@ -677,10 +742,10 @@ export default function SimpleSound({
 
           <div
             aria-label="reverb"
-            className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Reverb</span>
+              <span className="text-xs text-gray-400">Echo</span>
               <span className="text-xs text-gray-400">{reverbWet}%</span>
             </div>
             <div className="px-2 pb-1">
@@ -698,13 +763,29 @@ export default function SimpleSound({
                   min="0"
                   max="100"
                   value={reverbWet}
-                  onChange={(e) => setReverbWet(Number(e.target.value))}
+                  onChange={(e) => {
+                    setReverbWet(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              reverb: Number(e.target.value),
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
             </div>
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Length</span>
+              <span className="text-xs text-gray-400">Duration</span>
               <span className="text-xs text-gray-400">
                 {reverbDecay.toFixed(1)}s
               </span>
@@ -725,14 +806,30 @@ export default function SimpleSound({
                   max="10"
                   step="0.1"
                   value={reverbDecay}
-                  onChange={(e) => setReverbDecay(Number(e.target.value))}
+                  onChange={(e) => {
+                    setReverbDecay(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              reverb_duration: Number(e.target.value),
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
             </div>
           </div>
           {/* Equalizer */}
-          <div className="m-2 mt-2 border-2 rounded-xs border-gray-950 bg-gray-950">
+          <div className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950">
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Low</span>
               <span className="text-xs text-gray-400">{lowGain}dB</span>
@@ -800,7 +897,7 @@ export default function SimpleSound({
 
           <div
             aria-label="frequency cut"
-            className="m-2 mt-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Low Cut</span>
@@ -857,7 +954,7 @@ export default function SimpleSound({
           {repeat_delay && (
             <div
               aria-label="Repeat delay"
-              className="m-2 border-2 rounded-xs border-gray-950 bg-gray-950"
+              className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
             >
               <div className="flex items-center justify-between h-5 mx-2 mt-1">
                 <span className="text-xs text-gray-400">Plays every</span>
@@ -922,6 +1019,13 @@ export default function SimpleSound({
               </div>
             </div>
           )}
+          <div
+            aria-label="note"
+            className="flex flex-col items-center justify-center flex-1 mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950 min-h-12 hover:bg-gray-900 hover:cursor-pointer"
+          >
+            <Pencil className="w-5 h-5 mb-1.5 text-gray-700"></Pencil>
+            <span className="text-xs text-gray-700 ">My notes</span>
+          </div>
         </div>
       )}
     </div>

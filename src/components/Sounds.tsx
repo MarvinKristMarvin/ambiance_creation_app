@@ -47,6 +47,8 @@ export default function Sounds() {
               looping={matchingSound.looping}
               initialVolume={sound.volume}
               initialReverb={sound.reverb}
+              initialReverbDuration={sound.reverb_duration}
+              initialSpeed={sound.speed}
               initialDirection={sound.direction}
               repeat_delay={sound.repeat_delay}
               number={number}

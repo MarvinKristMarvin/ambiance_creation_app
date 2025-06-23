@@ -408,9 +408,9 @@ export default function SearchAmbianceMenu() {
               aria-label="ambiance found"
               key={ambiance.id}
               onClick={() => handleLoadAmbiance(ambiance.id)}
-              className="flex flex-col items-center px-0.5 py-0.5 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm group hover:bg-gray-600 hover:cursor-pointer"
+              className="flex flex-col items-center px-0.5 py-0.5 text-sm font-bold text-left text-gray-300 bg-gray-600 rounded-sm group hover:bg-gray-500 hover:cursor-pointer"
             >
-              <div className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-t-sm border-0 border-b-0 border-gray-900 group-hover:bg-gray-600 group-hover:border-gray-800">
+              <div className="flex items-center justify-between w-full px-2.5 py-1.5 pb-0 rounded-t-sm border-0 border-b-0 bg-gray-900 border-gray-700 group-hover:bg-gray-800 group-hover:border-gray-800">
                 <p className="text-sm text-gray-300 group-hover:text-gray-200">
                   {ambiance.ambiance_name}
                 </p>

@@ -195,7 +195,10 @@ export default function SearchSoundsMenu() {
         sound_id: loadedSound[0].id,
         volume: loadedSound[0].volume,
         reverb: loadedSound[0].reverb,
+        reverb_duration: loadedSound[0].reverb_duration,
+        speed: loadedSound[0].speed,
         direction: loadedSound[0].direction,
+        repeat_delay: loadedSound[0].repeat_delay,
       };
 
       setCurrentAmbiance({
@@ -463,7 +466,9 @@ export default function SearchSoundsMenu() {
                   <h3 className="text-xs font-bold text-gray-300">
                     {sound.sound_name}
                   </h3>
-                  <p className="text-xs font-bold text-gray-500">Listen</p>
+                  <p className="text-xs font-bold text-gray-500">
+                    Listen {sound.looping ? "loop" : ""}
+                  </p>
                 </div>
                 <div aria-label="buttons" className="flex flex-row justify-end">
                   <button

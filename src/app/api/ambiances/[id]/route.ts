@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db_client";
 
-// Get the ambiance informations
+// Get the ambiance informations (with ambiance_sounds modified options)
 export async function GET(request: Request) {
   const url = new URL(request.url);
   // Extract ID from URL
@@ -22,7 +22,9 @@ export async function GET(request: Request) {
     'sound_id', asound.sound_id,
     'volume', asound.volume,
     'reverb', asound.reverb,
+    'reverb_duration', asound.reverb_duration,
     'direction', asound.direction,
+    'speed', asound.speed,
     'repeat_delay', asound.repeat_delay
   )) AS ambiance_sounds
 FROM ambiances a

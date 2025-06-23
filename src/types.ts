@@ -11,6 +11,8 @@ export interface AmbianceSound {
   sound_id: number;
   volume: number;
   reverb: number;
+  reverb_duration: number;
+  speed: number;
   direction: number;
   repeat_delay: number[] | null;
 }
@@ -33,6 +35,8 @@ export interface Sound {
   looping: boolean;
   volume: number;
   reverb: number;
+  reverb_duration: number;
+  speed: number;
   direction: number;
   category: string;
   repeat_delay: number[] | null;

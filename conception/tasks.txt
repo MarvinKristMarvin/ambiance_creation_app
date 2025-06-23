@@ -116,14 +116,41 @@ TASKS
 22/06/2025
 - find the search sound menu code in git and copy paste it (pasted other component code in it by error so it does not work anymore)
 
+23/06/2025
+- style better ambiance cards
+- expand the tasks TODO / CONSIDER
+- full options integration to the project (for speed, reverb_duration and repeat_delay) (updated types, db queries, db init, components)
+
 PLANNED TODAY
 - restyle the sound search menu like the search ambiance menu and add the same functionnalities
 - add all options to db to be able to save and get default options when loading a sound
+- add types
 
 TO DO
--
--
+- button mute on a sound
+- remove play/pause, just use global volume slider
+- button discover random (random theme and category) + button refresh (keep same theme and category but change results) + mini tuto text in the results div
+- for ambiances, if selecting multiple themes/categories, show only ambiances containing all these themes and categories
+- for sounds, can select only one category but multiple themes (a sound should contain all themes to be displayed), if multiple themes are selected but no sounds found, display "no sounds found with these filters, try removing themes or search input" in the results div
+- when scrolling down the search ambiance menu : every 10 ambiances, show a loading state to load 10 more (load icon + "loading more ambiances")
+- show only favorites when opening search ambiance menu without filters
+- in search ambiance menu, when clicking on the star : add to favorites / remove from favorites (with confirmation)
+- in search ambiance menu, show "+X" after 8 categories/themes in an ambiance card
+- cleaner ambiance creation tuto
+- better sound cards centering (+ positionning with option)
+- more settings : fullscreen
+- shortcuts in setiings : button = "expand/close all sounds (Ctrl + E / Ctrl + C)" / "Save Ctrl + S" / "Mute/Unmute Ctrl + M"
+- mobile responsiveness
+- add more sounds
+- playlist system (button to add in playlist in ambiance card) and in search ambiance menu : button show playlist => shoaw ambiance cards with mroe options (play for x minutes, move position..)
+- when save ambiance : ambiance saved as "ambiance name"
+- block "Saved" button, unblock when current ambiance change
+- save the ambiance when changing the name
+- centered note to complete sound options space ([...] => [my notes])
 
 CONSIDER
-- don't change pitch when changing speed option
+- in ambiance card : categories and themes ordered only by quantity, not categories always first
+- in search ambiance menu : drop down next to name to show more ambiance infos
+- in search menus : buttons category and themes next to each other + when selecting an option, show only icons and not Categories : or Themes : (to gain space if needed)
+- don't change pitch when changing speed option ?
 - study stereo vs mono sounds

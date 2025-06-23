@@ -22,7 +22,9 @@ CREATE TABLE sounds (
   looping BOOLEAN,
   volume INT,
   reverb INT,
-  direction INT,
+  reverb_duration DECIMAL(3, 1),
+  speed DECIMAL(2, 1),
+  direction DECIMAL(2, 1),
   category category,
   themes theme[],
   -- Ponctual sounds options
@@ -43,8 +45,11 @@ CREATE TABLE ambiances_sounds (
   ambiance_id INT NOT NULL REFERENCES ambiances(id) ON DELETE CASCADE,
   sound_id INT NOT NULL REFERENCES sounds(id) ON DELETE CASCADE,
   volume INT,
+  direction DECIMAL(2, 1),
+  speed DECIMAL(2, 1),
   reverb INT,
-  direction INT,
+  reverb_duration DECIMAL(3, 1),
+  -- Ponctual sounds options
   repeat_delay DECIMAL[]
 );
 

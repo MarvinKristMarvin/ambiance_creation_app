@@ -39,7 +39,7 @@ export default function Hero() {
               setSearchAmbianceMenu(true);
             }}
           >
-            Find and modify an ambiance
+            Search an ambiance
           </button>
           <button
             aria-label="create ambiance button"
