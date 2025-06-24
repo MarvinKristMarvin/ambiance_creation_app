@@ -172,7 +172,7 @@ const Toast: React.FC<ToastProps> = ({
         />
       </div>
       {/* Message */}
-      <p className="text-sm font-bold text-center text-gray-300">{message}</p>
+      <p className="text-sm font-bold text-center text-gray-100">{message}</p>
     </div>
   );
 };

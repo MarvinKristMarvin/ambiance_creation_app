@@ -125,6 +125,7 @@ TASKS
 24/06/2025
 - button mute on a sound
 - remove play/pause, just use global volume slider
+- add a direct listen to a themed ambiance in hero page
 
 PLANNED TODAY
 
