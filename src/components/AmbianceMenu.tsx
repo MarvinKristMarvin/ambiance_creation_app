@@ -1,5 +1,3 @@
-import PauseIcon from "@/components/icons/PauseIcon";
-import PlayIcon from "@/components/icons/PlayIcon";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import {
@@ -16,8 +14,6 @@ export default function AmbianceMenu() {
   const { ShowToast } = useShowToast();
   // Zustand
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
-  const paused = useGlobalStore((state) => state.paused);
-  const setPaused = useGlobalStore((state) => state.setPaused);
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const setGlobalVolume = useGlobalStore((state) => state.setGlobalVolume);
   const setSearchSoundsMenu = useGlobalStore(
@@ -134,7 +130,7 @@ export default function AmbianceMenu() {
           </button>
           <div
             aria-label="ambiance volume slider"
-            className="relative flex-1 h-full rounded-full"
+            className="relative flex-1 h-full mr-2.25 rounded-full"
           >
             {/* Background track */}
             <div className="absolute inset-0 h-full rounded-full bg-emerald-900"></div>
@@ -158,17 +154,6 @@ export default function AmbianceMenu() {
             />
           </div>
         </div>
-        <button
-          aria-label="play pause button"
-          onClick={() => setPaused(!paused)}
-          className="flex flex-col justify-center h-full px-4 py-3 text-xs bg-gray-900 border-0 border-gray-800 rounded-full align-center hover:bg-gray-800 hover:cursor-pointer"
-        >
-          {paused ? (
-            <PlayIcon className="w-4 h-4 text-gray-200" />
-          ) : (
-            <PauseIcon className="w-4 h-4 text-gray-200" />
-          )}
-        </button>
       </div>
 
       <div

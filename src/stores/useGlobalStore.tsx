@@ -16,8 +16,6 @@ interface Store {
   setCurrentAmbiance: (value: Ambiance | null) => void;
   soundsUsed: Sound[];
   setSoundsUsed: (value: Sound[]) => void;
-  paused: boolean;
-  setPaused: (value: boolean) => void;
   globalVolume: number;
   setGlobalVolume: (value: number) => void;
   searchSoundsMenu: boolean;
@@ -55,8 +53,6 @@ export const useGlobalStore = create<Store>((set) => ({
   setCurrentAmbiance: (value) => set({ currentAmbiance: value }),
   soundsUsed: [],
   setSoundsUsed: (value) => set({ soundsUsed: value }),
-  paused: false,
-  setPaused: (value) => set({ paused: value }),
   globalVolume: 1,
   setGlobalVolume: (value) => set({ globalVolume: value }),
   searchSoundsMenu: false,

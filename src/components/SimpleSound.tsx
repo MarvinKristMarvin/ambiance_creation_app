@@ -3,14 +3,7 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import {
-  X,
-  Copy,
-  Pencil,
-  VolumeX,
-  HeadphoneOff,
-  VolumeOff,
-} from "lucide-react";
+import { X, Copy, Pencil, VolumeX } from "lucide-react";
 import * as Tone from "tone";
 
 interface Props {
@@ -43,7 +36,6 @@ export default function SimpleSound({
   repeat_delay,
 }: Props) {
   const globalVolume = useGlobalStore((state) => state.globalVolume);
-  const paused = useGlobalStore((state) => state.paused);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const setCurrentAmbiance = useGlobalStore(
     (state) => state.setCurrentAmbiance
@@ -182,9 +174,7 @@ export default function SimpleSound({
       loop: looping,
       autostart: false,
       onload: () => {
-        if (!paused) {
-          player.start(); // Start playback once loaded, unless paused
-        }
+        player.start(); // Start playback once loaded
       },
     }).connect(gainNode); // connect the player to our gain node
 
@@ -252,24 +242,6 @@ export default function SimpleSound({
     mute,
   ]);
 
-  // Handle play/pause for looping sounds
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player || !looping) return;
-
-    if (paused) {
-      if (player.state === "started") {
-        player.stop();
-      }
-    } else {
-      if (player.buffer.loaded) {
-        Tone.start().then(() => {
-          player.start();
-        });
-      }
-    }
-  }, [paused, looping]);
-
   const handleRemove = () => {
     if (!currentAmbiance) return;
 
@@ -323,7 +295,7 @@ export default function SimpleSound({
     let isCancelled = false;
 
     const playWithRandomDelay = () => {
-      if (paused || isCancelled) return;
+      if (isCancelled) return;
 
       // Choose a random audio file from the list
       const randomPath =
@@ -339,11 +311,11 @@ export default function SimpleSound({
         url: randomPath,
         autostart: false,
         onload: () => {
-          if (paused || isCancelled) return;
+          if (isCancelled) return;
 
           // Start audio context and play the sound
           Tone.start().then(() => {
-            if (paused || isCancelled) return;
+            if (isCancelled) return;
 
             player.start();
 
@@ -426,7 +398,7 @@ export default function SimpleSound({
       if (highpassFilterRef.current) highpassFilterRef.current.dispose();
       if (lowpassFilterRef.current) lowpassFilterRef.current.dispose();
     };
-  }, [audioPaths, repeat_delay, paused, mute]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
+  }, [audioPaths, repeat_delay, mute]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
 
   // Separate effect to handle volume and reverb changes for non-looping sounds
   useEffect(() => {
@@ -468,20 +440,6 @@ export default function SimpleSound({
     highCutFreq,
     mute,
   ]);
-
-  // Handle pause for non-looping sounds
-  useEffect(() => {
-    if (looping) return;
-
-    if (paused) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      if (playerRef.current) {
-        playerRef.current.stop();
-      }
-    }
-  }, [paused, looping]);
 
   // Shortcuts for expand/collapse
   useEffect(() => {
