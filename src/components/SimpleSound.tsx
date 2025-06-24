@@ -3,7 +3,14 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { X, Copy, Pencil } from "lucide-react";
+import {
+  X,
+  Copy,
+  Pencil,
+  VolumeX,
+  HeadphoneOff,
+  VolumeOff,
+} from "lucide-react";
 import * as Tone from "tone";
 
 interface Props {
@@ -42,6 +49,7 @@ export default function SimpleSound({
     (state) => state.setCurrentAmbiance
   );
 
+  const [mute, setMute] = useState(1);
   const [volume, setVolume] = useState(initialVolume);
   const [reverbWet, setReverbWet] = useState(initialReverb);
   const [reverbDecay, setReverbDecay] = useState(initialReverbDuration);
@@ -122,7 +130,7 @@ export default function SimpleSound({
     if (!audioPaths[0] || !looping) return; // Only run this if there's an audio path and it's looping
 
     // Create a gain node (volume control)
-    const gainNode = new Tone.Gain((volume / 100) * globalVolume);
+    const gainNode = new Tone.Gain((volume / 100) * globalVolume * mute);
 
     // Create a panner node (for stereo left-right direction)
     const panner = new Tone.Panner(direction); // Normalize from [0–100] to [-1–1]
@@ -193,14 +201,14 @@ export default function SimpleSound({
       reverb.dispose();
       eq.dispose();
     };
-  }, [audioPaths[0], looping]);
+  }, [audioPaths[0], looping, mute]);
 
   // Looping sounds updates when slider changes
   useEffect(() => {
     if (!looping) return;
 
     if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
+      gainNodeRef.current.gain.value = (volume / 100) * globalVolume * mute;
     }
 
     if (reverbRef.current) {
@@ -241,6 +249,7 @@ export default function SimpleSound({
     highGain,
     lowCutFreq,
     highCutFreq,
+    mute,
   ]);
 
   // Handle play/pause for looping sounds
@@ -272,6 +281,15 @@ export default function SimpleSound({
       ...currentAmbiance,
       ambiance_sounds: updatedSounds,
     });
+  };
+
+  const handleMute = () => {
+    if (!currentAmbiance) return;
+    if (mute === 1) {
+      setMute(0);
+    } else {
+      setMute(1);
+    }
   };
 
   const handleCopy = () => {
@@ -347,7 +365,9 @@ export default function SimpleSound({
       player.playbackRate = playbackRateRef.current;
 
       // Create gain, panner, and reverb nodes
-      const gainNode = new Tone.Gain((volumeRef.current / 100) * globalVolume);
+      const gainNode = new Tone.Gain(
+        (volumeRef.current / 100) * globalVolume * mute
+      );
       const panner = new Tone.Panner(directionRef.current);
       const reverb = new Tone.Reverb({
         decay: reverbDecayRef.current + 0.001,
@@ -406,7 +426,7 @@ export default function SimpleSound({
       if (highpassFilterRef.current) highpassFilterRef.current.dispose();
       if (lowpassFilterRef.current) lowpassFilterRef.current.dispose();
     };
-  }, [audioPaths, repeat_delay, paused]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
+  }, [audioPaths, repeat_delay, paused, mute]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
 
   // Separate effect to handle volume and reverb changes for non-looping sounds
   useEffect(() => {
@@ -423,7 +443,7 @@ export default function SimpleSound({
       return;
 
     // Update volume and reverb of current player
-    gainNodeRef.current.gain.value = (volume / 100) * globalVolume;
+    gainNodeRef.current.gain.value = (volume / 100) * globalVolume * mute;
     pannerRef.current.pan.value = direction;
     reverbRef.current.wet.value = reverbWet / 100;
     reverbRef.current.decay = reverbDecay + 0.001;
@@ -446,6 +466,7 @@ export default function SimpleSound({
     highGain,
     lowCutFreq,
     highCutFreq,
+    mute,
   ]);
 
   // Handle pause for non-looping sounds
@@ -494,14 +515,24 @@ export default function SimpleSound({
         expanded ? "h-full" : ""
       }`}
     >
-      <div className="relative bg-blue-800 h-38 group/image">
+      <div className="relative bg-black h-38 group/image">
         <Image
           src={imagePath}
           alt={soundName}
           fill
-          className="object-cover hover:cursor-pointer"
+          className={`relative object-cover hover:cursor-pointer ${
+            mute === 0 ? "opacity-40" : ""
+          }`}
           onClick={() => setExpanded(!expanded)}
         />
+        {mute === 0 && (
+          <div
+            className="absolute inset-0 flex items-center justify-center hover:cursor-pointer"
+            onClick={() => setExpanded(!expanded)}
+          >
+            <span className="text-gray-100 text-md">MUTED</span>
+          </div>
+        )}
 
         {/* Show "more options" or "less options" when image is hovered */}
         <div
@@ -535,6 +566,14 @@ export default function SimpleSound({
           onMouseLeave={() => setHoverButton(false)}
           className="absolute flex space-x-1 transition-opacity opacity-0 top-1 right-1 group-hover/image:opacity-100 duration-10"
         >
+          <button
+            aria-label="mute sound button"
+            onClick={handleMute}
+            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
+            title="Mute sound"
+          >
+            <VolumeX size={17} />
+          </button>
           <button
             aria-label="copy sound button"
             onClick={handleCopy}
