@@ -316,9 +316,9 @@ export default function SearchSoundsMenu() {
   return (
     <div
       aria-label="search sounds menu"
-      className="p-0 pt-0 text-gray-300 bg-gray-800 rounded-md"
+      className="flex flex-col h-full p-0 pt-0 text-gray-300 bg-gray-800 rounded-md"
     >
-      <div className="flex flex-col gap-2 mt-1 mb-2">
+      <div className="flex flex-col gap-2 mt-0 mb-2">
         {/* Category Filter */}
         <div className="relative">
           <button
@@ -435,13 +435,16 @@ export default function SearchSoundsMenu() {
         />
       </div>
 
-      <div aria-label="results" className="rounded-sm bg-gray-950">
+      <div
+        aria-label="results"
+        className="relative flex flex-col flex-1 rounded-sm bg-gray-950"
+      >
         {/* <p className="px-3 py-2 text-sm font-bold text-left text-gray-400 border-gray-900 bg-gray-950 border-b-1">
           Results : {searchedSoundsBasicInformations.length} sound
           {searchedSoundsBasicInformations.length !== 1 ? "s" : ""}
         </p> */}
 
-        <div className="flex flex-col gap-2 p-2 overflow-y-scroll h-80">
+        <div className="flex flex-col flex-1 gap-2 px-2 overflow-y-scroll rounded-sm border-gray-950 border-y-8 max-h-[calc(100vh-11.5rem)]">
           {searchedSoundsBasicInformations.map((sound) => (
             <article
               aria-label="sound found"

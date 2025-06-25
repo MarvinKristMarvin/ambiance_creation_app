@@ -1,4 +1,5 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
+import { Pencil } from "lucide-react";
 import React, { useRef } from "react";
 
 export default function AmbianceSettingsMenu() {
@@ -24,26 +25,24 @@ export default function AmbianceSettingsMenu() {
 
   return (
     <div
-      aria-label="search sounds menu"
-      className="p-4 pb-1 text-gray-300 rounded-md bg-gray-950"
-      style={{ background: "rgb(7, 12, 23)" }}
-      // Gray 925
+      aria-label="ambiance settings menu"
+      className="pb-1 text-gray-300 bg-gray-800 rounded-md"
     >
-      <div aria-label="sound search bar" className="flex mb-3 align-center">
+      <div aria-label="name" className="relative flex flex-col justify-center">
         <input
           ref={inputRef}
           type="text"
           defaultValue={currentAmbiance ? currentAmbiance.ambiance_name : ""}
           placeholder="Ambiance name"
-          className="flex-1 p-1 pl-2 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-800 bg-gray-950 focus:outline-none focus:border-emerald-700"
+          className="w-full py-1.5 pr-8 pl-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.currentTarget.blur();
+            }
+          }}
         />
-        <button
-          aria-label="save button"
-          className="px-4 py-2 pl-3 text-sm font-bold text-gray-200 bg-emerald-600 hover:bg-emerald-500 hover:cursor-pointer"
-          onClick={handleSave}
-        >
-          Confirm
-        </button>
+        <Pencil className="absolute w-4 h-4 text-gray-600 -translate-y-1/2 pointer-events-none right-3 top-1/2" />
       </div>
     </div>
   );

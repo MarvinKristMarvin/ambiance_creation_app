@@ -44,6 +44,12 @@ interface Store {
   ) => void;
   removeToast: (id: string) => void;
   clearAllToasts: () => void;
+  // Modal management functions
+  openSettingsMenu: () => void;
+  openSearchSoundsMenu: () => void;
+  openSearchAmbianceMenu: () => void;
+  openAmbianceSettingsMenu: () => void;
+  closeAllModals: () => void;
 }
 
 export const useGlobalStore = create<Store>((set) => ({
@@ -71,6 +77,42 @@ export const useGlobalStore = create<Store>((set) => ({
   searchedAmbiancesBasicInformations: [],
   setSearchedAmbiancesBasicInformations: (value) =>
     set({ searchedAmbiancesBasicInformations: value }),
+  // Modal management functions
+  openSettingsMenu: () =>
+    set({
+      settingsMenu: true,
+      searchSoundsMenu: false,
+      searchAmbianceMenu: false,
+      ambianceSettingsMenu: false,
+    }),
+  openSearchSoundsMenu: () =>
+    set({
+      settingsMenu: false,
+      searchSoundsMenu: true,
+      searchAmbianceMenu: false,
+      ambianceSettingsMenu: false,
+    }),
+  openSearchAmbianceMenu: () =>
+    set({
+      settingsMenu: false,
+      searchSoundsMenu: false,
+      searchAmbianceMenu: true,
+      ambianceSettingsMenu: false,
+    }),
+  openAmbianceSettingsMenu: () =>
+    set({
+      settingsMenu: false,
+      searchSoundsMenu: false,
+      searchAmbianceMenu: false,
+      ambianceSettingsMenu: true,
+    }),
+  closeAllModals: () =>
+    set({
+      settingsMenu: false,
+      searchSoundsMenu: false,
+      searchAmbianceMenu: false,
+      ambianceSettingsMenu: false,
+    }),
   // Toasts
   toasts: [],
   showToast: (type, icon, message, duration = 4000) => {

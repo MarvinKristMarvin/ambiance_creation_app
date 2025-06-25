@@ -127,10 +127,14 @@ TASKS
 - remove play/pause, just use global volume slider
 - add a direct listen to a themed ambiance in hero page
 
+25/06/2025
+- instead of a modal when opening a menu, open a side menu
+
 PLANNED TODAY
 
 TO DO
 - restyle the sound search menu like the search ambiance menu and add the same functionnalities
+- instead of modal when opening settings or search menu, open a div menu on the right of the screen with full screen height, on tablet full screen w too
 - button discover random (random theme and category) + button refresh (keep same theme and category but change results) + mini tuto text in the results div
 - for ambiances, if selecting multiple themes/categories, show only ambiances containing all these themes and categories
 - for sounds, can select only one category but multiple themes (a sound should contain all themes to be displayed), if multiple themes are selected but no sounds found, display "no sounds found with these filters, try removing themes or search input" in the results div

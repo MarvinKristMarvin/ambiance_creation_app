@@ -3,7 +3,7 @@ import { Settings } from "lucide-react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 
 export default function Header() {
-  const setSettingsMenu = useGlobalStore((state) => state.setSettingsMenu);
+  const openSettingsMenu = useGlobalStore((state) => state.openSettingsMenu);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const setCurrentAmbiance = useGlobalStore(
     (state) => state.setCurrentAmbiance
@@ -35,7 +35,7 @@ export default function Header() {
 
       <button
         aria-label="settings button"
-        onClick={() => setSettingsMenu(true)}
+        onClick={openSettingsMenu}
         className={`flex flex-row justify-start rounded-full items-center py-2 px-3 text-center text-gray-400 text-lg font-bold hover:bg-gray-800 hover:cursor-pointer h-full`}
       >
         <Settings className="w-8 h-8 text-gray-300" />

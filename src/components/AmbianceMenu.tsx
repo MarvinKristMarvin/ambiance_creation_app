@@ -16,14 +16,14 @@ export default function AmbianceMenu() {
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const setGlobalVolume = useGlobalStore((state) => state.setGlobalVolume);
-  const setSearchSoundsMenu = useGlobalStore(
-    (state) => state.setSearchSoundsMenu
+  const openSearchAmbianceMenu = useGlobalStore(
+    (state) => state.openSearchAmbianceMenu
   );
-  const setSearchAmbianceMenu = useGlobalStore(
-    (state) => state.setSearchAmbianceMenu
+  const openAmbianceSettingsMenu = useGlobalStore(
+    (state) => state.openAmbianceSettingsMenu
   );
-  const setAmbianceSettingsMenu = useGlobalStore(
-    (state) => state.setAmbianceSettingsMenu
+  const openSearchSoundsMenu = useGlobalStore(
+    (state) => state.openSearchSoundsMenu
   );
 
   // States
@@ -168,7 +168,7 @@ export default function AmbianceMenu() {
         </button>
         <button
           aria-label="current ambiance button"
-          onClick={() => setSearchAmbianceMenu(true)}
+          onClick={openSearchAmbianceMenu}
           className="flex flex-col justify-center flex-1 px-6 py-1 bg-gray-900 border-0 align-center border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
         >
           <p className="w-full overflow-hidden whitespace-nowrap text-ellipsis">
@@ -194,7 +194,7 @@ export default function AmbianceMenu() {
       >
         <button
           aria-label="ambiance settings button"
-          onClick={() => setAmbianceSettingsMenu(true)}
+          onClick={openAmbianceSettingsMenu}
           className="flex flex-col justify-center h-full px-3.75 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
         >
           <Pencil className="w-4.5 h-4.5 text-gray-200" strokeWidth={2.5} />
@@ -218,7 +218,7 @@ export default function AmbianceMenu() {
         </button>
         <button
           aria-label="add sound button"
-          onClick={() => setSearchSoundsMenu(true)}
+          onClick={openSearchSoundsMenu}
           className="flex items-center justify-center h-full px-3 py-1 pr-5 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full flex-2 text-md hover:bg-gray-800 hover:cursor-pointer"
         >
           <Plus className="w-6 h-6 justify-self-start" />

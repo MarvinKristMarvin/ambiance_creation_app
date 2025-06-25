@@ -100,7 +100,7 @@ export default function SettingsMenu() {
       className="p-4 text-gray-300 rounded-md bg-gray-950"
       style={{ background: "rgb(7, 12, 23)" }}
     >
-      <p className="mb-2 font-bold text-left text-gray-400 text-md">
+      <p className="mb-2 font-bold text-left text-gray-300 text-md">
         {session ? "Connected as " + session.user.name : "Connexion"}
       </p>
 
@@ -122,7 +122,7 @@ export default function SettingsMenu() {
             aria-label="sign up button"
             type="button"
             onClick={() => setSigningUp(true)}
-            className={`px-8 py-2 text-sm font-bold rounded-xs flex-2 hover:cursor-pointer ${
+            className={`px-8 py-2 text-sm font-bold rounded-xs flex-1.5 hover:cursor-pointer ${
               signingUp
                 ? "text-gray-300 bg-gray-700 hover:bg-gray-600"
                 : "text-gray-500 bg-gray-900 hover:bg-gray-800"
@@ -192,7 +192,7 @@ export default function SettingsMenu() {
         disabled={isLoading}
         className={`w-full px-6 py-2 mb-3 text-sm font-bold text-gray-300 rounded-xs hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
           session
-            ? "bg-gray-700 hover:bg-gray-600"
+            ? "bg-red-800 hover:bg-red-700"
             : "bg-emerald-700 hover:bg-emerald-600"
         }`}
       >
@@ -205,7 +205,7 @@ export default function SettingsMenu() {
           : "Log in"}
       </button>
 
-      <p className="pl-0 mb-3 font-bold text-left text-gray-400 text-md">
+      <p className="pl-0 mb-2 font-bold text-left text-gray-300 text-md">
         Sounds positioning
       </p>
       <div className="flex gap-2">

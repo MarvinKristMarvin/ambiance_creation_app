@@ -3,7 +3,7 @@
 import { Ghost, RefreshCcw, Droplet, Moon } from "lucide-react";
 import type { Ambiance, Sound } from "../types";
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
 
 const defaultAmbiance: Ambiance = {
@@ -53,20 +53,16 @@ export default function Hero() {
 
   const handleThemeChange = () => {
     setHoverTheme(false);
-    const otherThemes = themes.filter(
-      (theme) => theme.name !== currentTheme.name
+    const currentIndex = themes.findIndex(
+      (theme) => theme.name === currentTheme.name
     );
-    const randomIndex = Math.floor(Math.random() * otherThemes.length);
-    setCurrentTheme(otherThemes[randomIndex]);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setCurrentTheme(themes[nextIndex]);
   };
 
-  const isFirstRender = useRef(true);
-
   useEffect(() => {
-    if (isFirstRender.current === true) {
-      handleThemeChange();
-      isFirstRender.current = false;
-    }
+    const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+    setCurrentTheme(randomTheme);
   }, []);
 
   const IconComponent = currentTheme.icon;
@@ -144,33 +140,37 @@ export default function Hero() {
             Create an ambiance
           </button>
         </div>
-        <button
-          aria-label="random ambiance button"
-          onClick={handleGetThemedAmbiance}
-          className={`px-6 py-2 mt-4.5 font-bold text-white border-2 rounded-full text-md w-fit flex gap-1 items-center mx-auto hover:cursor-pointer hover:bg-gray-900 hover:${currentTheme.borderClass} ${currentTheme.borderClass}`}
-        >
-          <span className="px-2 py-2 rounded-full">
-            Or listen to a{currentTheme.vowel ? "n " : " "}
-            <span className={` ${currentTheme.textClass}`}>
-              {currentTheme.name}
-            </span>{" "}
-            ambiance
-          </span>
-        </button>
-        <button
-          className={`absolute translate-y-42 p-3.75 border-2 rounded-full hover:bg-gray-900 hover:cursor-pointer bg-gray-950 mt-4.5 ${
-            hoverTheme ? "border-gray-200" : ` ${currentTheme.borderClass}`
-          }`}
-          onMouseEnter={() => setHoverTheme(true)}
-          onMouseLeave={() => setHoverTheme(false)}
-          onClick={handleThemeChange}
-        >
-          {hoverTheme ? (
-            <RefreshCcw className="w-6 h-6 text-gray-200" />
-          ) : (
-            <IconComponent className={`w-6 h-6  ${currentTheme.textClass}`} />
-          )}
-        </button>
+
+        <div className="relative mt-4">
+          <button
+            className={`absolute -top-11.5 left-1/2 -translate-x-1/2 p-3.5 border-2 rounded-full hover:bg-gray-900 hover:cursor-pointer bg-gray-950 ${
+              hoverTheme ? "border-gray-200" : currentTheme.borderClass
+            }`}
+            onMouseEnter={() => setHoverTheme(true)}
+            onMouseLeave={() => setHoverTheme(false)}
+            onClick={handleThemeChange}
+          >
+            {hoverTheme ? (
+              <RefreshCcw className="w-6 h-6 text-gray-200" />
+            ) : (
+              <IconComponent className={`w-6 h-6 ${currentTheme.textClass}`} />
+            )}
+          </button>
+
+          <button
+            aria-label="random ambiance button"
+            onClick={handleGetThemedAmbiance}
+            className={`px-6 py-2 font-bold text-white border-2 rounded-full text-md w-fit flex gap-1 items-center mx-auto hover:cursor-pointer hover:bg-gray-900 ${currentTheme.borderClass}`}
+          >
+            <span className="px-2 py-2 rounded-full">
+              Or listen to a{currentTheme.vowel ? "n " : " "}
+              <span className={currentTheme.textClass}>
+                {currentTheme.name}
+              </span>{" "}
+              ambiance
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );

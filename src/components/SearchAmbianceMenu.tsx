@@ -228,7 +228,7 @@ export default function SearchAmbianceMenu() {
   return (
     <div
       aria-label="search ambiances menu"
-      className="text-gray-300 bg-gray-800 rounded-md "
+      className="flex flex-col h-full max-h-screen text-gray-300 bg-gray-800 rounded-md"
     >
       <div className="flex flex-col gap-2 mb-2 align-center ">
         <div className="relative">
@@ -396,13 +396,16 @@ export default function SearchAmbianceMenu() {
           />
         </div>
       </div>
-      <div aria-label="results" className="relative rounded-sm bg-gray-950">
+      <div
+        aria-label="results"
+        className="relative flex flex-col flex-1 rounded-sm bg-gray-950"
+      >
         {loading && (
           <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
             <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
           </div>
         )}
-        <div className="flex flex-col gap-2 px-2 overflow-y-scroll rounded-sm border-y-8 border-gray-950 h-80">
+        <div className="flex flex-col flex-1 gap-2 px-2 overflow-y-scroll rounded-sm border-gray-950 border-y-8 max-h-[calc(100vh-11.5rem)]">
           {searchedAmbiancesBasicInformations.map((ambiance) => (
             <article
               aria-label="ambiance found"
