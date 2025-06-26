@@ -439,71 +439,76 @@ export default function SearchSoundsMenu() {
         aria-label="results"
         className="relative flex flex-col flex-1 rounded-sm bg-gray-950"
       >
-        {/* <p className="px-3 py-2 text-sm font-bold text-left text-gray-400 border-gray-900 bg-gray-950 border-b-1">
-          Results : {searchedSoundsBasicInformations.length} sound
-          {searchedSoundsBasicInformations.length !== 1 ? "s" : ""}
-        </p> */}
-
         <div className="flex flex-col flex-1 gap-2 px-2 overflow-y-scroll rounded-sm border-gray-950 border-y-8 max-h-[calc(100vh-11.5rem)]">
-          {searchedSoundsBasicInformations.map((sound) => (
-            <article
-              aria-label="sound found"
-              key={sound.id}
-              className="flex items-center bg-gray-800 rounded-sm"
-            >
-              <div className="overflow-hidden w-13 h-13">
-                <Image
-                  src={sound.image_path}
-                  alt={sound.sound_name}
-                  width={100}
-                  height={100}
-                  className="object-cover w-full h-full rounded-l-sm"
-                />
-              </div>
-              <div className="flex flex-row justify-between flex-1 rounded-r-md h-13">
-                <div
-                  aria-label="sound details"
-                  onClick={() => handlePlaySound(sound.id)}
-                  className="flex flex-col justify-center flex-1 gap-1 pl-2 hover:bg-gray-700 hover:cursor-pointer"
-                >
-                  <h3 className="text-xs font-bold text-gray-300">
-                    {sound.sound_name}
-                  </h3>
-                  <p className="text-xs font-bold text-gray-500">
-                    Listen {sound.looping ? "loop" : ""}
-                  </p>
+          {searchedSoundsBasicInformations.length === 0 ? (
+            <p className="px-4 py-4 text-sm font-bold text-center text-gray-400">
+              {searchString || selectedCategory || selectedThemes.length > 0
+                ? "Oops! No sounds have been found with those filters, you may try with less filters."
+                : "To search for sounds, please use the categories, themes or search bar."}
+            </p>
+          ) : (
+            searchedSoundsBasicInformations.map((sound) => (
+              <article
+                aria-label="sound found"
+                key={sound.id}
+                className="flex items-center bg-gray-800 rounded-sm"
+              >
+                <div className="overflow-hidden w-13 h-13">
+                  <Image
+                    src={sound.image_path}
+                    alt={sound.sound_name}
+                    width={100}
+                    height={100}
+                    className="object-cover w-full h-full rounded-l-sm"
+                  />
                 </div>
-                <div aria-label="buttons" className="flex flex-row justify-end">
-                  <button
-                    aria-label="save sound in favorites button"
-                    onClick={() => handleSaveSoundInFavorites(sound.id)}
-                    className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700"
+                <div className="flex flex-row justify-between flex-1 rounded-r-md h-13">
+                  <div
+                    aria-label="sound details"
+                    onClick={() => handlePlaySound(sound.id)}
+                    className="flex flex-col justify-center flex-1 gap-1 pl-2 hover:bg-gray-700 hover:cursor-pointer"
                   >
-                    <Star
-                      className={`w-5 h-5 ${
-                        // Use optimistic state if available, otherwise use original data
-                        (
-                          optimisticFavorites[sound.id] !== undefined
-                            ? optimisticFavorites[sound.id]
-                            : sound.is_favorite
-                        )
-                          ? "text-yellow-200/80 fill-yellow-200/80"
-                          : "text-yellow-200/70"
-                      }`}
-                    />
-                  </button>
+                    <h3 className="text-xs font-bold text-gray-300">
+                      {sound.sound_name}
+                    </h3>
+                    <p className="text-xs font-bold text-gray-500">
+                      Listen {sound.looping ? "loop" : ""}
+                    </p>
+                  </div>
+                  <div
+                    aria-label="buttons"
+                    className="flex flex-row justify-end"
+                  >
+                    <button
+                      aria-label="save sound in favorites button"
+                      onClick={() => handleSaveSoundInFavorites(sound.id)}
+                      className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700"
+                    >
+                      <Star
+                        className={`w-5 h-5 ${
+                          (
+                            optimisticFavorites[sound.id] !== undefined
+                              ? optimisticFavorites[sound.id]
+                              : sound.is_favorite
+                          )
+                            ? "text-yellow-200/80 fill-yellow-200/80"
+                            : "text-yellow-200/70"
+                        }`}
+                      />
+                    </button>
 
-                  <button
-                    aria-label="add the sound to the current ambiance button"
-                    onClick={() => handleAddSoundToAmbiance(sound.id)}
-                    className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700 rounded-r-md"
-                  >
-                    <Check className="w-5 h-5" />
-                  </button>
+                    <button
+                      aria-label="add the sound to the current ambiance button"
+                      onClick={() => handleAddSoundToAmbiance(sound.id)}
+                      className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700 rounded-r-md"
+                    >
+                      <Check className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          )}
         </div>
       </div>
     </div>

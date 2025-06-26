@@ -110,6 +110,44 @@ export default function SearchAmbianceMenu() {
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const toggleFavorite = async (
+    ambianceId: number,
+    currentFavorite: boolean
+  ) => {
+    // Optimistic update
+    const updatedAmbiances = searchedAmbiancesBasicInformations.map((amb) =>
+      amb.id === ambianceId ? { ...amb, is_favorite: !currentFavorite } : amb
+    );
+    setSearchedAmbiancesBasicInformations(updatedAmbiances);
+
+    try {
+      const response = await fetch("/api/toggle_favorite_ambiance", {
+        method: "POST",
+        body: JSON.stringify({ ambianceId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      ShowToast(
+        currentFavorite ? "warning" : "success",
+        "star",
+        currentFavorite
+          ? "Ambiance removed from favorites"
+          : "Ambiance saved to favorites"
+      );
+    } catch {
+      // Revert update
+      const revertedAmbiances = searchedAmbiancesBasicInformations.map((amb) =>
+        amb.id === ambianceId ? { ...amb, is_favorite: currentFavorite } : amb
+      );
+      setSearchedAmbiancesBasicInformations(revertedAmbiances);
+
+      ShowToast("error", "star", "Failed to update favorites");
+    }
+  };
+
   // Function to build query string
   const buildQueryString = () => {
     const params = new URLSearchParams();
@@ -238,7 +276,7 @@ export default function SearchAmbianceMenu() {
               setShowCategoryDropdown(!showCategoryDropdown);
               setShowThemeDropdown(false);
             }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 rounded-sm bg-gray-950 hover:bg-gray-900 hover:cursor-pointer"
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-900 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
           >
             <span className="flex items-center gap-2">
               {selectedCategories.length > 0 ? (
@@ -304,7 +342,7 @@ export default function SearchAmbianceMenu() {
               setShowThemeDropdown(!showThemeDropdown);
               setShowCategoryDropdown(false);
             }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 rounded-sm bg-gray-950 hover:bg-gray-900 hover:cursor-pointer"
+            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-900 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
           >
             <span className="flex items-center gap-2">
               {selectedThemes.length > 0 ? (
@@ -389,7 +427,7 @@ export default function SearchAmbianceMenu() {
           <input
             aria-label="search bar"
             type="text"
-            placeholder="Search by ambiance name"
+            placeholder="Search an ambiance by name"
             value={searchString}
             onChange={handleSearchChange}
             className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
@@ -406,68 +444,105 @@ export default function SearchAmbianceMenu() {
           </div>
         )}
         <div className="flex flex-col flex-1 gap-2 px-2 overflow-y-scroll rounded-sm border-gray-950 border-y-8 max-h-[calc(100vh-11.5rem)]">
-          {searchedAmbiancesBasicInformations.map((ambiance) => (
-            <article
-              aria-label="ambiance found"
-              key={ambiance.id}
-              onClick={() => handleLoadAmbiance(ambiance.id)}
-              className="flex flex-col items-center px-0.5 py-0.5 text-sm font-bold text-left text-gray-300 bg-gray-600 rounded-sm group hover:bg-gray-500 hover:cursor-pointer"
-            >
-              <div className="flex items-center justify-between w-full px-2.5 py-1.5 pb-0 rounded-t-sm border-0 border-b-0 bg-gray-900 border-gray-700 group-hover:bg-gray-800 group-hover:border-gray-800">
-                <p className="text-sm text-gray-300 group-hover:text-gray-200">
-                  {ambiance.ambiance_name}
-                </p>
-                <div className="flex items-center"></div>
-              </div>
-              <div className="flex items-center justify-between w-full rounded-b-sm group-hover:bg-gray-700">
-                <div className="flex items-center flex-1 ">
-                  <div className="flex flex-1 items-center gap-1 px-2.5 py-2 bg-gray-900 rounded-bl-sm group-hover:bg-gray-800">
-                    {parsePostgresEnumArray(ambiance.categories).map(
-                      (category) => (
-                        <React.Fragment key={category}>
-                          {getCategoryIcon(category as Category)}
-                        </React.Fragment>
-                      )
-                    )}
-
-                    {parsePostgresEnumArray(ambiance.themes).map((theme) => (
-                      <React.Fragment key={theme}>
-                        {getThemeIcon(theme as Theme)}
-                      </React.Fragment>
+          {searchedAmbiancesBasicInformations.length === 0 && !loading ? (
+            <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
+              {searchString.trim() ||
+              selectedCategories.length > 0 ||
+              selectedThemes.length > 0 ? (
+                <p>No ambiance found with those filters</p>
+              ) : (
+                <p>Search ambiance by using filters</p>
+              )}
+            </div>
+          ) : (
+            searchedAmbiancesBasicInformations.map((ambiance) => (
+              <article
+                aria-label="ambiance found"
+                key={ambiance.id}
+                onClick={() => handleLoadAmbiance(ambiance.id)}
+                className="flex flex-col items-center px-0.5 py-0.5 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm group hover:bg-gray-400 hover:cursor-pointer"
+              >
+                <div className="flex items-center justify-between w-full px-2.5 py-1.5 pb-0 rounded-t-sm border-0 border-b-0 bg-gray-900 border-gray-700 group-hover:bg-gray-800 group-hover:border-gray-800">
+                  <p className="text-sm text-gray-300 group-hover:text-gray-200 break-words [&>*]:break-all">
+                    {ambiance.ambiance_name.split(" ").map((word, index) => (
+                      <span key={index}>
+                        {word}
+                        {word.length <= 25 && " "}
+                      </span>
                     ))}
-                  </div>
+                  </p>
+                  <div className="flex items-center"></div>
                 </div>
+                <div className="flex items-center justify-between w-full bg-gray-900 group-hover:bg-gray-800">
+                  <div className="flex items-center flex-1 ">
+                    <div className="flex flex-1 items-center gap-1 px-2.5 py-2 pt-1.5 bg-gray-900 rounded-bl-sm group-hover:bg-gray-800">
+                      {/* If more icons than 9, show +X */}
+                      {(() => {
+                        const categories = parsePostgresEnumArray(
+                          ambiance.categories
+                        );
+                        const themes = parsePostgresEnumArray(ambiance.themes);
 
-                <div className="flex items-center gap-1"></div>
-                <div className="flex items-center px-2.5 py-1.5 bg-gray-900 rounded-br-sm group-hover:bg-gray-800">
-                  <span
-                    className={`text-sm ${
-                      ambiance.is_favorite
-                        ? "text-yellow-200/70"
-                        : "text-yellow-200/30"
-                    } group-hover:${
-                      ambiance.is_favorite
-                        ? "text-yellow-200/90"
-                        : "text-yellow-200/30"
-                    }`}
+                        const allIcons = [
+                          ...categories.map((c) => ({
+                            key: `category-${c}`,
+                            icon: getCategoryIcon(c as Category),
+                          })),
+                          ...themes.map((t) => ({
+                            key: `theme-${t}`,
+                            icon: getThemeIcon(t as Theme),
+                          })),
+                        ];
+
+                        const maxIconsToShow = 9;
+                        const shownIcons = allIcons.slice(0, maxIconsToShow);
+                        const hiddenCount = allIcons.length - shownIcons.length;
+
+                        return (
+                          <>
+                            {shownIcons.map(({ key, icon }) => (
+                              <React.Fragment key={key}>{icon}</React.Fragment>
+                            ))}
+                            {hiddenCount > 0 && (
+                              <span className="-ml-0.25 translate-y-0.25 text-xs text-gray-500">
+                                +{hiddenCount}
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1"></div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent loading the ambiance
+                      toggleFavorite(ambiance.id, ambiance.is_favorite);
+                    }}
+                    className="flex justify-end px-1.25 mr-1 items-center  py-0.75 mb-0.5 bg-gray-900  group-hover:bg-gray-800 hover:bg-yellow-200/20 rounded-sm hover:cursor-pointer"
                   >
-                    27
-                  </span>
-                  <Star
-                    className={`ml-1 w-4 h-4 ${
-                      ambiance.is_favorite
-                        ? "text-yellow-200/70 fill-yellow-200/80"
-                        : "text-yellow-200/30"
-                    } group-hover:${
-                      ambiance.is_favorite
-                        ? "text-yellow-200/90 fill-yellow-200/90"
-                        : "text-yellow-200/30"
-                    }`}
-                  />
+                    <span
+                      className={`text-sm ${
+                        ambiance.is_favorite
+                          ? "text-yellow-200/70"
+                          : "text-yellow-200/30"
+                      }`}
+                    >
+                      27
+                    </span>
+                    <Star
+                      className={`ml-1 w-4 h-4 transition ${
+                        ambiance.is_favorite
+                          ? "text-yellow-200/70 fill-yellow-200/80"
+                          : "text-yellow-200/30"
+                      }`}
+                    />
+                  </button>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          )}
         </div>
       </div>
     </div>

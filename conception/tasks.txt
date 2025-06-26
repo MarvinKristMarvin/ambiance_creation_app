@@ -130,32 +130,41 @@ TASKS
 25/06/2025
 - instead of a modal when opening a menu, open a side menu
 
+26/06/2025
+- for ambiances, if selecting multiple themes/categories, show only ambiances containing all these themes and categories
+- show only favorites when opening search ambiance menu without filters
+- mini tuto text in the results div (when starting search, when filters to big)
+- in search ambiance menu, when clicking on the star : add to favorites / remove from favorites
+- better name breaking in searh ambiance cards
+- in ambiance menu, handle long ambiance names and words
+- in search ambiance menu, show "+X" after 9 categories/themes in an ambiance card
+
 PLANNED TODAY
 
+
 TO DO
-- restyle the sound search menu like the search ambiance menu and add the same functionnalities
-- instead of modal when opening settings or search menu, open a div menu on the right of the screen with full screen height, on tablet full screen w too
-- button discover random (random theme and category) + button refresh (keep same theme and category but change results) + mini tuto text in the results div
-- for ambiances, if selecting multiple themes/categories, show only ambiances containing all these themes and categories
-- for sounds, can select only one category but multiple themes (a sound should contain all themes to be displayed), if multiple themes are selected but no sounds found, display "no sounds found with these filters, try removing themes or search input" in the results div
-- show only favorites when opening search ambiance menu without filters
-- in search ambiance menu, when clicking on the star : add to favorites / remove from favorites (with confirmation)
-- in search ambiance menu, show "+X" after 8 categories/themes in an ambiance card
-- cleaner ambiance creation tuto
-- better sound cards centering (+ positionning with option)
-- shortcuts in setiings : button = "expand/close all sounds (Ctrl + E / Ctrl + C)" / "Save Ctrl + S" / "Mute/Unmute Ctrl + M"
-- mobile responsiveness
-- add more sounds
-- when save ambiance : ambiance saved as "ambiance name"
+- when save ambiance : "ambiance saved"
 - block "Saved" button, unblock when current ambiance change
 - save the ambiance when changing the name
+
+- restyle the sound search menu like the search ambiance menu and add the same functionnalities
+- for sounds, can select only one category but multiple themes (a sound should contain all themes to be displayed), if multiple themes are selected but no sounds found, display "no sounds found with these filters, try removing themes or search input" in the results div
+
+- cleaner ambiance creation tuto when button create a new one
+- better sound cards positionning
+- adjust global volume slider and angles
+
+- add more sounds
+- remove bugs
+
+- shortcuts in settings : button = "expand/close all sounds (Ctrl + E / Ctrl + C)" / "Save Ctrl + S" / "Mute/Unmute Ctrl + M / fullscreen" (add shortcuts for annoying workflow in general)
+- mobile responsiveness
+
 - playlist system (button to add in playlist in ambiance card) and in search ambiance menu : button show playlist => shoaw ambiance cards with mroe options (play for x minutes, move position..)
 - when scrolling down the search ambiance menu : every 10 ambiances, show a loading state to load 10 more (load icon + "loading more ambiances")
-- more settings : fullscreen
 
 CONSIDER
-- in ambiance card : categories and themes ordered only by quantity, not categories always first
-- in search ambiance menu : drop down next to name to show more ambiance infos
-- in search menus : buttons category and themes next to each other + when selecting an option, show only icons and not Categories : or Themes : (to gain space if needed)
+A - in ambiance card : categories and themes ordered only by quantity, not categories always first
+A - in search ambiance menu : drop down next to name to show more ambiance infos
 - don't change pitch when changing speed option ?
 - study stereo vs mono sounds

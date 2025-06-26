@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     let session = null;
     let userId = null;
-    // Safely get session with error handling
+
     try {
       session = await auth.api.getSession({ headers: request.headers });
       userId = session?.user?.id || null;
@@ -20,16 +20,17 @@ export async function GET(request: Request) {
         "Session retrieval failed (user likely not logged in):",
         sessionError
       );
-      // Continue with null userId for anonymous users
     }
 
     const { searchParams } = new URL(request.url);
-    // Extract query parameters
     const searchString = searchParams.get("search");
     const categories = searchParams.getAll("category");
     const themes = searchParams.getAll("theme");
 
-    // Build the base query
+    const isFilterEmpty =
+      !searchString?.trim() && categories.length === 0 && themes.length === 0;
+
+    // Base SELECT
     let query = `
       SELECT
         a.id,
@@ -45,7 +46,6 @@ export async function GET(request: Request) {
       FROM ambiances a
     `;
 
-    // Add LEFT JOIN for favorites only if user is logged in
     if (userId) {
       query += `
         LEFT JOIN user_has_favorite_ambiances uhfa
@@ -55,52 +55,79 @@ export async function GET(request: Request) {
 
     const conditions: string[] = [];
     const values: string[] = [];
-    let paramIndex = userId ? 2 : 1; // Start from 2 if userId is used, otherwise 1
+    let paramIndex = userId ? 2 : 1;
 
-    // Add userId to values array if logged in
     if (userId) {
       values.push(userId);
     }
 
-    // Add search string filter (searches in ambiance_name)
+    // Search filter
     if (searchString && searchString.trim()) {
       conditions.push(`a.ambiance_name ILIKE $${paramIndex}`);
       values.push(`%${searchString.trim()}%`);
       paramIndex++;
     }
 
-    // Add category filters
+    // Category filter (all required)
     if (categories.length > 0) {
-      const categoryConditions = categories.map((category) => {
-        const condition = `a.categories && ARRAY[$${paramIndex}]::category[]`;
-        values.push(category);
-        paramIndex++;
-        return condition;
-      });
-      conditions.push(`(${categoryConditions.join(" OR ")})`);
+      conditions.push(
+        `a.categories @> ARRAY[${categories
+          .map((_, i) => `$${paramIndex + i}`)
+          .join(", ")}]::category[]`
+      );
+      values.push(...categories);
+      paramIndex += categories.length;
     }
 
-    // Add theme filters
+    // Theme filter (all required)
     if (themes.length > 0) {
-      const themeConditions = themes.map((theme) => {
-        const condition = `a.themes && ARRAY[$${paramIndex}]::theme[]`;
-        values.push(theme);
-        paramIndex++;
-        return condition;
-      });
-      conditions.push(`(${themeConditions.join(" OR ")})`);
+      conditions.push(
+        `a.themes @> ARRAY[${themes
+          .map((_, i) => `$${paramIndex + i}`)
+          .join(", ")}]::theme[]`
+      );
+      values.push(...themes);
+      paramIndex += themes.length;
     }
 
-    // Add WHERE clause if there are conditions
-    if (conditions.length > 0) {
-      query += ` WHERE ${conditions.join(" AND ")}`;
-    }
-
-    // Add ordering: favorites first, then by name
-    if (userId) {
-      query += ` ORDER BY is_favorite DESC, a.ambiance_name ASC`;
+    // Apply WHERE clause
+    if (isFilterEmpty) {
+      if (userId) {
+        query += ` WHERE uhfa.user_id IS NOT NULL`;
+      } else {
+        return NextResponse.json([]);
+      }
     } else {
-      query += ` ORDER BY a.ambiance_name ASC`;
+      if (conditions.length > 0) {
+        query += ` WHERE ${conditions.join(" AND ")}`;
+      }
+    }
+
+    // Ordering based on match quality
+    const categoryScore = categories
+      .map((cat) => `COALESCE(array_position(a.categories, '${cat}'), 1000)`)
+      .join(" + ");
+
+    const themeScore = themes
+      .map((theme) => `COALESCE(array_position(a.themes, '${theme}'), 1000)`)
+      .join(" + ");
+
+    const totalScore =
+      categories.length && themes.length
+        ? `(${categoryScore}) + (${themeScore})`
+        : categories.length
+        ? `(${categoryScore})`
+        : `(${themeScore})`;
+
+    // ORDER BY
+    if (!isFilterEmpty && (categories.length > 0 || themes.length > 0)) {
+      query += ` ORDER BY ${
+        userId ? "is_favorite DESC," : ""
+      } ${totalScore} ASC, a.ambiance_name ASC`;
+    } else {
+      query += ` ORDER BY ${
+        userId ? "is_favorite DESC," : ""
+      } a.ambiance_name ASC`;
     }
 
     console.log("Final query:", query);
@@ -115,10 +142,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result.rows);
   } catch (error) {
-    // Send the error message on the console with more details
     console.error("Database error when getting ambiances basic informations:");
     console.error("Full error:", error);
-    // Send the error to the front
     return NextResponse.json(
       {
         error: "Internal Server Error",

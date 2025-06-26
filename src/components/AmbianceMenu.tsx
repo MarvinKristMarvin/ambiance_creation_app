@@ -169,17 +169,19 @@ export default function AmbianceMenu() {
         <button
           aria-label="current ambiance button"
           onClick={openSearchAmbianceMenu}
-          className="flex flex-col justify-center flex-1 px-6 py-1 bg-gray-900 border-0 align-center border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
+          className="flex items-center justify-center flex-1 px-6 py-1 overflow-hidden bg-gray-900 border-0 border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
         >
-          <p className="w-full overflow-hidden whitespace-nowrap text-ellipsis">
+          <div className="relative w-full overflow-hidden text-sm leading-none">
             {currentAmbiance
               ? currentAmbiance.ambiance_name
               : "Search an ambiance"}
-          </p>
+          </div>
+
           {currentAmbiance && (
             <p className="hidden text-sm font-bold text-gray-400">PLAYING</p>
           )}
         </button>
+
         <button
           aria-label="next ambiance button"
           className="flex flex-col justify-center px-3.5 py-1 pl-2.5 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
