@@ -143,7 +143,9 @@ const Toast: React.FC<ToastProps> = ({
     <div
       aria-label="toast"
       className={`
-        fixed p-5 transform -translate-x-1/2 ${toastConfig.bgColor} rounded-sm
+        absolute p-5 transform -translate-x-1/2 ${
+          toastConfig.bgColor
+        } rounded-sm
         left-1/2 w-[360px] hover:cursor-pointer z-50
         ${
           isInstantClose

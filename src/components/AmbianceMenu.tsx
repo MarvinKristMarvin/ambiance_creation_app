@@ -60,6 +60,7 @@ export default function AmbianceMenu() {
       setSaveState("loading");
 
       // Remove both id and author_id - server will handle author_id from session
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, author_id, ...ambianceWithoutId } = currentAmbiance;
       const response = await fetch("/api/post_ambiance", {
         method: "POST",
@@ -84,6 +85,7 @@ export default function AmbianceMenu() {
         console.log("Ambiance saved successfully:", result.data);
         setSaveState("saved");
         ShowToast("success", "star", "Ambiance saved successfully");
+
         // Optionally update the current ambiance with the returned data (including new ID)
         // setCurrentAmbiance(result.data);
       } else {
@@ -96,10 +98,37 @@ export default function AmbianceMenu() {
     }
   };
 
+  // Save ambiance when ambiance name changes but not when id changes
+  //! Maybe not the best solution for prodouction
+  const [prevAmbianceId, setPrevAmbianceId] = useState(currentAmbiance?.id);
+  const isFirstRender = useRef(0);
+
+  useEffect(() => {
+    if (!currentAmbiance) return;
+
+    // Skip on initial load
+    if (isFirstRender.current < 2) {
+      isFirstRender.current += 1;
+      setPrevAmbianceId(currentAmbiance.id);
+      return;
+    }
+
+    // Only save if the ID didn't change (i.e., it's the same ambiance)
+    if (
+      prevAmbianceId === currentAmbiance.id &&
+      prevAmbianceId !== 0 &&
+      currentAmbiance.id !== 0
+    ) {
+      handleSaveAmbiance();
+    }
+
+    setPrevAmbianceId(currentAmbiance.id);
+  }, [currentAmbiance?.ambiance_name]);
+
   // Reset save button load state when ambiance changes
   useEffect(() => {
     setSaveState("idle");
-  }, [currentAmbiance]);
+  }, [currentAmbiance?.ambiance_sounds, currentAmbiance?.ambiance_name]);
 
   return (
     <div
@@ -203,9 +232,9 @@ export default function AmbianceMenu() {
         </button>
         <button
           aria-label="save ambiance button"
-          onClick={handleSaveAmbiance}
-          disabled={saveState === "loading"}
-          className="flex items-center justify-center h-full py-1 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full w-26 text-md hover:bg-gray-800 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={saveState === "idle" ? handleSaveAmbiance : undefined}
+          disabled={saveState === "loading" || saveState === "saved"}
+          className="flex items-center justify-center h-full py-1 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full w-26 text-md hover:bg-gray-800 hover:cursor-pointer disabled:opacity-50 disabled:cursor-default"
         >
           {saveState === "loading" && (
             <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin" />

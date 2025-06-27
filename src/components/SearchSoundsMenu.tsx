@@ -1,8 +1,18 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, Star, ChevronDown } from "lucide-react";
+import { Check, Star, ChevronDown, X, Search } from "lucide-react";
+import {
+  Leaf,
+  PawPrint,
+  Bug,
+  PersonStanding,
+  Earth,
+  Music,
+} from "lucide-react"; // categories icons
+import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
+import { Sound } from "@/types";
 
 // Categories and types based on db
 const CATEGORIES = [
@@ -11,15 +21,53 @@ const CATEGORIES = [
   "Animals",
   "Insects",
   "Human",
-  "Objects",
   "Music",
-  "Machines",
 ] as const;
 
 const THEMES = ["Spooky", "Aquatic", "Night"] as const;
 
 type Category = (typeof CATEGORIES)[number];
 type Theme = (typeof THEMES)[number];
+
+// Category icon mapping with colors
+const getCategoryIcon = (category: Category) => {
+  const iconProps = { className: "w-4 h-4" };
+
+  switch (category) {
+    case "Elemental":
+      return <Earth {...iconProps} className="w-4 h-4 text-red-300" />;
+    case "Vegetation":
+      return <Leaf {...iconProps} className="w-4 h-4 text-green-400" />;
+    case "Animals":
+      return <PawPrint {...iconProps} className="w-4 h-4 text-amber-400" />;
+    case "Insects":
+      return <Bug {...iconProps} className="w-4 h-4 text-lime-400" />;
+    case "Human":
+      return (
+        <PersonStanding {...iconProps} className="w-4 h-4 text-orange-400" />
+      );
+    case "Music":
+      return <Music {...iconProps} className="w-4 h-4 text-purple-400" />;
+    default:
+      return null;
+  }
+};
+
+// Theme icon mapping with colors
+const getThemeIcon = (theme: Theme) => {
+  const iconProps = { className: "w-4 h-4" };
+
+  switch (theme) {
+    case "Spooky":
+      return <Ghost {...iconProps} className="w-4 h-4 text-gray-400" />;
+    case "Aquatic":
+      return <Droplet {...iconProps} className="w-4 h-4 text-blue-400" />;
+    case "Night":
+      return <Moon {...iconProps} className="w-4 h-4 text-indigo-400" />;
+    default:
+      return null;
+  }
+};
 
 export default function SearchSoundsMenu() {
   // Existing Zustand state
@@ -34,6 +82,7 @@ export default function SearchSoundsMenu() {
     (state) => state.setCurrentAmbiance
   );
   const globalVolume = useGlobalStore((state) => state.globalVolume);
+  const setSoundsUsed = useGlobalStore((state) => state.setSoundsUsed);
 
   // Toasts
   const { ShowToast } = useShowToast();
@@ -46,6 +95,7 @@ export default function SearchSoundsMenu() {
   const [selectedThemes, setSelectedThemes] = useState<Theme[]>([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // State to track optimistic updates for favorites
   const [optimisticFavorites, setOptimisticFavorites] = useState<
@@ -135,6 +185,8 @@ export default function SearchSoundsMenu() {
   // Function to perform search
   const performSearch = async () => {
     const queryString = buildQueryString();
+    setLoading(true); // start loading
+
     try {
       const response = await fetch(
         `/api/get_search_menu_sounds?${queryString}`
@@ -147,6 +199,8 @@ export default function SearchSoundsMenu() {
       setSearchedSoundsBasicInformations(data);
     } catch (error) {
       console.error("Error fetching sounds with filtering search:", error);
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -174,6 +228,31 @@ export default function SearchSoundsMenu() {
   // Initial fetch on component mount
   useEffect(() => {
     performSearch();
+  }, []);
+
+  // Handle outside click when any dropdown is open
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoryRef.current &&
+        !categoryRef.current.contains(event.target as Node)
+      ) {
+        setShowCategoryDropdown(false);
+      }
+      if (
+        themeRef.current &&
+        !themeRef.current.contains(event.target as Node)
+      ) {
+        setShowThemeDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleAddSoundToAmbiance = async (soundId: number) => {
@@ -205,6 +284,30 @@ export default function SearchSoundsMenu() {
         ...currentAmbiance,
         ambiance_sounds: [...currentAmbiance.ambiance_sounds, newAmbianceSound],
       });
+
+      // Fetch sound default data
+      const soundDefaultInfos = await fetch("/api/get_used_sounds", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ soundIds: [soundId] }),
+      });
+
+      if (!soundDefaultInfos.ok) throw new Error("Failed to load sound data");
+      const soundsData: Sound[] = await soundDefaultInfos.json();
+
+      // Merge new sound into soundsUsed without replacing the full list
+      const existingSounds = useGlobalStore.getState().soundsUsed;
+      const newSound = soundsData[0];
+
+      const alreadyExists = existingSounds.some((s) => s.id === newSound.id);
+      if (!alreadyExists) {
+        setSoundsUsed([...existingSounds, newSound]);
+        console.log("Sound added to soundsUsed:", newSound);
+      } else {
+        console.log("Sound already exists in soundsUsed");
+      }
 
       ShowToast("success", "check", "Sound added to the ambiance");
     } catch (error) {
@@ -316,136 +419,201 @@ export default function SearchSoundsMenu() {
   return (
     <div
       aria-label="search sounds menu"
-      className="flex flex-col h-full p-0 pt-0 text-gray-300 bg-gray-800 rounded-md"
+      className="flex flex-col h-full max-h-screen text-gray-300 bg-gray-800 rounded-md"
     >
-      <div className="flex flex-col gap-2 mt-0 mb-2">
+      <div className="flex flex-col gap-2 mb-2 align-center">
         {/* Category Filter */}
-        <div className="relative">
-          <button
-            aria-label="category button"
-            onClick={() => {
-              setShowCategoryDropdown(!showCategoryDropdown);
-              setShowThemeDropdown(false);
-            }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm hover:bg-gray-600 hover:cursor-pointer"
-          >
-            <span>
-              {selectedCategory ? `Category: ${selectedCategory}` : "Category"}
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 transition-transform ${
-                showCategoryDropdown ? "rotate-180" : ""
-              }`}
-            />
-          </button>
+        <div className="relative" ref={categoryRef}>
+          <div className="relative">
+            <button
+              aria-label="category button"
+              onClick={() => {
+                setShowCategoryDropdown(!showCategoryDropdown);
+                setShowThemeDropdown(false);
+              }}
+              className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-900 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                {selectedCategory ? (
+                  <>
+                    <span>Category:</span>
+                    {getCategoryIcon(selectedCategory)}
+                  </>
+                ) : (
+                  "Category"
+                )}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${
+                  showCategoryDropdown ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-          {showCategoryDropdown && (
-            <div className="absolute z-10 w-full mt-1 overflow-y-scroll bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5">
-              <button
-                onClick={() => {
-                  setSelectedCategory(null);
-                  setShowCategoryDropdown(false);
-                }}
-                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700"
-              >
-                All Categories
-              </button>
-              {CATEGORIES.map((category) => (
+            {showCategoryDropdown && (
+              <div className="absolute z-10 w-full mt-1 overflow-y-scroll bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5">
                 <button
-                  key={category}
                   onClick={() => {
-                    setSelectedCategory(category);
+                    setSelectedCategory(null);
                     setShowCategoryDropdown(false);
                   }}
-                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 last:border-b-0 ${
-                    selectedCategory === category
-                      ? "text-emerald-400 bg-gray-700"
-                      : "text-gray-300"
-                  }`}
+                  className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
-                  {category}
+                  <X className="w-4 h-4 text-gray-400" />
+                  <span>All Categories</span>
                 </button>
-              ))}
-            </div>
-          )}
+                {CATEGORIES.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setShowCategoryDropdown(false);
+                    }}
+                    className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                      selectedCategory === category
+                        ? "text-emerald-400 bg-gray-700"
+                        : "text-gray-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {getCategoryIcon(category)}
+                      <span>{category}</span>
+                    </div>
+                    {selectedCategory === category && (
+                      <Check className="w-4 h-4" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Theme Filter */}
-        <div className="relative">
-          <button
-            aria-label="themes button"
-            onClick={() => {
-              setShowThemeDropdown(!showThemeDropdown);
-              setShowCategoryDropdown(false);
-            }}
-            className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm hover:bg-gray-600 hover:cursor-pointer"
-          >
-            <span>
-              {selectedThemes.length > 0
-                ? `Themes: ${selectedThemes.join(", ")}`
-                : "Themes"}
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 transition-transform ${
-                showThemeDropdown ? "rotate-180" : ""
-              }`}
-            />
-          </button>
+        <div className="relative" ref={themeRef}>
+          <div className="relative">
+            <button
+              aria-label="themes button"
+              onClick={() => {
+                setShowThemeDropdown(!showThemeDropdown);
+                setShowCategoryDropdown(false);
+              }}
+              className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-900 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                {selectedThemes.length > 0 ? (
+                  <>
+                    <span>Themes:</span>
+                    <div className="flex items-center gap-1">
+                      {selectedThemes.map((theme) => (
+                        <React.Fragment key={theme}>
+                          {getThemeIcon(theme)}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  "Themes"
+                )}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${
+                  showThemeDropdown ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-          {showThemeDropdown && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-scroll">
-              <button
-                onClick={() => {
-                  setSelectedThemes([]);
-                  setShowThemeDropdown(false);
-                }}
-                className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700"
-              >
-                All Themes
-              </button>
-              {THEMES.map((theme) => (
+            {showThemeDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-scroll">
                 <button
-                  key={theme}
-                  onClick={() => handleThemeToggle(theme)}
-                  className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
-                    selectedThemes.includes(theme)
-                      ? "text-emerald-400 bg-gray-700"
-                      : "text-gray-300"
-                  }`}
+                  onClick={() => {
+                    setSelectedThemes([]);
+                    setShowThemeDropdown(false);
+                  }}
+                  className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
-                  <span>{theme}</span>
-                  {selectedThemes.includes(theme) && (
-                    <Check className="w-4 h-4" />
-                  )}
+                  <X className="w-4 h-4 text-gray-400" />
+                  <span>All Themes</span>
                 </button>
-              ))}
-            </div>
-          )}
+                {THEMES.map((theme) => (
+                  <button
+                    key={theme}
+                    onClick={() => handleThemeToggle(theme)}
+                    className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                      selectedThemes.includes(theme)
+                        ? "text-emerald-400 bg-gray-700"
+                        : "text-gray-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {getThemeIcon(theme)}
+                      <span>{theme}</span>
+                    </div>
+                    {selectedThemes.includes(theme) && (
+                      <Check className="w-4 h-4" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Search Input */}
-      <div className="mb-2">
-        <input
-          type="text"
-          placeholder="Search a sound by name"
-          value={searchString}
-          onChange={handleSearchChange}
-          className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
-        />
+      <div aria-label="sound search bar" className="flex mb-2 align-center">
+        <div className="relative w-full">
+          {/* Right icon */}
+          <div className="absolute inset-y-0 right-0 flex items-center">
+            {searchString.length === 0 ? (
+              <Search className="w-4 h-4 mr-3 text-gray-500 scale-x-[-1]" />
+            ) : (
+              <button
+                aria-label="clear search input"
+                onClick={() =>
+                  handleSearchChange({
+                    target: { value: "" },
+                  } as React.ChangeEvent<HTMLInputElement>)
+                }
+                className="p-3 text-gray-500 hover:text-gray-300 focus:outline-none hover:cursor-pointer"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Input */}
+          <input
+            aria-label="search bar"
+            type="text"
+            placeholder="Search a sound by name"
+            value={searchString}
+            onChange={handleSearchChange}
+            className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
+          />
+        </div>
       </div>
 
       <div
         aria-label="results"
         className="relative flex flex-col flex-1 rounded-sm bg-gray-950"
       >
+        {loading && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+            <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
+          </div>
+        )}
         <div className="flex flex-col flex-1 gap-2 px-2 overflow-y-scroll rounded-sm border-gray-950 border-y-8 max-h-[calc(100vh-11.5rem)]">
-          {searchedSoundsBasicInformations.length === 0 ? (
-            <p className="px-4 py-4 text-sm font-bold text-center text-gray-400">
-              {searchString || selectedCategory || selectedThemes.length > 0
-                ? "Oops! No sounds have been found with those filters, you may try with less filters."
-                : "To search for sounds, please use the categories, themes or search bar."}
-            </p>
+          {searchedSoundsBasicInformations.length === 0 && !loading ? (
+            <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
+              {searchString.trim() ||
+              selectedCategory ||
+              selectedThemes.length > 0 ? (
+                <p>No sounds found with those filters</p>
+              ) : (
+                <p>Search sounds by using filters</p>
+              )}
+            </div>
           ) : (
             searchedSoundsBasicInformations.map((sound) => (
               <article

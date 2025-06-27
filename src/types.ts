@@ -24,6 +24,7 @@ export interface AmbianceBasicInformations {
   themes: string[];
   author_id: string;
   is_favorite: boolean;
+  number_of_favorites: number;
 }
 
 // Sound data with default values

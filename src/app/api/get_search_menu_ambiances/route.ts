@@ -32,19 +32,25 @@ export async function GET(request: Request) {
 
     // Base SELECT
     let query = `
-      SELECT
-        a.id,
-        a.ambiance_name,
-        a.categories,
-        a.themes,
-        a.author_id,
-        ${
-          userId
-            ? "CASE WHEN uhfa.user_id IS NOT NULL THEN true ELSE false END as is_favorite"
-            : "false as is_favorite"
-        }
-      FROM ambiances a
-    `;
+  SELECT
+    a.id,
+    a.ambiance_name,
+    a.categories,
+    a.themes,
+    a.author_id,
+    ${
+      userId
+        ? "CASE WHEN uhfa.user_id IS NOT NULL THEN true ELSE false END as is_favorite"
+        : "false as is_favorite"
+    },
+    COALESCE(fav_counts.count, 0) AS number_of_favorites
+  FROM ambiances a
+  LEFT JOIN (
+    SELECT ambiance_id, COUNT(*) AS count
+    FROM user_has_favorite_ambiances
+    GROUP BY ambiance_id
+  ) AS fav_counts ON a.id = fav_counts.ambiance_id
+`;
 
     if (userId) {
       query += `

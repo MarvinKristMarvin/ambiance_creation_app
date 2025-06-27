@@ -54,8 +54,14 @@ export default function Home() {
     <div className="flex">
       <main className="flex flex-col w-screen h-screen bg-gray-950">
         <Header />
-        {currentAmbiance ? <Sounds /> : <Hero />}
-        <ToastContainer />
+        {currentAmbiance ? (
+          <div className="relative w-full h-full">
+            <Sounds />
+            <ToastContainer />
+          </div>
+        ) : (
+          <Hero />
+        )}
       </main>
       <aside className="min-h-full bg-gray-900">
         {settingsMenu && (

@@ -12,7 +12,7 @@ export default function Sounds() {
   );
 
   // If there is no ambiance or no sounds used, don't show Sounds.tsx
-  if (!currentAmbiance || !soundsUsed || soundsUsed.length === 0) {
+  if (!currentAmbiance) {
     return null;
   }
 
@@ -21,7 +21,7 @@ export default function Sounds() {
 
   return (
     <div
-      className={`flex flex-row  gap-4 my-4 w-full h-full items-center ${
+      className={` flex flex-row  gap-4 mb-4 w-full h-full items-center ${
         soundsCentering === "Left"
           ? "justify-start"
           : soundsCentering === "Center"
@@ -61,14 +61,12 @@ export default function Sounds() {
       })}
       {currentAmbiance.ambiance_sounds.length === 0 && (
         <button
-          onClick={() => {
-            setSearchSoundsMenu(true);
-          }}
-          className="relative flex flex-col items-center justify-center gap-0 px-16 py-16 border-2 border-gray-400 rounded-xs hover:bg-gray-900 hover:cursor-pointer"
+          onClick={() => setSearchSoundsMenu(true)}
+          className="relative flex flex-col items-center justify-center gap-0 border-2 border-gray-500 border-dashed px-15 py-15 hover:border-gray-300 hover:cursor-pointer group"
         >
-          <Plus className="w-10 h-10 text-gray-400 stroke-2" />
-          <span className="absolute w-40 text-sm font-bold text-gray-400 bottom-1">
-            Add a sound
+          <Plus className="w-10 h-10 text-gray-500 stroke-2 group-hover:text-gray-300" />
+          <span className="absolute w-90 text-xl font-bold text-gray-700 bottom-[-70]">
+            Add a sound to your ambiance
           </span>
         </button>
       )}

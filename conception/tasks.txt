@@ -139,32 +139,40 @@ TASKS
 - in ambiance menu, handle long ambiance names and words
 - in search ambiance menu, show "+X" after 9 categories/themes in an ambiance card
 
-PLANNED TODAY
-
-
-TO DO
-- when save ambiance : "ambiance saved"
-- block "Saved" button, unblock when current ambiance change
+27/06/2025
 - save the ambiance when changing the name
-
+- block "Saved" button, unblock when current ambiance change
 - restyle the sound search menu like the search ambiance menu and add the same functionnalities
 - for sounds, can select only one category but multiple themes (a sound should contain all themes to be displayed), if multiple themes are selected but no sounds found, display "no sounds found with these filters, try removing themes or search input" in the results div
-
+- clicking elsewhere than the select options categories/themes should close the options selection
+- remove double ambiance saving when creating an ambiance or loading one
+- dynamic ambiance favorite number in cards
+- changing shrinked sound colume should reset save state to idle
 - cleaner ambiance creation tuto when button create a new one
+- loaded sound should always appear in the ambiance
+- toast in the middle of sounds component
 - better sound cards positionning
-- adjust global volume slider and angles
 
+TO DO
+- restyle settings menu
+- adjust global volume slider and angles
+-
 - add more sounds
 - remove bugs
-
+-
 - shortcuts in settings : button = "expand/close all sounds (Ctrl + E / Ctrl + C)" / "Save Ctrl + S" / "Mute/Unmute Ctrl + M / fullscreen" (add shortcuts for annoying workflow in general)
 - mobile responsiveness
-
+-
 - playlist system (button to add in playlist in ambiance card) and in search ambiance menu : button show playlist => shoaw ambiance cards with mroe options (play for x minutes, move position..)
 - when scrolling down the search ambiance menu : every 10 ambiances, show a loading state to load 10 more (load icon + "loading more ambiances")
+- autosave after 10 seconds after a current ambiance modification
+
+BUGS 
+- for a created ambiance, it does not save when modifying ambiance name
 
 CONSIDER
 A - in ambiance card : categories and themes ordered only by quantity, not categories always first
 A - in search ambiance menu : drop down next to name to show more ambiance infos
-- don't change pitch when changing speed option ?
-- study stereo vs mono sounds
+A - completely gray-950 bg aside menus
+C - don't change pitch when changing speed option ?
+C - study stereo vs mono sounds

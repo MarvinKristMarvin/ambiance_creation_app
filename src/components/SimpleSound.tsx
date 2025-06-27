@@ -567,8 +567,25 @@ export default function SimpleSound({
               min="0"
               max="100"
               value={volume}
-              onChange={(e) => setVolume(Number(e.target.value))}
-              className="w-full h-8 opacity-0 cursor-pointer"
+              onChange={(e) => {
+                setVolume(Number(e.target.value));
+                if (!currentAmbiance) return;
+                const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                  (sound) =>
+                    sound.id === id
+                      ? {
+                          ...sound,
+                          volume: Number(e.target.value),
+                        }
+                      : sound
+                );
+
+                setCurrentAmbiance({
+                  ...currentAmbiance,
+                  ambiance_sounds: updatedSounds,
+                });
+              }}
+              className="w-full opacity-0 cursor-pointer"
             />
           </div>
           {/* Triangle indicator - only shows on hover*/}
@@ -1018,10 +1035,10 @@ export default function SimpleSound({
           )}
           <div
             aria-label="note"
-            className="flex flex-col items-center justify-center flex-1 mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950 min-h-12 hover:bg-gray-900 hover:cursor-pointer"
+            className="flex flex-col items-center justify-center flex-1 mx-2 mt-0 text-gray-700 border-2 rounded-xs border-gray-950 bg-gray-950 min-h-12 hover:cursor-pointer hover:text-gray-400"
           >
-            <Pencil className="w-5 h-5 mb-1.5 text-gray-700"></Pencil>
-            <span className="text-xs text-gray-700 ">My notes</span>
+            <Pencil className="w-5 h-5 mb-1.5 "></Pencil>
+            <span className="text-xs ">My notes</span>
           </div>
         </div>
       )}

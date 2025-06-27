@@ -9,7 +9,7 @@ import {
   Music,
 } from "lucide-react"; // categories icons
 import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import type { Ambiance, AmbianceBasicInformations, Sound } from "@/types";
 import { useShowToast } from "@/hooks/useShowToast";
@@ -263,13 +263,38 @@ export default function SearchAmbianceMenu() {
     }
   };
 
+  // Handle outside click when any dropdown is open
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoryRef.current &&
+        !categoryRef.current.contains(event.target as Node)
+      ) {
+        setShowCategoryDropdown(false);
+      }
+      if (
+        themeRef.current &&
+        !themeRef.current.contains(event.target as Node)
+      ) {
+        setShowThemeDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div
       aria-label="search ambiances menu"
       className="flex flex-col h-full max-h-screen text-gray-300 bg-gray-800 rounded-md"
     >
       <div className="flex flex-col gap-2 mb-2 align-center ">
-        <div className="relative">
+        <div className="relative" ref={categoryRef}>
           <button
             aria-label="category button"
             onClick={() => {
@@ -335,7 +360,7 @@ export default function SearchAmbianceMenu() {
             </div>
           )}
         </div>
-        <div className="relative">
+        <div className="relative" ref={themeRef}>
           <button
             aria-label="themes button"
             onClick={() => {
@@ -526,16 +551,16 @@ export default function SearchAmbianceMenu() {
                       className={`text-sm ${
                         ambiance.is_favorite
                           ? "text-yellow-200/70"
-                          : "text-yellow-200/30"
+                          : "text-yellow-200/50"
                       }`}
                     >
-                      27
+                      {ambiance.number_of_favorites}
                     </span>
                     <Star
                       className={`ml-1 w-4 h-4 transition ${
                         ambiance.is_favorite
                           ? "text-yellow-200/70 fill-yellow-200/80"
-                          : "text-yellow-200/30"
+                          : "text-yellow-200/50"
                       }`}
                     />
                   </button>

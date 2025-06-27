@@ -8,6 +8,8 @@ export default function AmbianceSettingsMenu() {
     (state) => state.setCurrentAmbiance
   );
 
+  // const { ShowToast } = useShowToast();
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
