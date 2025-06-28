@@ -257,7 +257,7 @@ export default function SearchAmbianceMenu() {
       setSoundsUsed(soundsData);
       console.log("Sounds used : ", soundsData);
       setSearchAmbianceMenu(false);
-      ShowToast("success", "music", "Ambiance loaded");
+      ShowToast("success", "ambiance", "Ambiance loaded");
     } catch (error) {
       console.error("Error loading ambiance or sounds :", error);
     }
@@ -291,7 +291,7 @@ export default function SearchAmbianceMenu() {
   return (
     <div
       aria-label="search ambiances menu"
-      className="flex flex-col h-full max-h-screen text-gray-300 bg-gray-800 rounded-md"
+      className="flex flex-col h-full max-h-screen text-gray-300 rounded-md"
     >
       <div className="flex flex-col gap-2 mb-2 align-center ">
         <div className="relative" ref={categoryRef}>
@@ -455,7 +455,7 @@ export default function SearchAmbianceMenu() {
             placeholder="Search an ambiance by name"
             value={searchString}
             onChange={handleSearchChange}
-            className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-950 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
+            className="w-full py-1.5 px-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-900 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700"
           />
         </div>
       </div>
@@ -468,7 +468,7 @@ export default function SearchAmbianceMenu() {
             <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
           </div>
         )}
-        <div className="flex flex-col flex-1 gap-2 px-2 overflow-y-scroll rounded-sm border-gray-950 border-y-8 max-h-[calc(100vh-11.5rem)]">
+        <div className="flex flex-col flex-1 gap-2 overflow-y-scroll rounded-sm border-gray-950 border-y-2 max-h-[calc(100vh-14.5rem)]">
           {searchedAmbiancesBasicInformations.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
               {searchString.trim() ||

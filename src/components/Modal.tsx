@@ -24,21 +24,21 @@ export default function Modal({ onClose, children, title }: Props) {
     <div className="z-10 flex items-center justify-center flex-1 h-full bg-black/80 w-90">
       <div
         aria-label="modal window"
-        className="flex flex-col flex-1 w-full h-full max-h-screen bg-gray-800 border-8 border-t-0 border-gray-800"
+        className="flex flex-col flex-1 w-full h-full max-h-screen px-3 border-t-0 border-gray-900 border-l-1 bg-gray-950"
       >
         <div
-          className="flex items-center justify-between pt-2 mb-2 bg-gray-800 border-gray-700 text-md rounded-t-md "
+          className="flex items-center justify-between pt-2 mb-3 border-gray-900 border-b-1 bg-gray-950 text-md rounded-t-md hover:cursor-pointer group"
           onClick={onClose}
         >
           <h2
             aria-label="modal title"
-            className="pl-1 text-lg font-bold text-gray-100"
+            className="py-5.5 pl-1 text-lg font-bold text-gray-100 "
           >
             {title}
           </h2>
           <button
             aria-label="close modal button"
-            className="px-1 py-1 rounded-sm cursor-pointer hover:bg-gray-700"
+            className="px-1 py-1 rounded-sm cursor-pointer group-hover:bg-gray-800"
           >
             <X className="w-5 h-5" />
           </button>

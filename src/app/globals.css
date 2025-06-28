@@ -25,3 +25,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* For WebKit-based browsers (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar {
+  overflow-x: scroll !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 16px;
+  background: oklch(13% 0.028 261.692);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: oklch(37.2% 0.044 257.287);
+  border-radius: 999px;
+}
+
+/* Firefox */
+.custom-scrollbar {
+  overflow-x: scroll !important;
+
+  /* These two lines control Firefox scrollbars */
+  scrollbar-width: auto; /* Options: auto | thin | none */
+  scrollbar-color: oklch(37.2% 0.044 257.287) transparent;
+}

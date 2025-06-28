@@ -99,7 +99,7 @@ export default function AmbianceMenu() {
   };
 
   // Save ambiance when ambiance name changes but not when id changes
-  //! Maybe not the best solution for prodouction
+  //! Maybe not the best solution for production
   const [prevAmbianceId, setPrevAmbianceId] = useState(currentAmbiance?.id);
   const isFirstRender = useRef(0);
 
@@ -142,7 +142,7 @@ export default function AmbianceMenu() {
         <div className="relative flex flex-row items-center flex-1 h-full border-0 border-gray-800 rounded-full text-md bg-emerald-900 hover:cursor-pointer">
           <div
             aria-label="fake border"
-            className="absolute w-14 h-14 rounded-full bg-gray-950 left-[-2] top-[-4]"
+            className="absolute w-13.75 h-13.75 rounded-full bg-gray-950 left-[-0] top-[-3]"
             style={{ zIndex: 1 }}
           ></div>
           <button
@@ -165,8 +165,8 @@ export default function AmbianceMenu() {
             <div className="absolute inset-0 h-full rounded-full bg-emerald-900"></div>
             {/* Filled portion */}
             <div
-              className="absolute inset-x-[-47] bg-emerald-400 h-full rounded-full"
-              style={{ width: `${globalVolume * 100 + 18.5}%` }}
+              className="absolute inset-x-[-46] bg-emerald-400 h-full rounded-full"
+              style={{ width: `${globalVolume * 101 + 17}%` }}
             ></div>
             {/* Range input (functional but invisible) */}
             <input

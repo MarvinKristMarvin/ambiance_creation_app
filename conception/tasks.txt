@@ -153,12 +153,16 @@ TASKS
 - toast in the middle of sounds component
 - better sound cards positionning
 
+28/06/2025
+- sounds overflow
+- scroll wheel x axis for sounds, mozilla and chrome
+- new toasts for ambiance, remove sound and add sound
+- global styling adjustments
+- remade side menus styling
+
 TO DO
-- restyle settings menu
-- adjust global volume slider and angles
--
-- add more sounds
 - remove bugs
+- add more sounds
 -
 - shortcuts in settings : button = "expand/close all sounds (Ctrl + E / Ctrl + C)" / "Save Ctrl + S" / "Mute/Unmute Ctrl + M / fullscreen" (add shortcuts for annoying workflow in general)
 - mobile responsiveness
@@ -173,6 +177,5 @@ BUGS
 CONSIDER
 A - in ambiance card : categories and themes ordered only by quantity, not categories always first
 A - in search ambiance menu : drop down next to name to show more ambiance infos
-A - completely gray-950 bg aside menus
 C - don't change pitch when changing speed option ?
 C - study stereo vs mono sounds

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { X, Copy, Pencil, VolumeX } from "lucide-react";
 import * as Tone from "tone";
+import { useShowToast } from "@/hooks/useShowToast";
 
 interface Props {
   imagePath: string;
@@ -40,6 +41,7 @@ export default function SimpleSound({
   const setCurrentAmbiance = useGlobalStore(
     (state) => state.setCurrentAmbiance
   );
+  const { ShowToast } = useShowToast();
 
   const [mute, setMute] = useState(1);
   const [volume, setVolume] = useState(initialVolume);
@@ -253,6 +255,8 @@ export default function SimpleSound({
       ...currentAmbiance,
       ambiance_sounds: updatedSounds,
     });
+
+    ShowToast("neutral", "delete", "Sound removed");
   };
 
   const handleMute = () => {
@@ -286,6 +290,8 @@ export default function SimpleSound({
       ...currentAmbiance,
       ambiance_sounds: [...currentAmbiance.ambiance_sounds, newSound],
     });
+
+    ShowToast("neutral", "addsound", "Sound copied");
   };
 
   // PONCTUAL SOUNDS SETUP AND PLAYBACK
@@ -469,7 +475,7 @@ export default function SimpleSound({
   return (
     <div
       aria-label={soundName + " sound"}
-      className={`w-40 text-lg font-bold text-center bg-gray-900 text-gray-400 group flex flex-col  ${
+      className={`w-40 text-lg font-bold text-center bg-gray-900 text-gray-400 group flex flex-col flex-shrink-0  ${
         expanded ? "h-full" : ""
       }`}
     >

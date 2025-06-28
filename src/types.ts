@@ -55,17 +55,18 @@ export interface SoundBasicInformations {
 }
 
 // Toasts
-export type ToastType = "success" | "warning" | "error" | "info";
+export type ToastType = "success" | "warning" | "error" | "info" | "neutral";
 
 export type ToastIcon =
   | "star"
   | "note"
-  | "music"
-  | "ghost"
+  | "ambiance"
   | "check"
   | "warning"
   | "error"
-  | "info";
+  | "info"
+  | "addsound"
+  | "delete";
 
 export interface ToastConfig {
   id: string;

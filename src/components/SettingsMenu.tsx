@@ -95,17 +95,13 @@ export default function SettingsMenu() {
   };
 
   return (
-    <div
-      aria-label="settings menu"
-      className="p-4 text-gray-300 rounded-md bg-gray-950"
-      style={{ background: "rgb(7, 12, 23)" }}
-    >
+    <div aria-label="settings menu" className="pl-1 text-gray-300">
       <p className="mb-2 font-bold text-left text-gray-300 text-md">
         {session ? "Connected as " + session.user.name : "Connexion"}
       </p>
 
       {!session && (
-        <div className="flex gap-2 mb-2">
+        <div className="flex gap-2 mb-2 ">
           <button
             aria-label="login button"
             type="button"
@@ -146,7 +142,7 @@ export default function SettingsMenu() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 mb-2 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-800 rounded-xs bg-gray-950 focus:outline-none focus:border-emerald-700"
+            className="w-full p-2 mb-2 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-950 rounded-xs bg-gray-950 focus:outline-none focus:border-emerald-700 "
           />
 
           {signingUp && (
@@ -190,10 +186,10 @@ export default function SettingsMenu() {
             : handleSignIn()
         }
         disabled={isLoading}
-        className={`w-full px-6 py-2 mb-3 text-sm font-bold text-gray-300 rounded-xs hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`w-full px-6 py-2 mb-3 text-sm font-bold text-gray-100 rounded-xs hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
           session
             ? "bg-red-800 hover:bg-red-700"
-            : "bg-emerald-700 hover:bg-emerald-600"
+            : "bg-emerald-600 hover:bg-emerald-500"
         }`}
       >
         {isLoading
@@ -214,7 +210,7 @@ export default function SettingsMenu() {
             aria-label={`${position} position button`}
             key={position}
             onClick={() => setSoundsCentering(position)}
-            className={`flex-1 py-2 font-bold text-sm hover:bg-gray-800 hover:cursor-pointer rounded-xs ${
+            className={`flex-1 py-2 font-bold text-sm hover:bg-gray-700 hover:cursor-pointer rounded-xs ${
               soundsCentering === position
                 ? "bg-gray-700 text-gray-300" // Active state
                 : "bg-gray-900 text-gray-500" // Inactive state

@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import {
   Star,
   FileText,
-  Ghost,
   Check,
   AlertTriangle,
   X,
   Info,
-  Music,
+  Trash2,
+  SquarePlus,
+  AudioWaveform,
 } from "lucide-react";
 import { ToastType, ToastIcon } from "@/types";
 
@@ -81,6 +82,11 @@ const Toast: React.FC<ToastProps> = ({
       borderColor: "border-blue-900",
       iconBgColor: "bg-gray-950",
     },
+    neutral: {
+      bgColor: "bg-gray-800",
+      borderColor: "border-gray-800",
+      iconBgColor: "bg-gray-950",
+    },
   };
 
   // Icon configurations
@@ -97,17 +103,11 @@ const Toast: React.FC<ToastProps> = ({
       strokeWidth: 2,
       fill: false,
     },
-    music: {
-      component: Music,
-      color: "text-green-300",
+    ambiance: {
+      component: AudioWaveform,
+      color: "text-gray-200",
       strokeWidth: 2,
       fill: false,
-    },
-    ghost: {
-      component: Ghost,
-      color: "text-purple-200",
-      strokeWidth: 2,
-      fill: true,
     },
     check: {
       component: Check,
@@ -133,6 +133,18 @@ const Toast: React.FC<ToastProps> = ({
       strokeWidth: 2,
       fill: false,
     },
+    delete: {
+      component: Trash2,
+      color: "text-gray-200",
+      strokeWidth: 2,
+      fill: false,
+    },
+    addsound: {
+      component: SquarePlus,
+      color: "text-gray-200",
+      strokeWidth: 2,
+      fill: false,
+    },
   };
 
   const toastConfig = typeConfigs[type];
@@ -155,7 +167,7 @@ const Toast: React.FC<ToastProps> = ({
         ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
       `}
       style={{
-        bottom: `${16 + index * 80}px`,
+        bottom: `${32 + index * 80}px`,
         zIndex: zIndex + 10,
       }}
       onClick={handleClose}

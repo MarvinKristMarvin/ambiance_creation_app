@@ -104,7 +104,7 @@ export default function Hero() {
       setSoundsUsed(soundsData);
       console.log("Sounds used : ", soundsData);
       setSearchAmbianceMenu(false);
-      ShowToast("success", "music", "Ambiance loaded");
+      ShowToast("success", "ambiance", "Ambiance loaded");
     } catch (error) {
       console.error("Error fetching themed ambiance:", error);
     }
