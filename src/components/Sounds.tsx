@@ -79,6 +79,11 @@ export default function Sounds() {
               initialSpeed={sound.speed}
               initialDirection={sound.direction}
               repeat_delay={sound.repeat_delay}
+              initialLow={sound.low}
+              initialMid={sound.mid}
+              initialHigh={sound.high}
+              initialLowCut={sound.low_cut}
+              initialHighCut={sound.high_cut}
               number={number}
               id={sound.id}
             />

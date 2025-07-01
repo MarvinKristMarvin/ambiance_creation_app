@@ -12,7 +12,7 @@ import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
-import { Sound } from "@/types";
+import { AmbianceSound, Sound } from "@/types";
 
 // Categories and types based on db
 const CATEGORIES = [
@@ -260,7 +260,7 @@ export default function SearchSoundsMenu() {
       console.log("Adding sound to ambiance:", soundId);
       const res = await fetch(`/api/sound/${soundId}`);
       if (!res.ok) throw new Error("Failed to fetch full sound data");
-      const loadedSound = await res.json();
+      const loadedSound: AmbianceSound[] = await res.json();
       console.log("Loaded sound:", loadedSound[0]);
       if (!currentAmbiance) return;
 
@@ -278,6 +278,11 @@ export default function SearchSoundsMenu() {
         speed: loadedSound[0].speed,
         direction: loadedSound[0].direction,
         repeat_delay: loadedSound[0].repeat_delay,
+        low: 0,
+        mid: 0,
+        high: 0,
+        low_cut: 20,
+        high_cut: 20000,
       };
 
       setCurrentAmbiance({

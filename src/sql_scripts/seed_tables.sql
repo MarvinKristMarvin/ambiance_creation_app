@@ -3,17 +3,17 @@
 INSERT INTO sounds (sound_name, audio_paths, image_path, looping, volume, reverb, reverb_duration, direction, speed, category, themes, repeat_delay)
 VALUES 
   (
-    'Rain',
-    ARRAY['/audio/rain1.mp3'],
-    '/photos/rain2.jpeg',
-    true,
-    50,
-    0,
-    3,
-    0,
-    1,
-    'Elemental',
-    ARRAY['Aquatic']::theme[],
+    'Rain', -- sound name
+    ARRAY['/audio/rain1.mp3'], -- audio paths
+    '/photos/rain2.jpeg', -- image
+    true, -- looping
+    50, -- volume
+    0, -- reverb
+    3, -- reverb duration
+    0, -- direction
+    1, -- speed
+    'Elemental', -- category
+    ARRAY['Aquatic']::theme[], -- themes
     null
   ),
   (
@@ -69,14 +69,14 @@ VALUES (
 
 
 -- link the sounds to the ambiance
-INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, reverb_duration, direction, speed, repeat_delay)
+INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, reverb_duration, direction, speed, repeat_delay, low, mid, high, low_cut, high_cut)
 VALUES 
-  (1, 1, 50, 0, 3, 0, 1, null),
-  (1, 1, 30, 0, 3, 0, 1, null),
-  (1, 2, 10, 0, 3, 0, 1, null),
-  (2, 1, 50, 0, 3, 0, 1, null),
-  (2, 3, 50, 0, 3, 0, 1, ARRAY[15, 30]::DECIMAL[]),
-  (3, 1, 80, 0, 3, 0, 1, null);
+  (1, 1, 50, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
+  (1, 1, 30, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
+  (1, 2, 10, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
+  (2, 1, 50, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
+  (2, 3, 50, 0, 3, 0, 1, ARRAY[15, 30]::DECIMAL[], 0, 0, 0, 20, 20000),
+  (3, 1, 80, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000);
 
 INSERT INTO user_has_favorite_sounds (user_id, sound_id)
 VALUES

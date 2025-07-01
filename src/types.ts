@@ -15,6 +15,11 @@ export interface AmbianceSound {
   speed: number;
   direction: number;
   repeat_delay: number[] | null;
+  low: number;
+  mid: number;
+  high: number;
+  low_cut: number;
+  high_cut: number;
 }
 
 export interface AmbianceBasicInformations {

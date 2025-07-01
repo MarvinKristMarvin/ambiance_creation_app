@@ -201,7 +201,7 @@ export default function SettingsMenu() {
           : "Log in"}
       </button>
 
-      <p className="pl-0 mb-2 font-bold text-left text-gray-300 text-md">
+      {/* <p className="pl-0 mb-2 font-bold text-left text-gray-300 text-md">
         Sounds positioning
       </p>
       <div className="flex gap-2">
@@ -219,6 +219,20 @@ export default function SettingsMenu() {
             {position}
           </button>
         ))}
+      </div> */}
+
+      <p className="pl-0 mt-0 mb-1.5 font-bold text-left text-gray-300 text-md">
+        Shortcuts
+      </p>
+      <div className="flex-col gap-2 text-sm font-bold">
+        <div className="flex justify-between">
+          <span className="text-gray-400">Expand all sounds</span>
+          <span className="text-gray-600">Ctrl + E</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-400">Collapse all sounds</span>
+          <span className="text-gray-600">Ctrl + C</span>
+        </div>
       </div>
     </div>
   );

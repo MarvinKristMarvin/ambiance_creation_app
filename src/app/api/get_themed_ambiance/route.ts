@@ -34,7 +34,12 @@ export async function POST(req: NextRequest) {
               'reverb_duration', asnd.reverb_duration,
               'speed', asnd.speed,
               'direction', asnd.direction,
-              'repeat_delay', asnd.repeat_delay
+              'repeat_delay', asnd.repeat_delay,
+              'low', asnd.low,
+              'mid', asnd.mid,
+              'high', asnd.high,
+              'low_cut', asnd.low_cut,
+              'high_cut', asnd.high_cut
             )
           ) AS ambiance_sounds
         FROM ambiances a
@@ -70,7 +75,12 @@ export async function POST(req: NextRequest) {
               'reverb_duration', asnd.reverb_duration,
               'speed', asnd.speed,
               'direction', asnd.direction,
-              'repeat_delay', asnd.repeat_delay
+              'repeat_delay', asnd.repeat_delay,
+              'low', asnd.low,
+              'mid', asnd.mid,
+              'high', asnd.high,
+              'low_cut', asnd.low_cut,
+              'high_cut', asnd.high_cut
             )
           ) AS ambiance_sounds
         FROM ambiances a

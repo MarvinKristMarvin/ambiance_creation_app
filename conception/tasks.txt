@@ -160,19 +160,28 @@ TASKS
 - global styling adjustments
 - remade side menus styling
 
+30/06/2025
+- shortcuts in settings (not editable / clickable yet)
+- better equalizer/frequency sliders
+
+31/06/2025
+- handle all sound options completely (hide equalize for now)
+- bug : can't open themed ambiance
+
+- deployment
+
 TO DO
-- remove bugs
 - add more sounds
--
-- shortcuts in settings : button = "expand/close all sounds (Ctrl + E / Ctrl + C)" / "Save Ctrl + S" / "Mute/Unmute Ctrl + M / fullscreen" (add shortcuts for annoying workflow in general)
 - mobile responsiveness
--
+- logs system
+- delete account
+- rgpd / contact
+- premium account
+- in sound table, remove possible default options (all sounds will have same everything at the beginning in general)
+- remake conception docs
 - playlist system (button to add in playlist in ambiance card) and in search ambiance menu : button show playlist => shoaw ambiance cards with mroe options (play for x minutes, move position..)
 - when scrolling down the search ambiance menu : every 10 ambiances, show a loading state to load 10 more (load icon + "loading more ambiances")
 - autosave after 10 seconds after a current ambiance modification
-
-BUGS 
-- for a created ambiance, it does not save when modifying ambiance name
 
 CONSIDER
 A - in ambiance card : categories and themes ordered only by quantity, not categories always first

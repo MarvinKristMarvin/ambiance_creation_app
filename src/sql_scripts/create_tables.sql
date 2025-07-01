@@ -49,6 +49,11 @@ CREATE TABLE ambiances_sounds (
   speed DECIMAL(2, 1),
   reverb INT,
   reverb_duration DECIMAL(3, 1),
+  low INT,
+  mid INT,
+  high INT,
+  low_cut INT,
+  high_cut INT,
   -- Ponctual sounds options
   repeat_delay DECIMAL[]
 );

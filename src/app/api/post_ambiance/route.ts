@@ -81,8 +81,8 @@ export async function POST(request: Request) {
       if (ambianceData.ambiance_sounds?.length > 0) {
         // Query to repeat for each sound
         const insertSoundsQuery = `
-          INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, direction, speed, reverb_duration, repeat_delay)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, direction, speed, reverb_duration, repeat_delay, low, mid, high, low_cut, high_cut)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         `;
 
         // Repeat the insertSoundsQuery for each sound of the ambiance
@@ -96,6 +96,11 @@ export async function POST(request: Request) {
             sound.speed ?? 1,
             sound.reverb_duration ?? 0,
             sound.repeat_delay ?? null,
+            sound.low ?? 0,
+            sound.mid ?? 0,
+            sound.high ?? 0,
+            sound.low_cut ?? 20,
+            sound.high_cut ?? 20000,
           ]);
         }
       }
@@ -168,7 +173,12 @@ export async function POST(request: Request) {
                 'direction', ass.direction,
                 'speed', ass.speed,
                 'reverb_duration', ass.reverb_duration,
-                'repeat_delay', ass.repeat_delay
+                'repeat_delay', ass.repeat_delay,
+                'low', ass.low,
+                'mid', ass.mid,
+                'high', ass.high,
+                'low_cut', ass.low_cut,
+                'high_cut', ass.high_cut
               ) ORDER BY ass.id
             ) FILTER (WHERE ass.id IS NOT NULL),
             '[]'::json

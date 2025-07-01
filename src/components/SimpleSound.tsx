@@ -16,6 +16,11 @@ interface Props {
   initialReverbDuration: number;
   initialDirection: number;
   initialSpeed: number;
+  initialLow: number;
+  initialMid: number;
+  initialHigh: number;
+  initialLowCut: number;
+  initialHighCut: number;
   number: number;
   id: number;
   looping: boolean;
@@ -35,6 +40,11 @@ export default function SimpleSound({
   id,
   looping,
   repeat_delay,
+  initialLow,
+  initialMid,
+  initialHigh,
+  initialLowCut,
+  initialHighCut,
 }: Props) {
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
@@ -51,11 +61,11 @@ export default function SimpleSound({
   const [playbackRate, setPlaybackRate] = useState(initialSpeed);
   const [expanded, setExpanded] = useState(false);
   const [hoverButton, setHoverButton] = useState(false);
-  const [lowGain, setLowGain] = useState(0);
-  const [midGain, setMidGain] = useState(0);
-  const [highGain, setHighGain] = useState(0);
-  const [lowCutFreq, setLowCutFreq] = useState(20); // Hz - frequencies below this are cut
-  const [highCutFreq, setHighCutFreq] = useState(20000); // Hz - frequencies above this are cut
+  const [lowGain, setLowGain] = useState(initialLow);
+  const [midGain, setMidGain] = useState(initialMid);
+  const [highGain, setHighGain] = useState(initialHigh);
+  const [lowCutFreq, setLowCutFreq] = useState(initialLowCut);
+  const [highCutFreq, setHighCutFreq] = useState(initialHighCut);
 
   // Tone.js Refs
   const playerRef = useRef<Tone.Player | null>(null);
@@ -73,11 +83,11 @@ export default function SimpleSound({
   const reverbWetRef = useRef(reverbWet);
   const reverbDecayRef = useRef(reverbDecay);
   const playbackRateRef = useRef(playbackRate);
-  const lowGainRef = useRef(0);
-  const midGainRef = useRef(0);
-  const highGainRef = useRef(0);
-  const lowCutFreqRef = useRef(20);
-  const highCutFreqRef = useRef(20000);
+  const lowGainRef = useRef(lowGain);
+  const midGainRef = useRef(midGain);
+  const highGainRef = useRef(highGain);
+  const lowCutFreqRef = useRef(lowCutFreq);
+  const highCutFreqRef = useRef(highCutFreq);
 
   useEffect(() => {
     volumeRef.current = volume;
@@ -459,7 +469,7 @@ export default function SimpleSound({
       }
       // Check for 'C' key (collapse)
       else if (e.key === "C" || e.key === "c") {
-        if (e.shiftKey) {
+        if (e.ctrlKey) {
           e.preventDefault();
           setExpanded(false);
         }
@@ -852,63 +862,118 @@ export default function SimpleSound({
           <div className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950">
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Low</span>
-              <span className="text-xs text-gray-400">{lowGain}dB</span>
+              <span className="text-xs text-gray-400">
+                {" "}
+                {Math.round(((lowGain + 50) / 50) * 100)}%
+              </span>
             </div>
             <div className="px-2 pb-1">
               <div aria-label="low slider" className="relative h-1.5">
                 <div className="absolute inset-0 bg-rose-950"></div>
                 <div
                   className="absolute inset-y-0 bg-rose-400"
-                  style={{ width: `${((lowGain + 40) / 80) * 100}%` }}
+                  style={{ width: `${((lowGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
                   type="range"
-                  min={-40}
-                  max={40}
+                  min={-50}
+                  max={0}
                   value={lowGain}
-                  onChange={(e) => setLowGain(Number(e.target.value))}
+                  onChange={(e) => {
+                    setLowGain(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              low: Number(e.target.value),
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
             </div>
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Mid</span>
-              <span className="text-xs text-gray-400">{midGain}dB</span>
+              <span className="text-xs text-gray-400">
+                {Math.round(((midGain + 50) / 50) * 100)}%
+              </span>
             </div>
             <div className="px-2 pb-1">
               <div aria-label="mid slider" className="relative h-1.5">
                 <div className="absolute inset-0 bg-rose-950"></div>
                 <div
                   className="absolute inset-y-0 bg-rose-400"
-                  style={{ width: `${((midGain + 40) / 80) * 100}%` }}
+                  style={{ width: `${((midGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
                   type="range"
-                  min={-40}
-                  max={40}
+                  min={-50}
+                  max={0}
                   value={midGain}
-                  onChange={(e) => setMidGain(Number(e.target.value))}
+                  onChange={(e) => {
+                    setMidGain(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              mid: Number(e.target.value),
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
             </div>
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">High</span>
-              <span className="text-xs text-gray-400">{highGain}dB</span>
+              <span className="text-xs text-gray-400">
+                {Math.round(((highGain + 50) / 50) * 100)}%
+              </span>
             </div>
             <div className="px-2 pb-2">
               <div aria-label="high slider" className="relative h-1.5">
                 <div className="absolute inset-0 bg-rose-950"></div>
                 <div
                   className="absolute inset-y-0 bg-rose-400"
-                  style={{ width: `${((highGain + 40) / 80) * 100}%` }}
+                  style={{ width: `${((highGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
                   type="range"
-                  min={-40}
-                  max={40}
+                  min={-50}
+                  max={0}
                   value={highGain}
-                  onChange={(e) => setHighGain(Number(e.target.value))}
+                  onChange={(e) => {
+                    setHighGain(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              high: Number(e.target.value),
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
@@ -921,7 +986,9 @@ export default function SimpleSound({
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Low Cut</span>
-              <span className="text-xs text-gray-400">{lowCutFreq}Hz</span>
+              <span className="text-xs text-gray-400">
+                {Math.round(((lowCutFreq - 20) / 1980) * 100)}%
+              </span>
             </div>
             <div className="px-2 pb-1">
               <div
@@ -931,22 +998,40 @@ export default function SimpleSound({
                 <div className="absolute inset-0 bg-purple-950"></div>
                 <div
                   className="absolute inset-y-0 bg-purple-400"
-                  style={{ width: `${((lowCutFreq - 20) / 980) * 100}%` }}
+                  style={{ width: `${((lowCutFreq - 20) / 2000) * 100}%` }}
                 ></div>
                 <input
                   type="range"
                   min="20"
-                  max="1000"
+                  max="2000"
                   step="10"
                   value={lowCutFreq}
-                  onChange={(e) => setLowCutFreq(Number(e.target.value))}
+                  onChange={(e) => {
+                    setLowCutFreq(Number(e.target.value));
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              low_cut: Number(e.target.value),
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
             </div>
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">High Cut</span>
-              <span className="text-xs text-gray-400">{highCutFreq}Hz</span>
+              <span className="text-xs text-gray-400">
+                {Math.round(((20000 - highCutFreq) / 19500) * 100)}%
+              </span>
             </div>
             <div className="px-2 pb-2">
               <div
@@ -956,15 +1041,34 @@ export default function SimpleSound({
                 <div className="absolute inset-0 bg-purple-950"></div>
                 <div
                   className="absolute inset-y-0 bg-purple-400"
-                  style={{ width: `${((highCutFreq - 1000) / 19000) * 100}%` }}
+                  style={{ width: `${((20000 - highCutFreq) / 19500) * 100}%` }}
                 ></div>
                 <input
                   type="range"
-                  min="1000"
-                  max="20000"
-                  step="100"
-                  value={highCutFreq}
-                  onChange={(e) => setHighCutFreq(Number(e.target.value))}
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={Math.round(((20000 - highCutFreq) / 19500) * 100)}
+                  onChange={(e) => {
+                    setHighCutFreq(
+                      20000 - (Number(e.target.value) / 100) * 19500
+                    );
+                    if (!currentAmbiance) return;
+                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
+                      (sound) =>
+                        sound.id === id
+                          ? {
+                              ...sound,
+                              high_cut:
+                                20000 - (Number(e.target.value) / 100) * 19500,
+                            }
+                          : sound
+                    );
+                    setCurrentAmbiance({
+                      ...currentAmbiance,
+                      ambiance_sounds: updatedSounds,
+                    });
+                  }}
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
