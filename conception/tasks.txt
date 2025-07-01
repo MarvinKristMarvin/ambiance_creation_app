@@ -169,6 +169,7 @@ TASKS
 - bug : can't open themed ambiance
 
 - deployment
+- bug : add a sound to your ambiance + button does not replace the active menu
 
 TO DO
 - add more sounds

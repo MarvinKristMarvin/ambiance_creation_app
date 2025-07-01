@@ -1,4 +1,4 @@
-import { useGlobalStore } from "@/stores/useGlobalStore";
+// import { useGlobalStore } from "@/stores/useGlobalStore";
 import React from "react";
 import { useState } from "react";
 import { signIn, signUp, signOut } from "@/server/users"; // async code outside of client component
@@ -7,10 +7,10 @@ import { authClient } from "@/lib/auth-client";
 export default function SettingsMenu() {
   const { data: session, refetch } = authClient.useSession();
   // Zustand
-  const soundsCentering = useGlobalStore((state) => state.soundsCentering);
-  const setSoundsCentering = useGlobalStore(
-    (state) => state.setSoundsCentering
-  );
+  // const soundsCentering = useGlobalStore((state) => state.soundsCentering);
+  // const setSoundsCentering = useGlobalStore(
+  //   (state) => state.setSoundsCentering
+  // );
 
   // States
   const [signingUp, setSigningUp] = useState(false);
@@ -22,7 +22,7 @@ export default function SettingsMenu() {
   const [error, setError] = useState("");
 
   // Options to map the sounds positionning buttons
-  const positions = ["Left", "Center", "Right"] as const;
+  // const positions = ["Left", "Center", "Right"] as const;
 
   const handleSignIn = async () => {
     if (!email || !password) {
