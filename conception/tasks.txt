@@ -167,11 +167,14 @@ TASKS
 31/06/2025
 - handle all sound options completely (hide equalize for now)
 - bug : can't open themed ambiance
-
 - deployment
-- bug : add a sound to your ambiance + button does not replace the active menu
+
 
 TO DO
+- bug : add a sound to your ambiance + button does not replace the active menu
+- test the prod website
+- save with same author and same ambiance name : patch the ambiance
+- new name : fog (make logo image which looks like a disc)
 - add more sounds
 - mobile responsiveness
 - logs system
