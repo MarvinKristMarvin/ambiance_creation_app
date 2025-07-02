@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
     if (!session) {
       return NextResponse.json(
-        { error: "Unauthorized - Please log in" },
+        { error: "Please log in to save an ambiance in favorites" },
         { status: 401 }
       );
     }

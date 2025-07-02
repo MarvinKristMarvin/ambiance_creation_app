@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized - Please log in to manage favorites" },
+        { error: "Please log in to save an ambiance in favorites" },
         { status: 401 }
       );
     }

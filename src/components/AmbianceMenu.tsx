@@ -73,8 +73,14 @@ export default function AmbianceMenu() {
       if (!response.ok) {
         if (response.status === 401) {
           // Handle unauthorized - user needs to log in
-          console.error("Please log in to save ambiances");
           setSaveState("idle");
+          ShowToast(
+            "error",
+            "error",
+            "Please log in to save an ambiance in favorites",
+            5000
+          );
+
           return;
         }
         throw new Error(`HTTP error! status: ${response.status}`);

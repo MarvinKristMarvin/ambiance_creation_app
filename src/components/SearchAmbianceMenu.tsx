@@ -127,7 +127,28 @@ export default function SearchAmbianceMenu() {
       });
 
       if (!response.ok) {
-        throw new Error(await response.text());
+        const errorData = await response.json();
+
+        // Handle authentication error specifically
+        if (response.status === 401) {
+          ShowToast(
+            "error",
+            "error",
+            "Please log in to save an ambiance in favorites",
+            5000
+          );
+          // Revert update
+          const revertedAmbiances = searchedAmbiancesBasicInformations.map(
+            (amb) =>
+              amb.id === ambianceId
+                ? { ...amb, is_favorite: currentFavorite }
+                : amb
+          );
+          setSearchedAmbiancesBasicInformations(revertedAmbiances);
+          return;
+        }
+
+        throw new Error(errorData.error || "Failed to toggle favorite sound");
       }
 
       ShowToast(

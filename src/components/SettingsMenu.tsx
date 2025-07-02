@@ -3,14 +3,11 @@ import React from "react";
 import { useState } from "react";
 import { signIn, signUp, signOut } from "@/server/users"; // async code outside of client component
 import { authClient } from "@/lib/auth-client";
+import { useShowToast } from "@/hooks/useShowToast";
 
 export default function SettingsMenu() {
   const { data: session, refetch } = authClient.useSession();
-  // Zustand
-  // const soundsCentering = useGlobalStore((state) => state.soundsCentering);
-  // const setSoundsCentering = useGlobalStore(
-  //   (state) => state.setSoundsCentering
-  // );
+  const { ShowToast } = useShowToast();
 
   // States
   const [signingUp, setSigningUp] = useState(true);
@@ -36,6 +33,7 @@ export default function SettingsMenu() {
     try {
       const result = await signIn(email, password);
       if (result.success) {
+        ShowToast("success", "check", "You are logged in", 5000);
         await refetch(); // Refresh session
       } else {
         setError(result.error || "Sign in failed");
@@ -65,6 +63,12 @@ export default function SettingsMenu() {
     try {
       const result = await signUp(email, password, name);
       if (result.success) {
+        ShowToast(
+          "success",
+          "check",
+          "You are now signed up and logged in",
+          5000
+        );
         await refetch(); // Refresh session
       } else {
         setError(result.error || "Sign up failed");
@@ -106,7 +110,7 @@ export default function SettingsMenu() {
             aria-label="login button"
             type="button"
             onClick={() => setSigningUp(false)}
-            className={`px-8 py-2 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
+            className={`px-8 py-2 mb-1 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
               !signingUp
                 ? "text-gray-300  border-gray-300"
                 : "text-gray-700 border-gray-700 hover:border-gray-400 hover:text-gray-400"
@@ -118,7 +122,7 @@ export default function SettingsMenu() {
             aria-label="sign up button"
             type="button"
             onClick={() => setSigningUp(true)}
-            className={`px-8 py-2 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
+            className={`px-8 py-2 mb-1 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
               signingUp
                 ? "text-gray-300  border-gray-300"
                 : "text-gray-700 border-gray-700 hover:border-gray-400 hover:text-gray-400"
@@ -188,7 +192,7 @@ export default function SettingsMenu() {
         disabled={isLoading}
         className={`w-full px-6 py-2 mb-3 text-sm font-bold text-emerald-400 border-2 border-emerald-400 rounded-sm hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
           session
-            ? " border-red-800 text-red-800 hover:border-red-600 hover:text-red-600"
+            ? " border-red-700 text-red-700 hover:border-red-500 hover:text-red-500"
             : " hover:bg-emerald-950"
         }`}
       >
