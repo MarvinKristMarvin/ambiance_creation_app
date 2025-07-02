@@ -8,8 +8,8 @@ export default function Sounds() {
   const soundsCentering = useGlobalStore((state) => state.soundsCentering);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
   const soundsUsed = useGlobalStore((state) => state.soundsUsed);
-  const setSearchSoundsMenu = useGlobalStore(
-    (state) => state.setSearchSoundsMenu
+  const openSearchSoundsMenu = useGlobalStore(
+    (state) => state.openSearchSoundsMenu
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -94,7 +94,7 @@ export default function Sounds() {
       })}
       {currentAmbiance.ambiance_sounds.length === 0 && (
         <button
-          onClick={() => setSearchSoundsMenu(true)}
+          onClick={openSearchSoundsMenu}
           className="relative flex flex-col items-center gap-0 border-2 border-gray-500 border-dashed justify-self-center px-15 py-15 hover:border-gray-300 hover:cursor-pointer group"
         >
           <Plus className="w-10 h-10 text-gray-500 stroke-2 group-hover:text-gray-300" />

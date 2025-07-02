@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     // Better Auth returns null if no valid session exists
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized - Please log in to manage favorites" },
+        { error: "Please log in to save sounds in favorites" },
         { status: 401 }
       );
     }

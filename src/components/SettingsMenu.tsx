@@ -13,7 +13,7 @@ export default function SettingsMenu() {
   // );
 
   // States
-  const [signingUp, setSigningUp] = useState(false);
+  const [signingUp, setSigningUp] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -106,10 +106,10 @@ export default function SettingsMenu() {
             aria-label="login button"
             type="button"
             onClick={() => setSigningUp(false)}
-            className={`px-8 py-2 text-sm font-bold rounded-xs flex-1 hover:cursor-pointer  ${
+            className={`px-8 py-2 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
               !signingUp
-                ? "text-gray-300 bg-gray-700 hover:bg-gray-600"
-                : "text-gray-500 bg-gray-900 hover:bg-gray-800"
+                ? "text-gray-300  border-gray-300"
+                : "text-gray-700 border-gray-700 hover:border-gray-400 hover:text-gray-400"
             }`}
           >
             Log in
@@ -118,10 +118,10 @@ export default function SettingsMenu() {
             aria-label="sign up button"
             type="button"
             onClick={() => setSigningUp(true)}
-            className={`px-8 py-2 text-sm font-bold rounded-xs flex-1.5 hover:cursor-pointer ${
+            className={`px-8 py-2 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
               signingUp
-                ? "text-gray-300 bg-gray-700 hover:bg-gray-600"
-                : "text-gray-500 bg-gray-900 hover:bg-gray-800"
+                ? "text-gray-300  border-gray-300"
+                : "text-gray-700 border-gray-700 hover:border-gray-400 hover:text-gray-400"
             }`}
           >
             Or sign up
@@ -142,7 +142,7 @@ export default function SettingsMenu() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 mb-2 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-950 rounded-xs bg-gray-950 focus:outline-none focus:border-emerald-700 "
+            className="w-full py-1.5 pr-8 pl-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-900 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700 mb-2"
           />
 
           {signingUp && (
@@ -151,7 +151,7 @@ export default function SettingsMenu() {
               placeholder="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 mb-2 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-800 rounded-xs bg-gray-950 focus:outline-none focus:border-emerald-700"
+              className="w-full py-1.5 pr-8 pl-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-900 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700 mb-2"
             />
           )}
 
@@ -160,7 +160,7 @@ export default function SettingsMenu() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 mb-2 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-800 rounded-xs bg-gray-950 focus:outline-none focus:border-emerald-700"
+            className="w-full py-1.5 pr-8 pl-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-900 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700 mb-2"
           />
 
           {signingUp && (
@@ -169,7 +169,7 @@ export default function SettingsMenu() {
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 mb-2 text-sm font-bold text-gray-300 placeholder-gray-500 transition-colors duration-200 border-2 border-r-2 border-gray-800 rounded-xs bg-gray-950 focus:outline-none focus:border-emerald-700"
+              className="w-full py-1.5 pr-8 pl-2.5 text-sm font-bold text-gray-300 placeholder-gray-600 transition-colors duration-200 border-2 border-gray-900 rounded-sm bg-gray-950 focus:outline-none focus:border-emerald-700 mb-2"
             />
           )}
         </form>
@@ -186,10 +186,10 @@ export default function SettingsMenu() {
             : handleSignIn()
         }
         disabled={isLoading}
-        className={`w-full px-6 py-2 mb-3 text-sm font-bold text-gray-100 rounded-xs hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`w-full px-6 py-2 mb-3 text-sm font-bold text-emerald-400 border-2 border-emerald-400 rounded-sm hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
           session
-            ? "bg-red-800 hover:bg-red-700"
-            : "bg-emerald-600 hover:bg-emerald-500"
+            ? " border-red-800 text-red-800 hover:border-red-600 hover:text-red-600"
+            : " hover:bg-emerald-950"
         }`}
       >
         {isLoading

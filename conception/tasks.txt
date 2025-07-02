@@ -170,15 +170,18 @@ TASKS
 - deployment
 
 02/07/2025
-
 - test the prod website
 - bug : add a sound to your ambiance + button does not replace the active menu
-- add more sounds
-- check if some options bug long term
-- please log in to add in favorites (instead of "Failed to update favorites")
-- when cant save ambiance : please log in to add in favorites
+- should not be able to save if no sound in ambiance
+- when adding sound in fav when not connected, toast "please log in to add in favorites" (instead of "Failed to update favorites")
 - connexion form : input text styling like others menus
 - restyle log in and log out button (rm bg, use borders colors)
+
+- in prod bug : changing name of the ambiance does not save directly
+- in prod bug : changing global volume and muting does not change anything, unless holding the global volume slider
+- add more sounds
+- check if some options bug long term
+- when cant save ambiance : please log in to add in favorites
 
 TO DO
 - save with same author and same ambiance name : patch the ambiance

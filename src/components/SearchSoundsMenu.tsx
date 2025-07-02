@@ -149,7 +149,25 @@ export default function SearchSoundsMenu() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to toggle favorite sound");
+        const errorData = await response.json();
+
+        // Handle authentication error specifically
+        if (response.status === 401) {
+          ShowToast(
+            "error",
+            "error",
+            "Please log in to save sounds in favorites",
+            5000
+          );
+          // Revert the optimistic update
+          setOptimisticFavorites((prev) => ({
+            ...prev,
+            [soundId]: currentFavoriteStatus,
+          }));
+          return;
+        }
+
+        throw new Error(errorData.error || "Failed to toggle favorite sound");
       }
 
       const result = await response.json();
@@ -167,11 +185,12 @@ export default function SearchSoundsMenu() {
         `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`,
         3000
       );
+
       console.log(
         `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`
       );
     } catch (error) {
-      ShowToast("error", "error", "Failed to update favorites");
+      ShowToast("error", "error", "Failed to update favorites", 3000);
       console.error("Error toggling favorite sound:", error);
 
       // Revert the optimistic update on error

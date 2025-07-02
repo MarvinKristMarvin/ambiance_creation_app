@@ -233,7 +233,11 @@ export default function AmbianceMenu() {
         <button
           aria-label="save ambiance button"
           onClick={saveState === "idle" ? handleSaveAmbiance : undefined}
-          disabled={saveState === "loading" || saveState === "saved"}
+          disabled={
+            saveState === "loading" ||
+            saveState === "saved" ||
+            currentAmbiance?.ambiance_sounds.length === 0
+          }
           className="flex items-center justify-center h-full py-1 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full w-26 text-md hover:bg-gray-800 hover:cursor-pointer disabled:opacity-50 disabled:cursor-default"
         >
           {saveState === "loading" && (
