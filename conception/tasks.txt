@@ -169,14 +169,22 @@ TASKS
 - bug : can't open themed ambiance
 - deployment
 
+02/07/2025
+
+- test the prod website
+- bug : add a sound to your ambiance + button does not replace the active menu
+- add more sounds
+- check if some options bug long term
+- please log in to add in favorites (instead of "Failed to update favorites")
+- when cant save ambiance : please log in to add in favorites
+- connexion form : input text styling like others menus
+- restyle log in and log out button (rm bg, use borders colors)
 
 TO DO
-- bug : add a sound to your ambiance + button does not replace the active menu
-- test the prod website
 - save with same author and same ambiance name : patch the ambiance
 - new name : fog (make logo image which looks like a disc)
-- add more sounds
 - mobile responsiveness
+- create some default ambiances (corresponding to themes)
 - logs system
 - delete account
 - rgpd / contact
