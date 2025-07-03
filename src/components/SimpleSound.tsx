@@ -88,6 +88,8 @@ export default function SimpleSound({
   const highGainRef = useRef(highGain);
   const lowCutFreqRef = useRef(lowCutFreq);
   const highCutFreqRef = useRef(highCutFreq);
+  const globalVolumeRef = useRef(globalVolume);
+  const muteRef = useRef(mute);
 
   useEffect(() => {
     volumeRef.current = volume;
@@ -129,13 +131,22 @@ export default function SimpleSound({
     highCutFreqRef.current = highCutFreq;
   }, [highCutFreq]);
 
+  useEffect(() => {
+    globalVolumeRef.current = globalVolume;
+  }, [globalVolume]);
+
+  useEffect(() => {
+    muteRef.current = mute;
+  }, [mute]);
+
   // PONCTUAL SOUNDS SETUP AND PLAYBACK
   useEffect(() => {
     if (!audioPaths[0] || !looping) return; // Only run this if there's an audio path and it's looping
 
     // Create a gain node (volume control)
-    const gainNode = new Tone.Gain((volume / 100) * globalVolume * mute);
-
+    const gainNode = new Tone.Gain(
+      (volumeRef.current / 100) * globalVolumeRef.current * muteRef.current
+    );
     // Create a panner node (for stereo left-right direction)
     const panner = new Tone.Panner(direction); // Normalize from [0–100] to [-1–1]
 
@@ -210,7 +221,8 @@ export default function SimpleSound({
     if (!looping) return;
 
     if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = (volume / 100) * globalVolume * mute;
+      gainNodeRef.current.gain.value =
+        (volumeRef.current / 100) * globalVolumeRef.current * muteRef.current;
     }
 
     if (reverbRef.current) {
@@ -353,7 +365,9 @@ export default function SimpleSound({
       player.playbackRate = playbackRateRef.current;
 
       // Create gain, panner, and reverb nodes
-      const gainNode = new Tone.Gain((volume / 100) * globalVolume * mute);
+      const gainNode = new Tone.Gain(
+        (volumeRef.current / 100) * globalVolumeRef.current * muteRef.current
+      );
       const panner = new Tone.Panner(directionRef.current);
       const reverb = new Tone.Reverb({
         decay: reverbDecayRef.current + 0.001,
@@ -412,7 +426,7 @@ export default function SimpleSound({
       if (highpassFilterRef.current) highpassFilterRef.current.dispose();
       if (lowpassFilterRef.current) lowpassFilterRef.current.dispose();
     };
-  }, [audioPaths, repeat_delay, mute]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
+  }, [audioPaths, repeat_delay]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
 
   // Separate effect to handle volume and reverb changes for non-looping sounds
   useEffect(() => {
@@ -429,7 +443,8 @@ export default function SimpleSound({
       return;
 
     // Update volume and reverb of current player
-    gainNodeRef.current.gain.value = (volume / 100) * globalVolume * mute;
+    gainNodeRef.current.gain.value =
+      (volumeRef.current / 100) * globalVolumeRef.current * muteRef.current;
     pannerRef.current.pan.value = direction;
     reverbRef.current.wet.value = reverbWet / 100;
     reverbRef.current.decay = reverbDecay + 0.001;
