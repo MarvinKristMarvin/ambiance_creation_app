@@ -76,6 +76,9 @@ export default function SimpleSound({
   const eqRef = useRef<Tone.EQ3 | null>(null);
   const highpassFilterRef = useRef<Tone.Filter | null>(null);
   const lowpassFilterRef = useRef<Tone.Filter | null>(null);
+  // Add these refs for preloaded audio buffers
+  const audioBuffersRef = useRef<Tone.ToneAudioBuffer[]>([]);
+  const buffersLoadedRef = useRef(false);
 
   // Options Refs
   const volumeRef = useRef(volume);
@@ -316,50 +319,67 @@ export default function SimpleSound({
     ShowToast("neutral", "addsound", "Sound copied");
   };
 
-  // PONCTUAL SOUNDS SETUP AND PLAYBACK
+  // PRELOAD AUDIO BUFFERS FOR PUNCTUAL SOUNDS
+  useEffect(() => {
+    if (!audioPaths.length || looping) return;
+
+    let isCancelled = false;
+    buffersLoadedRef.current = false;
+    audioBuffersRef.current = [];
+
+    const loadBuffers = async () => {
+      try {
+        // Load all audio files in parallel using fromUrl
+        const bufferPromises = audioPaths.map((path) =>
+          Tone.ToneAudioBuffer.fromUrl(path)
+        );
+
+        const buffers = await Promise.all(bufferPromises);
+
+        if (!isCancelled) {
+          audioBuffersRef.current = buffers;
+          buffersLoadedRef.current = true;
+        }
+      } catch (error) {
+        console.error("Error loading audio buffers:", error);
+      }
+    };
+
+    loadBuffers();
+
+    return () => {
+      isCancelled = true;
+      // Clean up buffers
+      audioBuffersRef.current.forEach((buffer) => buffer.dispose());
+      audioBuffersRef.current = [];
+      buffersLoadedRef.current = false;
+    };
+  }, [audioPaths, looping]);
+
+  /// PUNCTUAL SOUNDS PLAYBACK WITH PRELOADED BUFFERS
   useEffect(() => {
     if (!audioPaths.length || looping) return;
 
     let isCancelled = false;
 
     const playWithRandomDelay = () => {
-      if (isCancelled) return;
+      if (isCancelled || !buffersLoadedRef.current) return;
 
-      // Choose a random audio file from the list
-      const randomPath =
-        audioPaths[Math.floor(Math.random() * audioPaths.length)];
+      // Choose a random buffer from the preloaded buffers
+      const randomBuffer =
+        audioBuffersRef.current[
+          Math.floor(Math.random() * audioBuffersRef.current.length)
+        ];
 
       // Clean up any existing player
       if (playerRef.current) {
         playerRef.current.dispose();
       }
 
-      // Create new player
+      // Create new player with preloaded buffer
       const player = new Tone.Player({
-        url: randomPath,
+        url: randomBuffer, // Use preloaded buffer instead of URL
         autostart: false,
-        onload: () => {
-          if (isCancelled) return;
-
-          // Start audio context and play the sound
-          Tone.start().then(() => {
-            if (isCancelled) return;
-
-            player.start();
-
-            // Calculate total delay until next sound plays
-            const duration = player.buffer?.duration ?? 0;
-            const randomDelay = repeat_delay
-              ? Math.random() * (repeat_delay[1] - repeat_delay[0]) +
-                repeat_delay[0]
-              : 0;
-
-            const totalDelay =
-              (duration * (1 / playbackRateRef.current) + randomDelay) * 1000;
-
-            timeoutRef.current = setTimeout(playWithRandomDelay, totalDelay);
-          });
-        },
       });
 
       player.playbackRate = playbackRateRef.current;
@@ -383,14 +403,13 @@ export default function SimpleSound({
         frequency: lowCutFreqRef.current,
         rolloff: -24,
       });
-
       const lowpassFilter = new Tone.Filter({
         type: "lowpass",
         frequency: highCutFreqRef.current,
         rolloff: -24,
       });
 
-      // Connect nodes: Player → Gain → Panner → Reverb → Output
+      // Connect nodes: Player → Gain → Panner → Filters → EQ → Reverb → Output
       player.connect(gainNode);
       gainNode.connect(panner);
       panner.connect(highpassFilter);
@@ -407,9 +426,38 @@ export default function SimpleSound({
       eqRef.current = eq;
       highpassFilterRef.current = highpassFilter;
       lowpassFilterRef.current = lowpassFilter;
+
+      // Start playing immediately since buffer is already loaded
+      Tone.start().then(() => {
+        if (isCancelled) return;
+
+        player.start();
+
+        // Calculate total delay until next sound plays
+        const duration = randomBuffer.duration;
+        const randomDelay = repeat_delay
+          ? Math.random() * (repeat_delay[1] - repeat_delay[0]) +
+            repeat_delay[0]
+          : 0;
+
+        const totalDelay =
+          (duration * (1 / playbackRateRef.current) + randomDelay) * 1000;
+
+        timeoutRef.current = setTimeout(playWithRandomDelay, totalDelay);
+      });
     };
 
-    playWithRandomDelay(); // Start the audio
+    // Wait for buffers to load, then start playing
+    const checkBuffersAndStart = () => {
+      if (buffersLoadedRef.current) {
+        playWithRandomDelay();
+      } else {
+        // Check again in 100ms
+        setTimeout(checkBuffersAndStart, 100);
+      }
+    };
+
+    checkBuffersAndStart();
 
     // Cleanup on unmount
     return () => {
@@ -426,7 +474,7 @@ export default function SimpleSound({
       if (highpassFilterRef.current) highpassFilterRef.current.dispose();
       if (lowpassFilterRef.current) lowpassFilterRef.current.dispose();
     };
-  }, [audioPaths, repeat_delay]); // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
+  }, [audioPaths, repeat_delay]); // Remove mute from dependencies as discussed earlier // ⚠️ don't include volume/globalVolume here to avoid restarting sounds
 
   // Separate effect to handle volume and reverb changes for non-looping sounds
   useEffect(() => {

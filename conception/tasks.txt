@@ -183,13 +183,13 @@ TASKS
 - settings menu has to much left space compared to right space
 - production branch can become development since the main branch is deployed on vercel
 - bug : changing global volume and muting does not change anything for a ponctual sound, unless holding the global volume slider
+- reduce edge requests (loading multiple time a sound each time it plays)
 
 TO DO
-- reduce edge requests (loading multiple time a sound, check 304 status)
 - check if some options bug long term
 - when listen sound preview mute all sounds while the preview is playing
 - in hero : clicking "search an ambiance" does not replace side menu
-- ponctual sound is downloaded in network everytime it plays (in prod)
+- all audio files are loaded 2 times when simplesound is created
 - add more sounds
 - save with same author and same ambiance name : patch the ambiance
 - new name : fog (make logo image which looks like a disc)
