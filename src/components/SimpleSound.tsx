@@ -365,26 +365,18 @@ export default function SimpleSound({
     const playWithRandomDelay = () => {
       if (isCancelled || !buffersLoadedRef.current) return;
 
-      // Choose a random buffer from the preloaded buffers
-      const randomBuffer =
+      const buffer =
         audioBuffersRef.current[
           Math.floor(Math.random() * audioBuffersRef.current.length)
         ];
 
-      // Clean up any existing player
-      if (playerRef.current) {
-        playerRef.current.dispose();
-      }
-
-      // Create new player with preloaded buffer
       const player = new Tone.Player({
-        url: randomBuffer, // Use preloaded buffer instead of URL
+        url: buffer,
         autostart: false,
       });
 
       player.playbackRate = playbackRateRef.current;
 
-      // Create gain, panner, and reverb nodes
       const gainNode = new Tone.Gain(
         (volumeRef.current / 100) * globalVolumeRef.current * muteRef.current
       );
@@ -398,52 +390,57 @@ export default function SimpleSound({
         mid: midGainRef.current,
         high: highGainRef.current,
       });
-      const highpassFilter = new Tone.Filter({
+      const highpass = new Tone.Filter({
         type: "highpass",
         frequency: lowCutFreqRef.current,
         rolloff: -24,
       });
-      const lowpassFilter = new Tone.Filter({
+      const lowpass = new Tone.Filter({
         type: "lowpass",
         frequency: highCutFreqRef.current,
         rolloff: -24,
       });
 
-      // Connect nodes: Player → Gain → Panner → Filters → EQ → Reverb → Output
-      player.connect(gainNode);
-      gainNode.connect(panner);
-      panner.connect(highpassFilter);
-      highpassFilter.connect(lowpassFilter);
-      lowpassFilter.connect(eq);
-      eq.connect(reverb);
-      reverb.toDestination();
+      // Connect chain
+      player.chain(
+        gainNode,
+        panner,
+        highpass,
+        lowpass,
+        eq,
+        reverb,
+        Tone.Destination
+      );
 
-      // Save refs
-      playerRef.current = player;
-      gainNodeRef.current = gainNode;
-      reverbRef.current = reverb;
-      pannerRef.current = panner;
-      eqRef.current = eq;
-      highpassFilterRef.current = highpassFilter;
-      lowpassFilterRef.current = lowpassFilter;
-
-      // Start playing immediately since buffer is already loaded
       Tone.start().then(() => {
         if (isCancelled) return;
 
         player.start();
 
-        // Calculate total delay until next sound plays
-        const duration = randomBuffer.duration;
+        // Schedule disposal after playback ends
+        const duration = buffer.duration / playbackRateRef.current;
         const randomDelay = repeat_delay
           ? Math.random() * (repeat_delay[1] - repeat_delay[0]) +
             repeat_delay[0]
           : 0;
 
-        const totalDelay =
-          (duration * (1 / playbackRateRef.current) + randomDelay) * 1000;
+        setTimeout(() => {
+          player.dispose();
+          gainNode.dispose();
+          panner.dispose();
+          reverb.dispose();
+          eq.dispose();
+          highpass.dispose();
+          lowpass.dispose();
 
-        timeoutRef.current = setTimeout(playWithRandomDelay, totalDelay);
+          // Schedule next playback
+          if (!isCancelled) {
+            timeoutRef.current = setTimeout(
+              playWithRandomDelay,
+              randomDelay * 1000
+            );
+          }
+        }, duration * 1000); // Dispose right after sound ends
       });
     };
 

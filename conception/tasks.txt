@@ -184,9 +184,9 @@ TASKS
 - production branch can become development since the main branch is deployed on vercel
 - bug : changing global volume and muting does not change anything for a ponctual sound, unless holding the global volume slider
 - reduce edge requests (loading multiple time a sound each time it plays)
+- check if some options bug long term (remove memory leaks for punctual sounds)
 
 TO DO
-- check if some options bug long term
 - when listen sound preview mute all sounds while the preview is playing
 - in hero : clicking "search an ambiance" does not replace side menu
 - all audio files are loaded 2 times when simplesound is created
