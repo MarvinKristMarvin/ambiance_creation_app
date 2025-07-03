@@ -47,6 +47,9 @@ export default function Hero() {
     (state) => state.setCurrentAmbiance
   );
   const setSoundsUsed = useGlobalStore((state) => state.setSoundsUsed);
+  const openSearchAmbianceMenu = useGlobalStore(
+    (state) => state.openSearchAmbianceMenu
+  );
 
   const [hoverTheme, setHoverTheme] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
@@ -126,9 +129,7 @@ export default function Hero() {
           <button
             aria-label="load ambiance button"
             className="flex-1 px-6 py-4 font-bold text-white border-2 rounded-full bg-emerald-600 hover:bg-emerald-500 hover:cursor-pointer text-md border-emerald-600 hover:border-emerald-500"
-            onClick={() => {
-              setSearchAmbianceMenu(true);
-            }}
+            onClick={openSearchAmbianceMenu}
           >
             Search an ambiance
           </button>

@@ -185,11 +185,12 @@ TASKS
 - bug : changing global volume and muting does not change anything for a ponctual sound, unless holding the global volume slider
 - reduce edge requests (loading multiple time a sound each time it plays)
 - check if some options bug long term (remove memory leaks for punctual sounds)
+- fixed : in hero : clicking "search an ambiance" does not replace side menu
+- when listen sound preview mute all sounds while the preview is playing
+- when listening preview ponctual sound : now listen next instead of random
 
 TO DO
-- when listen sound preview mute all sounds while the preview is playing
-- in hero : clicking "search an ambiance" does not replace side menu
-- all audio files are loaded 2 times when simplesound is created
+- fix : all audio files are loaded 2 times when simplesound is created
 - add more sounds
 - save with same author and same ambiance name : patch the ambiance
 - new name : fog (make logo image which looks like a disc)

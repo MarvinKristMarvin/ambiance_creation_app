@@ -82,6 +82,7 @@ export default function SearchSoundsMenu() {
     (state) => state.setCurrentAmbiance
   );
   const globalVolume = useGlobalStore((state) => state.globalVolume);
+  const setGlobalVolume = useGlobalStore((state) => state.setGlobalVolume);
   const setSoundsUsed = useGlobalStore((state) => state.setSoundsUsed);
 
   // Toasts
@@ -340,6 +341,7 @@ export default function SearchSoundsMenu() {
   };
 
   let currentAudio: HTMLAudioElement | null = null;
+  const lastPlayedIndexMap: Record<number, number> = {};
 
   const handlePlaySound = (soundId: number) => {
     const sound = searchedSoundsBasicInformations.find((s) => s.id === soundId);
@@ -354,13 +356,22 @@ export default function SearchSoundsMenu() {
       currentAudio.currentTime = 0;
     }
 
-    const randomIndex = Math.floor(Math.random() * sound.audio_paths.length);
-    const selectedAudioPath = sound.audio_paths[randomIndex];
+    // Get the last played index for this sound or start with -1
+    const lastIndex = lastPlayedIndexMap[soundId] ?? -1;
+    const nextIndex = (lastIndex + 1) % sound.audio_paths.length;
+
+    // Update the map with the new index
+    lastPlayedIndexMap[soundId] = nextIndex;
+
+    const selectedAudioPath = sound.audio_paths[nextIndex];
+
+    const previousGlobalVolume = globalVolume;
+    setGlobalVolume(0); // Mute all other audio globally
 
     if (sound.looping) {
-      playPartialAudio(selectedAudioPath, sound.volume);
+      playPartialAudio(selectedAudioPath, sound.volume, previousGlobalVolume);
     } else {
-      playFullAudio(selectedAudioPath, sound.volume);
+      playFullAudio(selectedAudioPath, sound.volume, previousGlobalVolume);
     }
 
     console.log(
@@ -368,18 +379,40 @@ export default function SearchSoundsMenu() {
     );
   };
 
-  const playFullAudio = (audioPath: string, volume: number) => {
+  const playFullAudio = (
+    audioPath: string,
+    volume: number,
+    originalGlobalVolume: number
+  ) => {
     const audio = new Audio(audioPath);
-    audio.volume = (volume / 100) * globalVolume;
+    if (originalGlobalVolume === 0) {
+      // if previous global volume was 0 then set audio volume to 0.5
+      audio.volume = 0.5;
+    } else {
+      audio.volume = (volume / 100) * originalGlobalVolume;
+    }
 
     audio.play().catch((error) => {
       console.error("Error playing audio:", error);
+      setGlobalVolume(originalGlobalVolume);
     });
 
     currentAudio = audio;
+
+    audio.addEventListener("ended", () => {
+      setGlobalVolume(originalGlobalVolume);
+    });
+
+    audio.addEventListener("error", () => {
+      setGlobalVolume(originalGlobalVolume);
+    });
   };
 
-  const playPartialAudio = async (audioPath: string, volume: number) => {
+  const playPartialAudio = async (
+    audioPath: string,
+    volume: number,
+    originalGlobalVolume: number
+  ) => {
     try {
       const headResponse = await fetch(audioPath, { method: "HEAD" });
       const totalSize = parseInt(
@@ -387,7 +420,7 @@ export default function SearchSoundsMenu() {
       );
 
       if (totalSize === 0) {
-        playFullAudio(audioPath, volume);
+        playFullAudio(audioPath, volume, originalGlobalVolume);
         return;
       }
 
@@ -400,7 +433,7 @@ export default function SearchSoundsMenu() {
       });
 
       if (!response.ok || response.status !== 206) {
-        playFullAudio(audioPath, volume);
+        playFullAudio(audioPath, volume, originalGlobalVolume);
         return;
       }
 
@@ -408,10 +441,16 @@ export default function SearchSoundsMenu() {
       const blobUrl = URL.createObjectURL(blob);
 
       const audio = new Audio(blobUrl);
-      audio.volume = (volume / 100) * globalVolume;
+      if (originalGlobalVolume === 0) {
+        // if previous global volume was 0 then set audio volume to 0.5
+        audio.volume = 0.5;
+      } else {
+        audio.volume = (volume / 100) * originalGlobalVolume;
+      }
 
       const cleanup = () => {
         URL.revokeObjectURL(blobUrl);
+        setGlobalVolume(originalGlobalVolume);
       };
 
       audio.addEventListener("ended", cleanup);
@@ -436,7 +475,7 @@ export default function SearchSoundsMenu() {
       });
     } catch (error) {
       console.error("Error with partial audio playback:", error);
-      playFullAudio(audioPath, volume);
+      playFullAudio(audioPath, volume, originalGlobalVolume);
     }
   };
 
