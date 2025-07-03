@@ -99,7 +99,7 @@ export default function SettingsMenu() {
   };
 
   return (
-    <div aria-label="settings menu" className="pl-1 text-gray-300">
+    <div aria-label="settings menu" className="text-gray-300 ">
       <p className="mb-2 font-bold text-left text-gray-300 text-md">
         {session ? "Connected as " + session.user.name : "Connexion"}
       </p>

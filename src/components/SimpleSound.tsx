@@ -353,9 +353,7 @@ export default function SimpleSound({
       player.playbackRate = playbackRateRef.current;
 
       // Create gain, panner, and reverb nodes
-      const gainNode = new Tone.Gain(
-        (volumeRef.current / 100) * globalVolume * mute
-      );
+      const gainNode = new Tone.Gain((volume / 100) * globalVolume * mute);
       const panner = new Tone.Panner(directionRef.current);
       const reverb = new Tone.Reverb({
         decay: reverbDecayRef.current + 0.001,

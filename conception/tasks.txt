@@ -179,15 +179,17 @@ TASKS
 - toast when logged in and signed up
 - when cant save ambiance : please log in to add in favorites
 
+03/07/2025
+- settings menu has to much left space compared to right space
 
-- in prod bug : changing global volume and muting does not change anything, unless holding the global volume slider
-- check if some options bug long term
 
 TO DO
+- in prod bug : changing global volume and muting does not change anything, unless holding the global volume slider
+- check if some options bug long term
+- production branch can become development since the main branch is deployed on vercel
 - when listen sound preview mute all sounds while the preview is playing
 - in hero : clicking "search an ambiance" does not replace side menu
 - ponctual sound is downloaded in network everytime it plays (in prod)
-- in prod bug : changing name of the ambiance does not save directly
 - add more sounds
 - save with same author and same ambiance name : patch the ambiance
 - new name : fog (make logo image which looks like a disc)
