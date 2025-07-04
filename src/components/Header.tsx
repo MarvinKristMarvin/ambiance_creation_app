@@ -24,10 +24,10 @@ export default function Header() {
       <h1
         aria-label="logo"
         onClick={() => setCurrentAmbiance(null)}
-        className="tracking-[-0] font-title font-mansalva text-4xl text-emerald-300 py-2 px-6
+        className="tracking-[-4] font-title font-cherry-bomb-one text-4xl text-emerald-300 py-2 px-4
         hover:cursor-pointer flex items-center transform -translate-y-1"
       >
-        frog
+        fog
       </h1>
 
       <div className="absolute z-10 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">

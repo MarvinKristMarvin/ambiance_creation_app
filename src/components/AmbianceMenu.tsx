@@ -6,7 +6,8 @@ import {
   Plus,
   Volume2,
   Star,
-  Pencil,
+  Search,
+  //AudioWaveform,
 } from "lucide-react";
 import { useShowToast } from "@/hooks/useShowToast";
 
@@ -24,6 +25,9 @@ export default function AmbianceMenu() {
   );
   const openSearchSoundsMenu = useGlobalStore(
     (state) => state.openSearchSoundsMenu
+  );
+  const setRefreshSearchAmbianceMenu = useGlobalStore(
+    (state) => state.setRefreshSearchAmbianceMenu
   );
 
   // States
@@ -52,16 +56,16 @@ export default function AmbianceMenu() {
     }
   }, [setGlobalVolume, globalVolume]);
 
-  // Save ambiance without id => creates a new ambiance, with id => updates the ambiance
+  // Save as new ambiance, but if author id = session id and ambiance name already exist, patch the ambiance
   const handleSaveAmbiance = async () => {
     try {
       if (!currentAmbiance || saveState === "loading") return;
 
       setSaveState("loading");
+      setRefreshSearchAmbianceMenu(true);
 
-      // Remove both id and author_id - server will handle author_id from session
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, author_id, ...ambianceWithoutId } = currentAmbiance;
+      const { id, ...ambianceWithoutId } = currentAmbiance;
       const response = await fetch("/api/post_ambiance", {
         method: "POST",
         headers: {
@@ -145,35 +149,32 @@ export default function AmbianceMenu() {
         aria-label="mute button, volume slider and play button"
         className="flex flex-row flex-1 h-12 gap-4 mx-2 w-90"
       >
-        <div className="relative flex flex-row items-center flex-1 h-full border-0 border-gray-800 rounded-full text-md bg-emerald-900 hover:cursor-pointer">
-          <div
-            aria-label="fake border"
-            className="absolute w-13.75 h-13.75 rounded-full bg-gray-950 left-[-0] top-[-3]"
-            style={{ zIndex: 1 }}
-          ></div>
+        <div className="relative flex flex-row items-center flex-1 h-full rounded-full text-md hover:cursor-pointer">
           <button
             aria-label="mute button"
             onClick={updateGlobalVolume}
-            className="flex items-center h-full px-3.5 py-2 text-xs bg-gray-900 rounded-full hover:bg-gray-800 hover:cursor-pointer relative"
+            className="relative flex items-center h-full px-4 py-2 mr-4 text-xs bg-gray-900 rounded-full hover:bg-gray-800 hover:cursor-pointer"
             style={{ zIndex: 2 }}
           >
             <Volume2
-              className={`w-5 h-5 ${
+              className={`w-4.5 h-4.5 ${
                 globalVolume < 0.001 ? "text-gray-500" : "text-gray-200"
               }`}
             />
           </button>
           <div
             aria-label="ambiance volume slider"
-            className="relative flex-1 h-full mr-2.25 rounded-full"
+            className="relative flex-1 h-full mr-0 overflow-hidden rounded-full"
           >
             {/* Background track */}
             <div className="absolute inset-0 h-full rounded-full bg-emerald-900"></div>
+
             {/* Filled portion */}
             <div
-              className="absolute inset-x-[-46] bg-emerald-400 h-full rounded-full"
-              style={{ width: `${globalVolume * 101 + 17}%` }}
+              className="absolute h-full bg-emerald-400"
+              style={{ width: `${globalVolume * 100}%` }}
             ></div>
+
             {/* Range input (functional but invisible) */}
             <input
               type="range"
@@ -203,17 +204,17 @@ export default function AmbianceMenu() {
         </button>
         <button
           aria-label="current ambiance button"
-          onClick={openSearchAmbianceMenu}
-          className="flex items-center justify-center flex-1 px-6 py-1 overflow-hidden bg-gray-900 border-0 border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
+          onClick={openAmbianceSettingsMenu}
+          className="flex flex-col items-center justify-center flex-1 px-6 py-1 overflow-hidden bg-gray-900 border-0 border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
         >
           <div className="relative w-full overflow-hidden text-sm leading-none">
-            {currentAmbiance
-              ? currentAmbiance.ambiance_name
-              : "Search an ambiance"}
+            {currentAmbiance ? currentAmbiance.ambiance_name : "edit ambiance"}
           </div>
 
-          {currentAmbiance && (
-            <p className="hidden text-sm font-bold text-gray-400">PLAYING</p>
+          {currentAmbiance?.ambiance_name === "My ambiance name" && (
+            <p className="hidden text-sm font-bold text-gray-500 ">
+              search an ambiance
+            </p>
           )}
         </button>
 
@@ -231,10 +232,23 @@ export default function AmbianceMenu() {
       >
         <button
           aria-label="ambiance settings button"
-          onClick={openAmbianceSettingsMenu}
-          className="flex flex-col justify-center h-full px-3.75 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
+          onClick={openSearchAmbianceMenu}
+          className="flex items-center justify-center h-full px-3.75 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
         >
-          <Pencil className="w-4.5 h-4.5 text-gray-200" strokeWidth={2.5} />
+          <Search
+            className="w-4.5 h-4.5 text-gray-200 transform rotate-y-180 "
+            strokeWidth={2.5}
+          />
+          <span className="pr-1 ml-2 text-sm">Ambiances</span>
+        </button>
+
+        <button
+          aria-label="add sound button"
+          onClick={openSearchSoundsMenu}
+          className="flex items-center justify-center flex-1 h-full px-3 py-1 pr-5 ml-4 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
+        >
+          <Plus className="w-5.5 h-5.5 justify-self-start" strokeWidth={2.5} />
+          <p className="pr-0.5 ml-1">Sound</p>
         </button>
         <button
           aria-label="save ambiance button"
@@ -244,26 +258,22 @@ export default function AmbianceMenu() {
             saveState === "saved" ||
             currentAmbiance?.ambiance_sounds.length === 0
           }
-          className="flex items-center justify-center h-full py-1 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full w-26 text-md hover:bg-gray-800 hover:cursor-pointer disabled:opacity-50 disabled:cursor-default"
+          className="flex items-center justify-center h-full py-1 ml-4 text-sm bg-gray-900 border-0 border-gray-800 rounded-full w-26 text-md hover:bg-gray-800 hover:cursor-pointer disabled:opacity-50 disabled:cursor-default"
         >
           {saveState === "loading" && (
             <div className="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin" />
           )}
-          {saveState === "saved" && <p>Saved</p>}
-          {saveState === "idle" && (
+          {saveState === "saved" && (
             <>
-              <Star className="w-6 h-6 pr-1 justify-self-start" />
-              <p className="ml-1">Save</p>
+              <p className="ml-0.5 text-amber-200">Saved</p>
             </>
           )}
-        </button>
-        <button
-          aria-label="add sound button"
-          onClick={openSearchSoundsMenu}
-          className="flex items-center justify-center h-full px-3 py-1 pr-5 ml-4 bg-gray-900 border-0 border-gray-800 rounded-full flex-2 text-md hover:bg-gray-800 hover:cursor-pointer"
-        >
-          <Plus className="w-6 h-6 justify-self-start" />
-          <p className="ml-1.5">Add a sound</p>
+          {saveState === "idle" && (
+            <>
+              <Star className="w-4.5 h-4.5 text-amber-200/90" />
+              <p className="ml-1.5 pr-1 text-amber-200/90">Save</p>
+            </>
+          )}
         </button>
       </div>
     </div>

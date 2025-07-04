@@ -8,8 +8,8 @@ import { useShowToast } from "@/hooks/useShowToast";
 
 const defaultAmbiance: Ambiance = {
   id: 0,
-  ambiance_name: "My new ambiance",
-  author_id: 0,
+  ambiance_name: "My ambiance name",
+  author_id: "",
   ambiance_sounds: [],
 };
 
@@ -120,10 +120,10 @@ export default function Hero() {
     >
       <div className="flex flex-col items-center transform -translate-y-16">
         <h2 className="font-title text-7xl mb-8 text-emerald-300 tracking-[-9]">
-          frog
+          fog
         </h2>
         <p className="mb-6 text-xl font-bold text-gray-300">
-          Create or listen to community made ambiances
+          Listen to community made ambiances or create yours
         </p>
         <div className="relative flex items-center justify-center gap-4 w-120">
           <button

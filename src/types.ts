@@ -1,7 +1,7 @@
 export interface Ambiance {
   id: number;
   ambiance_name: string;
-  author_id: number;
+  author_id: string;
   ambiance_sounds: AmbianceSound[];
 }
 

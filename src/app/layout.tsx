@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Mansalva } from "next/font/google";
+import { Geist, Geist_Mono, Mansalva, Cherry_Bomb_One } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,6 +18,12 @@ const mansalva = Mansalva({
   variable: "--font-mansalva", // Optional: CSS variable
 });
 
+const cherryBombOne = Cherry_Bomb_One({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-cherry-bomb-one",
+});
+
 export const metadata: Metadata = {
   title: "Ambiance Creation App",
   description: "Create or listen to dynamic ambiances",
@@ -31,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${mansalva.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${mansalva.variable} ${cherryBombOne.variable} antialiased`}
     >
       <body>{children}</body>
     </html>

@@ -10,7 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-title: var(--font-mansalva);
+  --font-title: var(--font-cherry-bomb-one);
 }
 
 @media (prefers-color-scheme: dark) {

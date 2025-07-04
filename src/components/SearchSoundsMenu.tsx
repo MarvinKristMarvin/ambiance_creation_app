@@ -703,7 +703,12 @@ export default function SearchSoundsMenu() {
                       {sound.sound_name}
                     </h3>
                     <p className="text-xs font-bold text-gray-500">
-                      Listen {sound.looping ? "loop" : ""}
+                      Listen{" "}
+                      {sound.looping
+                        ? "loop"
+                        : `${sound.audio_paths.length} sound${
+                            sound.audio_paths.length > 1 ? "s" : ""
+                          }`}
                     </p>
                   </div>
                   <div

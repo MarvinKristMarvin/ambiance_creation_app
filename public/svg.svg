@@ -1,0 +1,22 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <ellipse stroke-width="25" ry="200" rx="200" id="svg_4" cy="300" cx="400" stroke="#000" fill="#fff"/>
+  <ellipse stroke-width="25" ry="50" rx="50" id="svg_1" cy="300" cx="400" stroke="#000" fill="#fff"/>
+  <ellipse stroke-width="25" ry="50" rx="50" id="svg_2" cy="300" cx="550" stroke="#000" fill="#fff"/>
+  <ellipse stroke-width="25" ry="50" rx="50" id="svg_3" cy="300" cx="250" stroke="#000" fill="#fff"/>
+  <path id="svg_25" d="m87.70951,394.97209" opacity="NaN" stroke-width="25" stroke="#000" fill="#fff"/>
+  <path id="svg_22" d="m132.40225,429.60897" opacity="NaN" stroke-width="25" stroke="#000" fill="#fff"/>
+  <line id="svg_37" y2="224.99975" x2="687.74457" y1="224.01936" x1="400.97998" stroke-width="25" stroke="#ffffff" fill="none"/>
+  <line id="svg_39" y2="373.5291" x2="157.84283" y1="377.94086" x1="401.47018" stroke-width="25" stroke="#ffffff" fill="none"/>
+  <line id="svg_40" y2="288.72522" x2="320.09767" y1="317.15658" x1="266.17612" stroke-width="25" stroke="#ffffff" fill="none"/>
+  <line id="svg_42" y2="304.90168" x2="225.48986" y1="372.54871" x1="233.82319" stroke-width="25" stroke="#ffffff" fill="none"/>
+  <line id="svg_43" y2="101.21951" x2="582.31709" y1="236.58537" x1="438.41465" stroke-width="25" stroke="#ffffff" fill="none"/>
+  <line id="svg_44" y2="498.17074" x2="177.43903" y1="353.04879" x1="345.73172" stroke-width="25" stroke="#ffffff" fill="none"/>
+  <line id="svg_45" y2="403.04879" x2="266.46343" y1="412.80489" x1="172.56098" stroke-width="60" stroke="#ffffff" fill="none"/>
+  <line transform="rotate(47.3391, 557.317, 183.537)" id="svg_46" y2="176.82928" x2="604.26832" y1="190.24391" x1="510.36588" stroke-width="60" stroke="#ffffff" fill="none"/>
+  <line transform="rotate(145.535, 269.953, 343.027)" id="svg_47" y2="326.01607" x2="296.41423" y1="360.03886" x1="243.49128" stroke-width="60" stroke="#ffffff" fill="none"/>
+  <line transform="rotate(145.535, 295.563, 333.881)" id="svg_48" y2="316.86972" x2="322.02398" y1="350.89252" x1="269.10104" stroke-width="60" stroke="#ffffff" fill="none"/>
+ </g>
+</svg>

@@ -189,10 +189,20 @@ TASKS
 - when listen sound preview mute all sounds while the preview is playing
 - when listening preview ponctual sound : now listen next instead of random
 
+04/07/2025
+
+WAITING TO BE PUSHED
+- show number of sounds in sound card in search sound menu
+- save with same author and same ambiance name and already in favorites : patch the ambiance
+- created more intuitive header buttons
+- refresh search ambiance menu when saving ambiance and reset search filters (so it shows favorites)
+- cleaner global volume slider
+
+WORKING ON
+
 TO DO
 - fix : all audio files are loaded 2 times when simplesound is created
 - add more sounds
-- save with same author and same ambiance name : patch the ambiance
 - new name : fog (make logo image which looks like a disc)
 - mobile responsiveness
 - create some default ambiances (corresponding to themes)

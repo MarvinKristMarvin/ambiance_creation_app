@@ -101,6 +101,12 @@ export default function SearchAmbianceMenu() {
   const setSearchAmbianceMenu = useGlobalStore(
     (state) => state.setSearchAmbianceMenu
   );
+  const refreshSearchAmbianceMenu = useGlobalStore(
+    (state) => state.refreshSearchAmbianceMenu
+  );
+  const setRefreshSearchAmbianceMenu = useGlobalStore(
+    (state) => state.setRefreshSearchAmbianceMenu
+  );
 
   // Filtering states
   const [searchString, setSearchString] = useState("");
@@ -246,6 +252,22 @@ export default function SearchAmbianceMenu() {
   useEffect(() => {
     performSearch();
   }, []);
+
+  // Reset filters and search string when refreshSearchAmbianceMenu is triggered to show favorites
+  useEffect(() => {
+    if (refreshSearchAmbianceMenu) {
+      // Reset filters and search string
+      setSearchString("");
+      setSelectedCategories([]);
+      setSelectedThemes([]);
+
+      // Reset the Zustand flag
+      setRefreshSearchAmbianceMenu(false);
+
+      // Trigger a new search with cleared filters
+      performSearch();
+    }
+  }, [refreshSearchAmbianceMenu]);
 
   // When clicking an ambiance, load the ambiance and its sounds
   const handleLoadAmbiance = async (ambianceId: number) => {

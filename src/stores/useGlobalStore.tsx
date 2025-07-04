@@ -50,6 +50,9 @@ interface Store {
   openSearchAmbianceMenu: () => void;
   openAmbianceSettingsMenu: () => void;
   closeAllModals: () => void;
+  // Refresh search ambiance menu when save ambiance
+  refreshSearchAmbianceMenu: boolean;
+  setRefreshSearchAmbianceMenu: (value: boolean) => void;
 }
 
 export const useGlobalStore = create<Store>((set) => ({
@@ -136,4 +139,8 @@ export const useGlobalStore = create<Store>((set) => ({
   clearAllToasts: () => {
     set({ toasts: [] });
   },
+  // Refresh search ambiance menu when save ambiance
+  refreshSearchAmbianceMenu: false,
+  setRefreshSearchAmbianceMenu: (value) =>
+    set({ refreshSearchAmbianceMenu: value }),
 }));

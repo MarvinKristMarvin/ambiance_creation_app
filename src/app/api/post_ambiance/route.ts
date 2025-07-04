@@ -27,45 +27,55 @@ export async function POST(request: Request) {
 
     try {
       await client.query("BEGIN");
+
+      // Check if user already has a favorite ambiance with the same name and is the author
+      const existingAmbianceQuery = `
+  SELECT a.id FROM ambiances a
+  INNER JOIN user_has_favorite_ambiances ufa ON ufa.ambiance_id = a.id
+  WHERE a.ambiance_name = $1 AND a.author_id = $2 AND ufa.user_id = $2
+`;
+      const existingAmbianceResult = await client.query(existingAmbianceQuery, [
+        ambianceData.ambiance_name,
+        userId,
+      ]);
+
       let ambianceId;
 
-      if (ambianceData.id) {
-        // Update existing ambiance
+      if (existingAmbianceResult.rows.length > 0) {
+        // Update the existing ambiance
+        ambianceId = existingAmbianceResult.rows[0].id;
+
         const updateAmbianceQuery = `
-          UPDATE ambiances 
-          SET ambiance_name = $1, author_id = $2 
-          WHERE id = $3 AND author_id = $4
-          RETURNING id
-        `;
+    UPDATE ambiances 
+    SET ambiance_name = $1
+    WHERE id = $2 AND author_id = $3
+    RETURNING id
+  `;
         const ambianceResult = await client.query(updateAmbianceQuery, [
           ambianceData.ambiance_name,
-          userId,
-          ambianceData.id,
+          ambianceId,
           userId,
         ]);
 
         if (ambianceResult.rows.length === 0) {
-          throw new Error("Ambiance not found");
+          throw new Error("Ambiance not found or not authorized to update");
         }
-
-        ambianceId = ambianceData.id;
 
         await client.query(
           "DELETE FROM ambiances_sounds WHERE ambiance_id = $1",
           [ambianceId]
         );
       } else {
-        // Create new ambiance
+        // Create a new ambiance
         const insertAmbianceQuery = `
-          INSERT INTO ambiances (ambiance_name, author_id) 
-          VALUES ($1, $2) 
-          RETURNING id
-        `;
+    INSERT INTO ambiances (ambiance_name, author_id) 
+    VALUES ($1, $2) 
+    RETURNING id
+  `;
         const ambianceResult = await client.query(insertAmbianceQuery, [
           ambianceData.ambiance_name,
           userId,
         ]);
-
         ambianceId = ambianceResult.rows[0].id;
       }
 
