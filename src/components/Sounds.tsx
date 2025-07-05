@@ -44,7 +44,6 @@ export default function Sounds() {
   const soundCounts = new Map<number, number>();
 
   return (
-    // <div className="flex flex-row items-center w-full h-full gap-4 px-4 mb-4 overflow-x-auto justify-center-safe whitespace-nowrap">
     <div
       className={`relative flex flex-row gap-4 pb-4 mx-4 w-[calc(100%-2rem)] h-full items-center overflow-x-auto whitespace-nowrap custom-scrollbar ${
         currentAmbiance.ambiance_sounds.length === 0

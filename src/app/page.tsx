@@ -55,7 +55,7 @@ export default function Home() {
       <main className="flex flex-col w-screen h-screen min-w-0 bg-gray-950">
         <Header />
         {currentAmbiance ? (
-          <div className="relative w-full h-full min-w-0">
+          <div className="relative w-full h-full min-w-0 overflow-y-auto">
             <Sounds />
             <ToastContainer />
           </div>
@@ -63,6 +63,7 @@ export default function Home() {
           <Hero />
         )}
       </main>
+
       <aside className="min-h-full bg-gray-900">
         {settingsMenu && (
           <Modal onClose={closeAllModals} title="Settings">

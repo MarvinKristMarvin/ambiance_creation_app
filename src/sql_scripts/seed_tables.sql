@@ -1,18 +1,13 @@
 
 -- insert 2 sounds
-INSERT INTO sounds (sound_name, audio_paths, image_path, looping, volume, reverb, reverb_duration, direction, speed, category, themes, repeat_delay)
+INSERT INTO sounds (sound_name, audio_paths, image_path, looping, category, themes, repeat_delay)
 VALUES 
   (
     'Rain', -- sound name
     ARRAY['/audio/rain1.mp3'], -- audio paths
     '/photos/rain2.jpeg', -- image
     true, -- looping
-    50, -- volume
-    0, -- reverb
-    3, -- reverb duration
-    0, -- direction
-    1, -- speed
-    'Elemental', -- category
+    'Nature', -- category
     ARRAY['Aquatic']::theme[], -- themes
     null
   ),
@@ -21,11 +16,6 @@ VALUES
     ARRAY['/audio/frog_croaking.mp3'],
     '/photos/frog1.jpg',
     true,
-    50,
-    0,
-    3,
-    0,
-    1,
     'Animals',
     ARRAY['Night', 'Spooky']::theme[],
     null
@@ -35,15 +25,27 @@ VALUES
     ARRAY['/audio/page_flip_1.mp3', '/audio/page_flip_2.mp3'],
     '/photos/page_flip.jpeg',
     false,
-    50,
-    0,
-    3,
-    0,
-    1,
     'Human',
     ARRAY['Night']::theme[],
-    -- repeat delay in seconds 1.5 to 10
     ARRAY[5, 10]::DECIMAL[]
+  ),
+  (
+    'Cat purring', -- sound name
+    ARRAY['/audio/cat_purring.mp3'], -- audio paths
+    '/photos/placeholder.webp', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Night']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Chopping lettuce', -- sound name
+    ARRAY['/audio/chopping_lettuce.mp3'], -- audio paths
+    '/photos/placeholder.webp', -- image
+    true, -- looping
+    'Human', -- category
+    ARRAY['House']::theme[], -- themes
+    null -- repeat delay
   );
 
 -- insert 1 ambiance
@@ -51,19 +53,19 @@ INSERT INTO ambiances (ambiance_name, author_id, categories, themes)
 VALUES (
   'Morning Jungle',
   'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', -- marv@example.com marvmarv
-  ARRAY['Elemental', 'Animals']::category[],
+  ARRAY['Nature', 'Animals']::category[],
   ARRAY['Night', 'Spooky']::theme[]
 ),
 (
   'Before sleeping books',
   'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', -- marv@example.com marvmarv
-  ARRAY['Elemental', 'Human']::category[],
+  ARRAY['Nature', 'Human']::category[],
   ARRAY['Night', 'Aquatic']::theme[]
 ),
 (
   'Evening Jungle',
   'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
-  ARRAY['Elemental']::category[],
+  ARRAY['Nature']::category[],
   ARRAY['Aquatic']::theme[]
 );
 

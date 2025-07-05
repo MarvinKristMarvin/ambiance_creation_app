@@ -1,6 +1,6 @@
 "use client";
 
-import { Ghost, RefreshCcw, Droplet, Moon } from "lucide-react";
+import { Ghost, RefreshCcw, Droplet, Moon, House } from "lucide-react";
 import type { Ambiance, Sound } from "../types";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import { useEffect, useState } from "react";
@@ -34,6 +34,13 @@ const themes = [
     textClass: "text-blue-400",
     icon: Droplet,
     vowel: true,
+  },
+  {
+    name: "house",
+    borderClass: "border-orange-200",
+    textClass: "text-orange-200",
+    icon: House,
+    vowel: false,
   },
 ];
 

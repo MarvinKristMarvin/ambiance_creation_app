@@ -1,9 +1,7 @@
 -- create ENUM type for sound category
 CREATE TYPE category AS ENUM (
-  'Elemental',
-  'Vegetation',
+  'Nature',
   'Animals',
-  'Insects',
   'Human',
   'Music'
 );
@@ -11,7 +9,8 @@ CREATE TYPE category AS ENUM (
 CREATE TYPE theme AS ENUM (
   'Spooky',
   'Aquatic',
-  'Night'
+  'Night',
+  'House'
 );
 
 CREATE TABLE sounds (
@@ -20,11 +19,11 @@ CREATE TABLE sounds (
   audio_paths TEXT[] NOT NULL,
   image_path TEXT,
   looping BOOLEAN,
-  volume INT,
-  reverb INT,
-  reverb_duration DECIMAL(3, 1),
-  speed DECIMAL(2, 1),
-  direction DECIMAL(2, 1),
+  volume INT default 50,
+  reverb INT default 0,
+  reverb_duration DECIMAL(3, 1) default 2.0,
+  speed DECIMAL(2, 1) default 1.0,
+  direction DECIMAL(2, 1) default 0.0,
   category category,
   themes theme[],
   -- Ponctual sounds options

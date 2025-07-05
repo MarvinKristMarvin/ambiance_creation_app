@@ -547,7 +547,7 @@ export default function SimpleSound({
         expanded ? "h-full" : ""
       }`}
     >
-      <div className="relative bg-black h-38 group/image">
+      <div className="relative bg-black min-h-38 group/image">
         <Image
           src={imagePath}
           alt={soundName}
@@ -675,11 +675,11 @@ export default function SimpleSound({
       {expanded && (
         <div
           aria-label="expanded options"
-          className="flex flex-col justify-start flex-1 gap-2 pb-2"
+          className="flex flex-col justify-start flex-1 gap-2 overflow-y-scroll border-b-8 border-gray-900 border-t-10"
         >
           <div
             aria-label="volume"
-            className="mx-2 mt-2.5 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="mx-2 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Volume</span>
@@ -1205,7 +1205,7 @@ export default function SimpleSound({
             aria-label="note"
             className="flex flex-col items-center justify-center flex-1 mx-2 mt-0 text-gray-700 border-2 rounded-xs border-gray-950 bg-gray-950 min-h-12 hover:cursor-pointer hover:text-gray-400"
           >
-            <Pencil className="w-5 h-5 mb-1.5 "></Pencil>
+            <Pencil className="w-4 h-4 mb-0.5 "></Pencil>
             <span className="text-xs ">My notes</span>
           </div>
         </div>

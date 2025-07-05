@@ -1,13 +1,6 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, Star, ChevronDown, X, Search } from "lucide-react";
-import {
-  Leaf,
-  PawPrint,
-  Bug,
-  PersonStanding,
-  Earth,
-  Music,
-} from "lucide-react"; // categories icons
+import { Check, Star, ChevronDown, X, Search, House } from "lucide-react";
+import { Leaf, PawPrint, PersonStanding, Music } from "lucide-react"; // categories icons
 import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
@@ -15,16 +8,9 @@ import { useShowToast } from "@/hooks/useShowToast";
 import { AmbianceSound, Sound } from "@/types";
 
 // Categories and types based on db
-const CATEGORIES = [
-  "Elemental",
-  "Vegetation",
-  "Animals",
-  "Insects",
-  "Human",
-  "Music",
-] as const;
+const CATEGORIES = ["Nature", "Animals", "Human", "Music"] as const;
 
-const THEMES = ["Spooky", "Aquatic", "Night"] as const;
+const THEMES = ["Spooky", "Aquatic", "Night", "House"] as const;
 
 type Category = (typeof CATEGORIES)[number];
 type Theme = (typeof THEMES)[number];
@@ -34,14 +20,10 @@ const getCategoryIcon = (category: Category) => {
   const iconProps = { className: "w-4 h-4" };
 
   switch (category) {
-    case "Elemental":
-      return <Earth {...iconProps} className="w-4 h-4 text-red-300" />;
-    case "Vegetation":
+    case "Nature":
       return <Leaf {...iconProps} className="w-4 h-4 text-green-400" />;
     case "Animals":
       return <PawPrint {...iconProps} className="w-4 h-4 text-amber-400" />;
-    case "Insects":
-      return <Bug {...iconProps} className="w-4 h-4 text-lime-400" />;
     case "Human":
       return (
         <PersonStanding {...iconProps} className="w-4 h-4 text-orange-400" />
@@ -64,6 +46,8 @@ const getThemeIcon = (theme: Theme) => {
       return <Droplet {...iconProps} className="w-4 h-4 text-blue-400" />;
     case "Night":
       return <Moon {...iconProps} className="w-4 h-4 text-indigo-400" />;
+    case "House":
+      return <House {...iconProps} className="w-4 h-4 text-orange-200" />;
     default:
       return null;
   }
@@ -520,7 +504,7 @@ export default function SearchSoundsMenu() {
                     setSelectedCategory(null);
                     setShowCategoryDropdown(false);
                   }}
-                  className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
+                  className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
                   <X className="w-4 h-4 text-gray-400" />
                   <span>All Categories</span>
@@ -532,7 +516,7 @@ export default function SearchSoundsMenu() {
                       setSelectedCategory(category);
                       setShowCategoryDropdown(false);
                     }}
-                    className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                    className={`w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
                       selectedCategory === category
                         ? "text-emerald-400 bg-gray-700"
                         : "text-gray-300"
@@ -593,7 +577,7 @@ export default function SearchSoundsMenu() {
                     setSelectedThemes([]);
                     setShowThemeDropdown(false);
                   }}
-                  className="w-full px-3 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
+                  className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
                   <X className="w-4 h-4 text-gray-400" />
                   <span>All Themes</span>
@@ -602,7 +586,7 @@ export default function SearchSoundsMenu() {
                   <button
                     key={theme}
                     onClick={() => handleThemeToggle(theme)}
-                    className={`w-full px-3 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                    className={`w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
                       selectedThemes.includes(theme)
                         ? "text-emerald-400 bg-gray-700"
                         : "text-gray-300"
