@@ -1040,7 +1040,7 @@ export default function SimpleSound({
 
           <div
             aria-label="frequency cut"
-            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
+            className="hidden mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
               <span className="text-xs text-gray-400">Low Cut</span>

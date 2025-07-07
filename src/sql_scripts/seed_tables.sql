@@ -8,7 +8,7 @@ VALUES
     '/photos/rain2.jpeg', -- image
     true, -- looping
     'Nature', -- category
-    ARRAY['Aquatic']::theme[], -- themes
+    ARRAY['Aquatic', 'Elemental']::theme[], -- themes
     null
   ),
   (
@@ -17,7 +17,7 @@ VALUES
     '/photos/frog1.jpg',
     true,
     'Animals',
-    ARRAY['Night', 'Spooky']::theme[],
+    ARRAY['Night', 'Mysterious']::theme[],
     null
   ),
   (
@@ -26,25 +26,274 @@ VALUES
     '/photos/page_flip.jpeg',
     false,
     'Human',
-    ARRAY['Night']::theme[],
+    ARRAY['Night', 'Action']::theme[],
     ARRAY[5, 10]::DECIMAL[]
   ),
   (
     'Cat purring', -- sound name
     ARRAY['/audio/cat_purring.mp3'], -- audio paths
-    '/photos/placeholder.webp', -- image
+    '/photos/cat_purring.jpg', -- image
     true, -- looping
     'Animals', -- category
-    ARRAY['Night']::theme[], -- themes
+    ARRAY['Night', 'House']::theme[], -- themes
     null -- repeat delay
   ),
   (
     'Chopping lettuce', -- sound name
     ARRAY['/audio/chopping_lettuce.mp3'], -- audio paths
-    '/photos/placeholder.webp', -- image
+    '/photos/chopping_lettuce.webp', -- image
     true, -- looping
     'Human', -- category
-    ARRAY['House']::theme[], -- themes
+    ARRAY['House', 'Action']::theme[], -- themes
+    null -- repeat delay
+  ),
+  ('Cutting vegetables', -- sound name
+    ARRAY['/audio/cutting_vegetables.mp3'], -- audio paths
+    '/photos/cutting_vegetables.jpg', -- image
+    true, -- looping
+    'Human', -- category
+    ARRAY['House', 'Action']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Coast thunder', -- sound name
+    ARRAY['/audio/coast_thunder.mp3'], -- audio paths
+    '/photos/coast_thunder.webp', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Cosmic uplifting', -- sound name
+    ARRAY['/audio/cosmic_uplifting.mp3'], -- audio paths
+    '/photos/cosmic_uplifting.webp', -- image
+    true, -- looping
+    'Music', -- category
+    ARRAY['Ethereal']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Crackling fire', -- sound name
+    ARRAY['/audio/crackling_fire.mp3'], -- audio paths
+    '/photos/crackling_fire.webp', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Frying', -- sound name
+    ARRAY['/audio/frying.mp3'], -- audio paths
+    '/photos/frying.jpg', -- image
+    true, -- looping
+    'Human', -- category
+    ARRAY['House', 'Action']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Grassland birds', -- sound name
+    ARRAY['/audio/grassland_birds.mp3'], -- audio paths
+    '/photos/grassland_birds.jpg', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Bird']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Horse galloping', -- sound name
+    ARRAY['/audio/horse_galloping.mp3'], -- audio paths
+    '/photos/horse_galloping.jpg', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Fantasy','Action']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Jungle birds', -- sound name
+    ARRAY['/audio/jungle_birds.mp3'], -- audio paths
+    '/photos/jungle_birds.jpeg', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Bird']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Kalimba atmosphere', -- sound name
+    ARRAY['/audio/kalimba_atmosphere_1.mp3'], -- audio paths
+    '/photos/kalimba_atmosphere.jpg', -- image
+    false, -- looping
+    'Music', -- category
+    ARRAY['Mysterious', 'Instrument']::theme[], -- themes
+    ARRAY[100, 200] -- repeat delay
+  ),
+  (
+    'Kalimba note', -- sound name
+    ARRAY['/audio/kalimba_note_1.mp3'], -- audio paths
+    '/photos/kalimba_note.jpg', -- image
+    false, -- looping
+    'Music', -- category
+    ARRAY['Instrument']::theme[], -- themes
+    ARRAY[20, 60] -- repeat delay
+  ),
+  ('Peeling potatoes', -- sound name
+    ARRAY['/audio/peeling_potatoes.mp3'], -- audio paths
+    '/photos/peeling_potatoes.jpg', -- image
+    true, -- looping
+    'Human', -- category
+    ARRAY['House', 'Action']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'River birds', -- sound name
+    ARRAY['/audio/river_and_birds.mp3'], -- audio paths
+    '/photos/river_and_birds.jpg', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Aquatic', 'Bird']::theme[], -- themes
+    null -- repeat delay
+  ),
+  (
+    'Running water', -- sound name
+    ARRAY['/audio/running_water.mp3'], -- audio paths
+    '/photos/running_water.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Aquatic']::theme[], -- themes
+    null -- repeat delay
+  ),
+  ('Storm chimes', -- sound name   
+    ARRAY['/audio/storm_chimes.mp3'], -- audio paths
+    '/photos/storm_chimes.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental', 'Instrument']::theme[], -- themes
+    null -- repeat delay
+  ),
+  ('Underwater', -- sound name
+    ARRAY['/audio/underwater_bubbles.mp3'], -- audio paths
+    '/photos/underwater_bubbles.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Aquatic']::theme[], -- themes
+    null -- repeat delay
+  ),
+  ('Violent wind', -- sound name
+    ARRAY['/audio/violent_wind.mp3'], -- audio paths
+    '/photos/violent_wind.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- wind_thunder
+  (
+    'Wind thunder', -- sound name
+    ARRAY['/audio/wind_rain_thunder.mp3'], -- audio paths
+    '/photos/wind_rain_thunder.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- wind_trees
+  (
+    'Wind trees', -- sound name
+    ARRAY['/audio/wind_trees.mp3'], -- audio paths
+    '/photos/wind_trees.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- creepy_voices
+  (
+    'Creepy voices', -- sound name
+    ARRAY['/audio/creepy_voices.mp3'], -- audio paths
+    '/photos/creepy_voices.jpg', -- image
+    true, -- looping
+    'Human', -- category
+    ARRAY['Mysterious', 'Night', 'Fantasy']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- cricket_fast
+  (
+    'Cricket fast', -- sound name
+    ARRAY['/audio/cricket_fast.mp3'], -- audio paths
+    '/photos/cricket_fast.webp', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Insect']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- cricket_soft
+  (
+    'Cricket soft', -- sound name
+    ARRAY['/audio/cricket_soft.mp3'], -- audio paths
+    '/photos/cricket_soft.webp', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Insect']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- crickets
+  (
+    'Crickets', -- sound name
+    ARRAY['/audio/crickets.mp3'], -- audio paths
+    '/photos/crickets.jpg', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Insect']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- crickets_and_bugs
+  (
+    'Crickets and bugs', -- sound name
+    ARRAY['/audio/crickets_and_bugs.mp3'], -- audio paths
+    '/photos/crickets_and_bugs.webp', -- image
+    true, -- looping
+    'Animals', -- category
+    ARRAY['Insect', 'Night']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- dry_thunder
+  (
+    'Dry thunder', -- sound name
+    ARRAY['/audio/dry_thunder.mp3'], -- audio paths
+    '/photos/dry_thunder.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
+    null -- repeat delay
+  ),
+-- fireplace
+  (
+    'Fireplace', -- sound name
+    ARRAY['/audio/fireplace.mp3'], -- audio paths
+    '/photos/fireplace.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- flute_ethereal 
+  (
+    'Ethereal flute', -- sound name
+    ARRAY['/audio/flute_ethereal.mp3'], -- audio paths
+    '/photos/flute_ethereal.jpg', -- image
+    true, -- looping
+    'Music', -- category
+    ARRAY['Instrument', 'Ethereal']::theme[], -- themes
+    null -- repeat delay
+  ),
+  -- forest_storm 
+  (
+    'Forest storm', -- sound name
+    ARRAY['/audio/forest_storm.mp3'], -- audio paths
+    '/photos/forest_storm.jpg', -- image
+    true, -- looping
+    'Nature', -- category
+    ARRAY['Elemental']::theme[], -- themes
     null -- repeat delay
   );
 
@@ -54,7 +303,7 @@ VALUES (
   'Morning Jungle',
   'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', -- marv@example.com marvmarv
   ARRAY['Nature', 'Animals']::category[],
-  ARRAY['Night', 'Spooky']::theme[]
+  ARRAY['Night', 'Mysterious']::theme[]
 ),
 (
   'Before sleeping books',

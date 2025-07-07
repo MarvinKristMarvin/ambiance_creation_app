@@ -7,10 +7,17 @@ CREATE TYPE category AS ENUM (
 );
 
 CREATE TYPE theme AS ENUM (
-  'Spooky',
+  'Mysterious',
   'Aquatic',
   'Night',
-  'House'
+  'House',
+  'Ethereal',
+  'Fantasy',
+  'Elemental',
+  'Insect',
+  'Instrument',
+  'Bird',
+  'Action'
 );
 
 CREATE TABLE sounds (

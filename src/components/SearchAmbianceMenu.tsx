@@ -1,67 +1,17 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, ChevronDown, Star, X, Search, House } from "lucide-react"; // global icons
-import { Leaf, PawPrint, PersonStanding, Music } from "lucide-react"; // categories icons
-import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
+import { Check, ChevronDown, Star, X, Search } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import type { Ambiance, AmbianceBasicInformations, Sound } from "@/types";
 import { useShowToast } from "@/hooks/useShowToast";
-
-// Categories and types based on db
-const CATEGORIES = [
-  "Nature", // leaf
-  "Animals", // paw print
-  "Human", // person standing
-  "Music", // music
-] as const;
-
-const THEMES = [
-  "Spooky", // ghost
-  "Aquatic", // droplet
-  "Night", // moon
-  "House",
-] as const;
-
-type Category = (typeof CATEGORIES)[number];
-type Theme = (typeof THEMES)[number];
-
-// Category icon mapping with colors
-const getCategoryIcon = (category: Category) => {
-  const iconProps = { className: "w-4 h-4" };
-
-  switch (category) {
-    case "Nature":
-      return <Leaf {...iconProps} className="w-4 h-4 text-green-400" />;
-    case "Animals":
-      return <PawPrint {...iconProps} className="w-4 h-4 text-amber-400" />;
-    case "Human":
-      return (
-        <PersonStanding {...iconProps} className="w-4 h-4 text-orange-400" />
-      );
-    case "Music":
-      return <Music {...iconProps} className="w-4 h-4 text-purple-400" />;
-    default:
-      return null;
-  }
-};
-
-// Theme icon mapping with colors
-const getThemeIcon = (theme: Theme) => {
-  const iconProps = { className: "w-4 h-4" };
-
-  switch (theme) {
-    case "Spooky":
-      return <Ghost {...iconProps} className="w-4 h-4 text-gray-400" />;
-    case "Aquatic":
-      return <Droplet {...iconProps} className="w-4 h-4 text-blue-400" />;
-    case "Night":
-      return <Moon {...iconProps} className="w-4 h-4 text-indigo-400" />;
-    case "House":
-      return <House {...iconProps} className="w-4 h-4 text-orange-200" />;
-    default:
-      return null;
-  }
-};
+import {
+  CATEGORIES,
+  THEMES,
+  getCategoryIcon,
+  getThemeIcon,
+  type Category,
+  type Theme,
+} from "@/lib/iconMappings";
 
 // Utility function to parse Postgres ENUM array like categories or themes to be able to map on them
 function parsePostgresEnumArray(str: string | string[]): string[] {

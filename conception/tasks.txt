@@ -200,19 +200,23 @@ TASKS
 - little pc screen responsiveness with only flew wraps
 - added a bit more sounds
 
-WAITING TO BE PUSHED
-
-WORKING ON
+07/07/2025
 - refactor themes and categories for search menus
 - add more sounds / themes / categories
 - find corresponding images
-- add youtube audio
+
+WAITING TO BE PUSHED
+
+WORKING ON
 
 TO DO
+- add youtube audio
+- debug
 - fix : all audio files are loaded 2 times when simplesound is created
 - new name : fog (make logo image which looks like a disc)
 - mobile responsiveness
 - create some default ambiances (corresponding to themes)
+- add theme/category icons to sound cards in sound search menu
 - logs system
 - optimize sounds and images
 - optimize requests

@@ -1,57 +1,17 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, Star, ChevronDown, X, Search, House } from "lucide-react";
-import { Leaf, PawPrint, PersonStanding, Music } from "lucide-react"; // categories icons
-import { Ghost, Droplet, Moon } from "lucide-react"; // themes icons
+import { Check, Star, ChevronDown, X, Search } from "lucide-react"; // themes icons
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
 import { AmbianceSound, Sound } from "@/types";
-
-// Categories and types based on db
-const CATEGORIES = ["Nature", "Animals", "Human", "Music"] as const;
-
-const THEMES = ["Spooky", "Aquatic", "Night", "House"] as const;
-
-type Category = (typeof CATEGORIES)[number];
-type Theme = (typeof THEMES)[number];
-
-// Category icon mapping with colors
-const getCategoryIcon = (category: Category) => {
-  const iconProps = { className: "w-4 h-4" };
-
-  switch (category) {
-    case "Nature":
-      return <Leaf {...iconProps} className="w-4 h-4 text-green-400" />;
-    case "Animals":
-      return <PawPrint {...iconProps} className="w-4 h-4 text-amber-400" />;
-    case "Human":
-      return (
-        <PersonStanding {...iconProps} className="w-4 h-4 text-orange-400" />
-      );
-    case "Music":
-      return <Music {...iconProps} className="w-4 h-4 text-purple-400" />;
-    default:
-      return null;
-  }
-};
-
-// Theme icon mapping with colors
-const getThemeIcon = (theme: Theme) => {
-  const iconProps = { className: "w-4 h-4" };
-
-  switch (theme) {
-    case "Spooky":
-      return <Ghost {...iconProps} className="w-4 h-4 text-gray-400" />;
-    case "Aquatic":
-      return <Droplet {...iconProps} className="w-4 h-4 text-blue-400" />;
-    case "Night":
-      return <Moon {...iconProps} className="w-4 h-4 text-indigo-400" />;
-    case "House":
-      return <House {...iconProps} className="w-4 h-4 text-orange-200" />;
-    default:
-      return null;
-  }
-};
+import {
+  CATEGORIES,
+  THEMES,
+  getCategoryIcon,
+  getThemeIcon,
+  type Category,
+  type Theme,
+} from "@/lib/iconMappings";
 
 export default function SearchSoundsMenu() {
   // Existing Zustand state
