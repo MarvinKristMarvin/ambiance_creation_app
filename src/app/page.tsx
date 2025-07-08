@@ -53,12 +53,14 @@ export default function Home() {
   return (
     <div className="flex">
       <main className="flex flex-col w-screen h-screen min-w-0 bg-gray-950">
-        <Header />
         {currentAmbiance ? (
-          <div className="relative w-full h-full min-w-0 overflow-y-auto">
-            <Sounds />
-            <ToastContainer />
-          </div>
+          <>
+            <Header />
+            <div className="relative w-full h-full min-w-0 overflow-y-auto">
+              <Sounds />
+              <ToastContainer />
+            </div>{" "}
+          </>
         ) : (
           <Hero />
         )}

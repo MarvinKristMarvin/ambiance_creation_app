@@ -4,13 +4,13 @@
   --background: #ffffff;
   --foreground: #171717;
 }
-
+/* ${geistSans.variable} ${geistMono.variable} ${mansalva.variable} ${cherryBombOne.variable} ${darumadropOne.variable} ${oi.variable} ${hanaleiFill.variable} ${zcoolKuaile.variable */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-title: var(--font-cherry-bomb-one);
+  --font-title: var(--font-monoton);
 }
 
 @media (prefers-color-scheme: dark) {

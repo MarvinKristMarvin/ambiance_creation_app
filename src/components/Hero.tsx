@@ -1,10 +1,23 @@
 "use client";
 
-import { Ghost, RefreshCcw, Droplet, Moon, House } from "lucide-react";
+import {
+  Ghost,
+  RefreshCcw,
+  Droplet,
+  Moon,
+  House,
+  BookOpen,
+  Book,
+  Guitar,
+  Bird,
+  Sparkles,
+  CloudDrizzle,
+} from "lucide-react";
 import type { Ambiance, Sound } from "../types";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import { useEffect, useState } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
+import Image from "next/image";
 
 const defaultAmbiance: Ambiance = {
   id: 0,
@@ -15,17 +28,17 @@ const defaultAmbiance: Ambiance = {
 
 const themes = [
   {
-    name: "spooky",
-    borderClass: "border-gray-400",
-    textClass: "text-gray-400",
+    name: "mysterious",
+    borderClass: "border-black",
+    textClass: "text-black",
     icon: Ghost,
     vowel: false,
   },
   {
-    name: "night",
-    borderClass: "border-purple-400",
-    textClass: "text-purple-400",
-    icon: Moon,
+    name: "fantasy",
+    borderClass: "border-violet-400",
+    textClass: "text-violet-400",
+    icon: BookOpen,
     vowel: false,
   },
   {
@@ -40,6 +53,27 @@ const themes = [
     borderClass: "border-orange-200",
     textClass: "text-orange-200",
     icon: House,
+    vowel: false,
+  },
+  {
+    name: "bird",
+    borderClass: "border-sky-400",
+    textClass: "text-sky-400",
+    icon: Bird,
+    vowel: false,
+  },
+  {
+    name: "ethereal",
+    borderClass: "border-pink-400",
+    textClass: "text-pink-400",
+    icon: Sparkles,
+    vowel: false,
+  },
+  {
+    name: "elemental",
+    borderClass: "border-sky-400",
+    textClass: "text-sky-400",
+    icon: CloudDrizzle,
     vowel: false,
   },
 ];
@@ -123,19 +157,36 @@ export default function Hero() {
   return (
     <div
       aria-label="presentation page"
-      className="flex flex-col justify-center flex-1 text-center align-center"
+      className="relative flex flex-col justify-center flex-1 overflow-hidden text-center align-center"
     >
-      <div className="flex flex-col items-center transform -translate-y-16">
-        <h2 className="font-title text-7xl mb-8 text-emerald-300 tracking-[-9]">
-          fog
+      {/* Background image */}
+      <Image
+        src="/photos/herobg.jpg" // replace with your image path in public/
+        alt="Background"
+        fill
+        className="z-0 object-cover"
+        priority
+        quality={100}
+      />
+      <div className="flex flex-col items-center transform -translate-y-4">
+        <h2 className="font-title font-bold text-6xl mb-4 text-gray-50 tracking-[8] translate-x-2.5">
+          FOG
         </h2>
-        <p className="mb-6 text-xl font-bold text-gray-300">
-          Listen to community made ambiances or create yours
+        <p className="mb-6 text-2xl font-bold text-gray-50">
+          Listen to an ambiance or create yours
         </p>
+        {/* <Image
+          className="mb-5 rounded-xl"
+          src="/photos/heropresentation.jpg"
+          alt="Presentation"
+          width={800}
+          height={200}
+          quality={100}
+        ></Image> */}
         <div className="relative flex items-center justify-center gap-4 w-120">
           <button
             aria-label="load ambiance button"
-            className="flex-1 px-6 py-4 font-bold text-white border-2 rounded-full bg-emerald-600 hover:bg-emerald-500 hover:cursor-pointer text-md border-emerald-600 hover:border-emerald-500"
+            className="flex-1 px-6 py-4 font-bold text-white border-2 rounded-full bg-black/25 hover:bg-black/50 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
             onClick={openSearchAmbianceMenu}
           >
             Search an ambiance
@@ -143,7 +194,7 @@ export default function Hero() {
           <button
             aria-label="create ambiance button"
             onClick={() => setCurrentAmbiance(defaultAmbiance)}
-            className="flex-1 px-6 py-4 font-bold text-white border-2 rounded-full hover:bg-emerald-950 border-emerald-700 hover:cursor-pointer text-md hover:border-emerald-500"
+            className="flex-1 px-6 py-4 font-bold text-white border-2 rounded-full bg-black/25 hover:bg-black/50 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
           >
             Create an ambiance
           </button>
@@ -151,15 +202,15 @@ export default function Hero() {
 
         <div className="relative mt-4">
           <button
-            className={`absolute -top-11.5 left-1/2 -translate-x-1/2 p-3.5 border-2 rounded-full hover:bg-gray-900 hover:cursor-pointer bg-gray-950 ${
-              hoverTheme ? "border-gray-200" : currentTheme.borderClass
+            className={`absolute -top-[-4.75rem] left-1/2 -translate-x-1/2 p-3.5 border-2 rounded-full  hover:cursor-pointer bg-black/50 hover:bg-black/70 ${
+              hoverTheme ? "border-gray-50" : currentTheme.borderClass
             }`}
             onMouseEnter={() => setHoverTheme(true)}
             onMouseLeave={() => setHoverTheme(false)}
             onClick={handleThemeChange}
           >
             {hoverTheme ? (
-              <RefreshCcw className="w-6 h-6 text-gray-200" />
+              <RefreshCcw className="w-6 h-6 text-gray-50" />
             ) : (
               <IconComponent className={`w-6 h-6 ${currentTheme.textClass}`} />
             )}
@@ -168,7 +219,7 @@ export default function Hero() {
           <button
             aria-label="random ambiance button"
             onClick={handleGetThemedAmbiance}
-            className={`px-6 py-2 font-bold text-white border-2 rounded-full text-md w-fit flex gap-1 items-center mx-auto hover:cursor-pointer hover:bg-gray-900 ${currentTheme.borderClass}`}
+            className={`bg-black/50 px-6 py-2 font-bold text-white border-2 rounded-full text-md w-fit flex gap-1 items-center mx-auto hover:cursor-pointer hover:bg-black/70 ${currentTheme.borderClass}`}
           >
             <span className="px-2 py-2 rounded-full">
               Or listen to a{currentTheme.vowel ? "n " : " "}

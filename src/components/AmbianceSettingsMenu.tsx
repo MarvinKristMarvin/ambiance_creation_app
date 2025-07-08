@@ -30,7 +30,9 @@ export default function AmbianceSettingsMenu() {
       aria-label="ambiance settings menu"
       className="pb-1 text-gray-300 rounded-md"
     >
-      {/* <p className="mb-2 text-base font-bold">Ambiance informations</p> */}
+      <p className="mb-2 ml-1 font-bold text-left text-gray-300 text-md">
+        Your ambiance name
+      </p>
       <div aria-label="name" className="relative flex flex-col justify-center">
         <input
           ref={inputRef}

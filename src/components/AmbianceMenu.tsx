@@ -8,6 +8,7 @@ import {
   Star,
   Search,
   Settings,
+  Pencil,
   //AudioWaveform,
 } from "lucide-react";
 import { useShowToast } from "@/hooks/useShowToast";
@@ -156,11 +157,11 @@ export default function AmbianceMenu() {
             <h1
               aria-label="logo"
               onClick={() => setCurrentAmbiance(null)}
-              className="tracking-[-4] font-title font-light text-3xl text-emerald-300 
-        hover:cursor-pointer  flex items-center transform justify-center px-4 translate-y-[0.2rem] translate-x-[-0.2rem] "
+              className="tracking-[3] font-title font-light text-2xl text-gray-200 
+        hover:cursor-pointer  flex items-center transform justify-center px-4 translate-y-[0.6rem] translate-x-[0.2rem] "
             >
               {/* <MenuIcon className="w-8 h-8 fill-current text-emerald-300" /> */}
-              fog
+              FOG
             </h1>
           </div>
           <button
@@ -180,11 +181,11 @@ export default function AmbianceMenu() {
             className="relative flex-1 h-full mr-0 overflow-hidden rounded-full min-w-72"
           >
             {/* Background track */}
-            <div className="absolute inset-0 h-full rounded-full bg-emerald-900"></div>
+            <div className="absolute inset-0 h-full rounded-full bg-emerald-950"></div>
 
             {/* Filled portion */}
             <div
-              className="absolute h-full bg-emerald-400"
+              className="absolute h-full bg-emerald-500"
               style={{ width: `${globalVolume * 100}%` }}
             ></div>
 
@@ -211,17 +212,24 @@ export default function AmbianceMenu() {
       >
         <button
           aria-label="previous ambiance button"
-          className="flex flex-col justify-center px-3.5 py-1 pr-2.5 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
+          className="hidden flex flex-col justify-center px-3.5 py-1 pr-2.5 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
           <SkipBack className="w-5 h-5" />
         </button>
         <button
           aria-label="current ambiance button"
           onClick={openAmbianceSettingsMenu}
-          className="flex flex-col items-center justify-center px-6 py-1 overflow-hidden bg-gray-900 border-0 flex-2 border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
+          className="flex flex-col items-center justify-center px-6 py-1 overflow-hidden bg-gray-900 border-0 rounded-full flex-2 border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
         >
-          <div className="relative w-full overflow-hidden text-sm leading-none">
-            {currentAmbiance ? currentAmbiance.ambiance_name : "edit ambiance"}
+          <div className="relative flex items-center justify-center w-full gap-3 overflow-hidden text-sm leading-none text-center">
+            <span>
+              {currentAmbiance
+                ? currentAmbiance.ambiance_name
+                : "edit ambiance"}{" "}
+            </span>
+            <span>
+              <Pencil className="w-4 h-4 text-gray-200"></Pencil>
+            </span>
           </div>
 
           {currentAmbiance?.ambiance_name === "My ambiance name" && (
@@ -233,7 +241,7 @@ export default function AmbianceMenu() {
 
         <button
           aria-label="next ambiance button"
-          className="flex flex-col justify-center px-3.5 py-1 pl-2.5 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
+          className="hidden flex flex-col justify-center px-3.5 py-1 pl-2.5 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
           <SkipForward className="w-5 h-5" />
         </button>

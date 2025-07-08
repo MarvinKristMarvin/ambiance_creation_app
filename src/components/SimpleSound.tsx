@@ -873,7 +873,7 @@ export default function SimpleSound({
               </div>
             </div>
             <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Duration</span>
+              <span className="text-xs text-gray-400">Echo duration</span>
               <span className="text-xs text-gray-400">
                 {reverbDecay.toFixed(1)}s
               </span>

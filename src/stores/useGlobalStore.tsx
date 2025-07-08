@@ -62,7 +62,7 @@ export const useGlobalStore = create<Store>((set) => ({
   setCurrentAmbiance: (value) => set({ currentAmbiance: value }),
   soundsUsed: [],
   setSoundsUsed: (value) => set({ soundsUsed: value }),
-  globalVolume: 1,
+  globalVolume: 0.5,
   setGlobalVolume: (value) => set({ globalVolume: value }),
   searchSoundsMenu: false,
   setSearchSoundsMenu: (value) => set({ searchSoundsMenu: value }),

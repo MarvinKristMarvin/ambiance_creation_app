@@ -1,5 +1,6 @@
 
--- insert 2 sounds
+BEGIN;
+
 INSERT INTO sounds (sound_name, audio_paths, image_path, looping, category, themes, repeat_delay)
 VALUES 
   (
@@ -66,7 +67,7 @@ VALUES
   ),
   (
     'Cosmic uplifting', -- sound name
-    ARRAY['/audio/cosmic_uplifting.mp3'], -- audio paths
+    ARRAY['/audio/cosmic_uplifting_1.mp3'], -- audio paths
     '/photos/cosmic_uplifting.webp', -- image
     true, -- looping
     'Music', -- category
@@ -189,7 +190,7 @@ VALUES
   -- wind_thunder
   (
     'Wind thunder', -- sound name
-    ARRAY['/audio/wind_rain_thunder.mp3'], -- audio paths
+    ARRAY['/audio/wind_thunder.mp3'], -- audio paths
     '/photos/wind_rain_thunder.jpg', -- image
     true, -- looping
     'Nature', -- category
@@ -209,7 +210,7 @@ VALUES
   -- creepy_voices
   (
     'Creepy voices', -- sound name
-    ARRAY['/audio/creepy_voices.mp3'], -- audio paths
+    ARRAY['/audio/creepy_voices_1.mp3'], -- audio paths
     '/photos/creepy_voices.jpg', -- image
     true, -- looping
     'Human', -- category
@@ -231,16 +232,6 @@ VALUES
     'Cricket soft', -- sound name
     ARRAY['/audio/cricket_soft.mp3'], -- audio paths
     '/photos/cricket_soft.webp', -- image
-    true, -- looping
-    'Animals', -- category
-    ARRAY['Insect']::theme[], -- themes
-    null -- repeat delay
-  ),
-  -- crickets
-  (
-    'Crickets', -- sound name
-    ARRAY['/audio/crickets.mp3'], -- audio paths
-    '/photos/crickets.jpg', -- image
     true, -- looping
     'Animals', -- category
     ARRAY['Insect']::theme[], -- themes
@@ -297,42 +288,55 @@ VALUES
     null -- repeat delay
   );
 
--- insert 1 ambiance
-INSERT INTO ambiances (ambiance_name, author_id, categories, themes)
-VALUES (
-  'Morning Jungle',
-  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', -- marv@example.com marvmarv
-  ARRAY['Nature', 'Animals']::category[],
-  ARRAY['Night', 'Mysterious']::theme[]
-),
-(
-  'Before sleeping books',
-  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', -- marv@example.com marvmarv
-  ARRAY['Nature', 'Human']::category[],
-  ARRAY['Night', 'Aquatic']::theme[]
-),
-(
-  'Evening Jungle',
-  'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
-  ARRAY['Nature']::category[],
-  ARRAY['Aquatic']::theme[]
-);
-
-
--- link the sounds to the ambiance
-INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, reverb_duration, direction, speed, repeat_delay, low, mid, high, low_cut, high_cut)
+INSERT INTO ambiances (id, ambiance_name, author_id, categories, themes)
 VALUES 
-  (1, 1, 50, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
-  (1, 1, 30, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
-  (1, 2, 10, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
-  (2, 1, 50, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000),
-  (2, 3, 50, 0, 3, 0, 1, ARRAY[15, 30]::DECIMAL[], 0, 0, 0, 20, 20000),
-  (3, 1, 80, 0, 3, 0, 1, null, 0, 0, 0, 20, 20000);
+  (1, 'Abyssal dive with big creatures', 'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
+   ARRAY['Nature', 'Human']::category[], ARRAY['Fantasy', 'Mysterious', 'Night', 'Aquatic']::theme[]),
+  (2, 'Reading next to a river', 'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
+   ARRAY['Animals', 'Nature', 'Human']::category[], ARRAY['Night', 'Bird', 'Insect', 'Aquatic', 'Action']::theme[]),
+  (3, 'Japan mountain with slow flute', 'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
+   ARRAY['Nature', 'Music']::category[], ARRAY['Instrument', 'Ethereal', 'Elemental']::theme[]),
+  (4, 'Cooking with the window open', 'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
+   ARRAY['Human', 'Animals']::category[], ARRAY['House', 'Action', 'Bird']::theme[]),
+  (5, 'Hut with a fireplace, stormy outside', 'nUnk8X6wJozubjGALNir5ZBUyjNjfXn1',
+   ARRAY['Nature']::category[], ARRAY['Elemental']::theme[]);
+
+INSERT INTO ambiances_sounds (
+  ambiance_id, sound_id, volume, reverb, reverb_duration, direction, speed,
+  repeat_delay, low, mid, high, low_cut, high_cut
+)
+VALUES
+  (1, 20, 92, 0, 0, 0, 0.8, NULL, -3, 0, 0, 20, 20000),
+  (1, 24, 20, 78, 8, 0, 0.7, NULL, -3, -12, -2, 20, 20000),
+
+  (2, 25, 4, 0, 0, 0, 0.9, NULL, -50, -24, 0, 20, 20000),
+  (2, 11, 7, 0, 0, 0, 0.9, NULL, -50, -25, 0, 20, 20000),
+  (2, 18, 7, 0, 2, 0, 0.6, NULL, -33, 0, -6, 20, 20000),
+  (2, 3, 15, 0, 2, 0, 1.2, ARRAY[40, 80]::DECIMAL[], 0, -4, 0, 20, 20000),
+
+  (3, 19, 85, 56, 8.3, 0, 1.0, NULL, -3, -2, 0, 20, 20000),
+  (3, 30, 7, 67, 7, 0, 0.5, NULL, 0, -27, -50, 20, 20000),
+
+  (4, 11, 5, 20, 2, 0, 0.8, NULL, -25, 0, -25, 20, 20000),
+  (4, 5, 18, 0, 2, 0, 0.7, NULL, 0, 0, 0, 20, 20000),
+  (4, 10, 50, 0, 2, 0, 1.0, NULL, 0, 0, 0, 20, 20000),
+
+  (5, 29, 52, 0, 0, 0, 0.9, NULL, -24, 0, 0, 20, 20000),
+  (5, 31, 87, 17, 1.8, 0, 1.0, NULL, 0, 0, -5, 20, 20000);
+
+INSERT INTO user_has_favorite_ambiances (user_id, ambiance_id)
+VALUES
+  ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 1),
+  ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 2),
+  ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 3),
+  ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 4),
+  ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 5);
+
+
+
 
 INSERT INTO user_has_favorite_sounds (user_id, sound_id)
 VALUES
   ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 2);
 
-  INSERT INTO user_has_favorite_ambiances (user_id, ambiance_id)
-VALUES
-  ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 1);
+COMMIT;
