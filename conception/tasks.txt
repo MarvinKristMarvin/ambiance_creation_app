@@ -206,14 +206,16 @@ TASKS
 - find corresponding images
 
 08/07/2025
-
-WAITING TO BE PUSHED
 - small ux modifications
 - debug random theme ambiance opening
 - remove problematic audios from the sounds table
 - add more themed ambiances by creating with a user, find them on db and write them in seeding script (and update the random themes button accordingly)
 
+WAITING TO BE PUSHED
+- user should be able to save an ambiance he just loaded OK
+
 WORKING ON
+- user should always be the author of the current ambiance (so when log in, keep a userid variable and use it in currentAmbiance.author)
 
 TO DO
 - back office to add sounds

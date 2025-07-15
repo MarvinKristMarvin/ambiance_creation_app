@@ -102,8 +102,12 @@ export default function AmbianceMenu() {
         setSaveState("saved");
         ShowToast("success", "star", "Ambiance saved successfully");
 
-        // Optionally update the current ambiance with the returned data (including new ID)
-        // setCurrentAmbiance(result.data);
+        // Set current amibance author id with the result data
+        setCurrentAmbiance({
+          ...currentAmbiance,
+          author_id: result.data.author_id,
+          id: result.data.id,
+        });
       } else {
         console.error("Failed to save ambiance:", result.error);
         setSaveState("idle");

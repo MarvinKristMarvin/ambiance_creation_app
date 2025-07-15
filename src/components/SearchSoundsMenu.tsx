@@ -1,5 +1,5 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, Star, ChevronDown, X, Search } from "lucide-react"; // themes icons
+import { Check, Star, ChevronDown, X, Search, Plus } from "lucide-react"; // themes icons
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
@@ -682,7 +682,7 @@ export default function SearchSoundsMenu() {
                       onClick={() => handleAddSoundToAmbiance(sound.id)}
                       className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700 rounded-r-md"
                     >
-                      <Check className="w-5 h-5" />
+                      <Plus className="w-5 h-5" strokeWidth={3} />
                     </button>
                   </div>
                 </div>

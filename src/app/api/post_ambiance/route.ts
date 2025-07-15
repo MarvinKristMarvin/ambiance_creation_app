@@ -28,29 +28,30 @@ export async function POST(request: Request) {
     try {
       await client.query("BEGIN");
 
-      // Check if user already has a favorite ambiance with the same name and is the author
+      // Check if ambiance with same name exists
       const existingAmbianceQuery = `
-  SELECT a.id FROM ambiances a
-  INNER JOIN user_has_favorite_ambiances ufa ON ufa.ambiance_id = a.id
-  WHERE a.ambiance_name = $1 AND a.author_id = $2 AND ufa.user_id = $2
-`;
+        SELECT a.id, a.author_id FROM ambiances a
+        WHERE a.ambiance_name = $1
+      `;
       const existingAmbianceResult = await client.query(existingAmbianceQuery, [
         ambianceData.ambiance_name,
-        userId,
       ]);
 
       let ambianceId;
 
-      if (existingAmbianceResult.rows.length > 0) {
-        // Update the existing ambiance
+      if (
+        existingAmbianceResult.rows.length > 0 &&
+        existingAmbianceResult.rows[0].author_id === userId
+      ) {
+        // User is author → update
         ambianceId = existingAmbianceResult.rows[0].id;
 
         const updateAmbianceQuery = `
-    UPDATE ambiances 
-    SET ambiance_name = $1
-    WHERE id = $2 AND author_id = $3
-    RETURNING id
-  `;
+          UPDATE ambiances 
+          SET ambiance_name = $1
+          WHERE id = $2 AND author_id = $3
+          RETURNING id
+        `;
         const ambianceResult = await client.query(updateAmbianceQuery, [
           ambianceData.ambiance_name,
           ambianceId,
@@ -66,12 +67,12 @@ export async function POST(request: Request) {
           [ambianceId]
         );
       } else {
-        // Create a new ambiance
+        // New ambiance (either no match or match with different author)
         const insertAmbianceQuery = `
-    INSERT INTO ambiances (ambiance_name, author_id) 
-    VALUES ($1, $2) 
-    RETURNING id
-  `;
+          INSERT INTO ambiances (ambiance_name, author_id) 
+          VALUES ($1, $2) 
+          RETURNING id
+        `;
         const ambianceResult = await client.query(insertAmbianceQuery, [
           ambianceData.ambiance_name,
           userId,
@@ -79,7 +80,7 @@ export async function POST(request: Request) {
         ambianceId = ambianceResult.rows[0].id;
       }
 
-      // Add to favorites (works for both new and updated ambiances)
+      // Add to favorites
       const addFavoriteQuery = `
         INSERT INTO user_has_favorite_ambiances (user_id, ambiance_id)
         VALUES ($1, $2)
@@ -87,15 +88,16 @@ export async function POST(request: Request) {
       `;
       await client.query(addFavoriteQuery, [userId, ambianceId]);
 
-      // Add sounds to ambiance
+      // Add sounds
       if (ambianceData.ambiance_sounds?.length > 0) {
-        // Query to repeat for each sound
         const insertSoundsQuery = `
-          INSERT INTO ambiances_sounds (ambiance_id, sound_id, volume, reverb, direction, speed, reverb_duration, repeat_delay, low, mid, high, low_cut, high_cut)
+          INSERT INTO ambiances_sounds (
+            ambiance_id, sound_id, volume, reverb, direction, speed,
+            reverb_duration, repeat_delay, low, mid, high, low_cut, high_cut
+          )
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         `;
 
-        // Repeat the insertSoundsQuery for each sound of the ambiance
         for (const sound of ambianceData.ambiance_sounds) {
           await client.query(insertSoundsQuery, [
             ambianceId,
@@ -117,9 +119,7 @@ export async function POST(request: Request) {
 
       // Get category frequencies
       const aggregateQuery = `
-        SELECT 
-          s.category::text as category,
-          COUNT(*) as category_count
+        SELECT s.category::text as category, COUNT(*) as category_count
         FROM ambiances_sounds ass
         JOIN sounds s ON s.id = ass.sound_id
         WHERE ass.ambiance_id = $1
@@ -130,9 +130,7 @@ export async function POST(request: Request) {
 
       // Get theme frequencies
       const themesQuery = `
-        SELECT 
-          unnested_theme::text as theme,
-          COUNT(*) as theme_count
+        SELECT unnested_theme::text as theme, COUNT(*) as theme_count
         FROM ambiances_sounds ass
         JOIN sounds s ON s.id = ass.sound_id
         LEFT JOIN LATERAL unnest(s.themes) AS unnested_theme ON true
@@ -142,7 +140,7 @@ export async function POST(request: Request) {
       `;
       const themesResult = await client.query(themesQuery, [ambianceId]);
 
-      // Prepare categories and themes arrays
+      // Build arrays
       const sortedCategories = aggregateResult.rows.map((row) => row.category);
       const sortedThemes = themesResult.rows.map((row) => row.theme);
 
@@ -167,7 +165,7 @@ export async function POST(request: Request) {
 
       await client.query("COMMIT");
 
-      // Get the complete ambiance data to return
+      // Return full ambiance
       const selectQuery = `
         SELECT 
           a.id,
