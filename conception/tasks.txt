@@ -215,20 +215,23 @@ TASKS
 - user should be able to save an ambiance he just loaded
 - user should always be the author of the current ambiance
 
+16/07/2025
+- big ui and css modifications
+- add full responsiveness
+
 WAITING TO BE PUSHED
 
 WORKING ON
+- optimize sounds and images
 
 TO DO
+- accessibility : aria, audio popups, phone back button should not go to hero page, but maybe just hide the actual modal
 - back office to add sounds
 - add youtube audio
 - debug sound modifications
-- little bug in ambiance card styling in search
 - fix : all audio files are loaded 2 times when simplesound is created
-- mobile responsiveness
-- add theme/category icons to sound cards in sound search menu
+- ? add theme/category icons to sound cards in sound search menu
 - logs system
-- optimize sounds and images
 - optimize requests
 - delete account
 - rgpd / contact

@@ -333,8 +333,6 @@ VALUES
   ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 5);
 
 
-
-
 INSERT INTO user_has_favorite_sounds (user_id, sound_id)
 VALUES
   ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 2);

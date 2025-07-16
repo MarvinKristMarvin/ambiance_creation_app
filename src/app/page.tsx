@@ -68,7 +68,7 @@ export default function Home() {
 
       <aside className="min-h-full bg-gray-900">
         {settingsMenu && (
-          <Modal onClose={closeAllModals} title="Settings">
+          <Modal onClose={closeAllModals} title="User settings">
             <SettingsMenu />
           </Modal>
         )}

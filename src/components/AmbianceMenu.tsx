@@ -7,8 +7,8 @@ import {
   Volume2,
   Star,
   Search,
-  Settings,
   Pencil,
+  UserRound,
   //AudioWaveform,
 } from "lucide-react";
 import { useShowToast } from "@/hooks/useShowToast";
@@ -161,8 +161,8 @@ export default function AmbianceMenu() {
             <h1
               aria-label="logo"
               onClick={() => setCurrentAmbiance(null)}
-              className="tracking-[3] font-title font-light text-2xl text-gray-200 
-        hover:cursor-pointer  flex items-center transform justify-center px-4 translate-y-[0.6rem] translate-x-[0.2rem] "
+              className="tracking-[3] font-title font-light text-xl text-gray-50 
+        hover:cursor-pointer  flex items-center transform justify-center px-4 translate-y-[0.65rem] translate-x-[0.1rem] "
             >
               {/* <MenuIcon className="w-8 h-8 fill-current text-emerald-300" /> */}
               FOG
@@ -182,7 +182,7 @@ export default function AmbianceMenu() {
           </button>
           <div
             aria-label="ambiance volume slider"
-            className="relative flex-1 h-full mr-0 overflow-hidden rounded-full min-w-72"
+            className="relative flex-1 h-full mr-0 overflow-hidden rounded-full min-w-38"
           >
             {/* Background track */}
             <div className="absolute inset-0 h-full rounded-full bg-emerald-950"></div>
@@ -258,22 +258,27 @@ export default function AmbianceMenu() {
         <button
           aria-label="ambiance settings button"
           onClick={openSearchAmbianceMenu}
-          className="flex items-center flex-1 justify-center h-full px-3.75 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
+          className="flex items-center flex-1 justify-center h-full md:px-3.75 px-0.5 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
         >
           <Search
             className="w-4.5 h-4.5 text-gray-200 transform rotate-y-180 "
             strokeWidth={2.5}
           />
-          <span className="pr-1 ml-2 text-sm">Ambiances</span>
+          <>
+            <span className="pr-1 ml-2 text-sm sm:hidden">Ambs</span>
+            <span className="hidden pr-1 ml-2 text-sm sm:inline">
+              Ambiances
+            </span>
+          </>
         </button>
 
         <button
           aria-label="add sound button"
           onClick={openSearchSoundsMenu}
-          className="flex items-center justify-center flex-1 h-full px-3 py-1 pr-5 ml-4 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
+          className="flex items-center justify-center h-full px-3.25 py-1 ml-4 text-sm bg-gray-900 border-0 border-gray-800 rounded-full md:flex-1 md:pr-5 hover:bg-gray-800 hover:cursor-pointer"
         >
           <Plus className="w-5.5 h-5.5 justify-self-start" strokeWidth={2.5} />
-          <p className="pr-0.5 ml-1">Sound</p>
+          <p className="pr-0.5 ml-1 hidden md:block">Sound</p>
         </button>
         <button
           aria-label="save ambiance button"
@@ -303,9 +308,9 @@ export default function AmbianceMenu() {
         <button
           aria-label="settings button"
           onClick={openSettingsMenu}
-          className={`flex flex-row justify-center items-center bg-gray-900 ml-4  px-3 text-center text-gray-400 text-lg font-bold hover:bg-gray-800  h-12  rounded-full hover:cursor-pointer `}
+          className={`flex flex-row justify-center items-center bg-gray-900 ml-4  px-3.5 text-center text-gray-400 text-lg font-bold hover:bg-gray-800  h-12  rounded-full hover:cursor-pointer `}
         >
-          <Settings className="w-6 h-6 text-gray-300" />
+          <UserRound className="w-5 h-5 text-gray-200" strokeWidth={2.5} />
         </button>
       </div>
     </>

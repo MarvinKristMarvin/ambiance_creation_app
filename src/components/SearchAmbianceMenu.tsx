@@ -481,7 +481,7 @@ export default function SearchAmbianceMenu() {
                   </p>
                   <div className="flex items-center"></div>
                 </div>
-                <div className="flex items-center justify-between w-full bg-gray-900 group-hover:bg-gray-800">
+                <div className="flex items-center justify-between w-full bg-gray-900 rounded-b-sm group-hover:bg-gray-800">
                   <div className="flex items-center flex-1 ">
                     <div className="flex flex-1 items-center gap-1 px-2.5 py-2 pt-1.5 bg-gray-900 rounded-bl-sm group-hover:bg-gray-800">
                       {/* If more icons than 9, show +X */}

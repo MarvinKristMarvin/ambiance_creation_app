@@ -158,7 +158,7 @@ const Toast: React.FC<ToastProps> = ({
         absolute p-5 transform -translate-x-1/2 ${
           toastConfig.bgColor
         } rounded-sm
-        left-1/2 w-[360px] hover:cursor-pointer z-50
+        left-1/2 sm:w-[360px] w-[calc(100%-32px)] hover:cursor-pointer z-200
         ${
           isInstantClose
             ? "transition-none"
@@ -167,8 +167,8 @@ const Toast: React.FC<ToastProps> = ({
         ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
       `}
       style={{
-        bottom: `${32 + index * 80}px`,
-        zIndex: zIndex + 10,
+        bottom: `${16 + index * 80}px`,
+        zIndex: zIndex + 100,
       }}
       onClick={handleClose}
     >

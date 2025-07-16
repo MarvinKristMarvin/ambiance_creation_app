@@ -543,11 +543,11 @@ export default function SimpleSound({
   return (
     <div
       aria-label={soundName + " sound"}
-      className={`w-40 text-lg font-bold text-center bg-gray-900 text-gray-400 group flex flex-col flex-shrink-0  ${
-        expanded ? "h-full" : ""
+      className={`sm:w-40 w-full text-lg font-bold text-center bg-gray-950 text-gray-400 group flex flex-col flex-shrink-0  ${
+        expanded ? "sm:h-full" : ""
       }`}
     >
-      <div className="relative bg-black min-h-38 group/image">
+      <div className="relative bg-black min-h-24 sm:min-h-38 group/image">
         <Image
           src={imagePath}
           alt={soundName}
@@ -592,16 +592,22 @@ export default function SimpleSound({
           <span>{number}</span>
         </div>
 
-        {/* Buttons visible only when image is hovered */}
+        {/* Buttons visible only when image is hovered on pc*/}
         <div
           onMouseEnter={() => setHoverButton(true)}
           onMouseLeave={() => setHoverButton(false)}
-          className="absolute flex space-x-1 transition-opacity opacity-0 top-1 right-1 group-hover/image:opacity-100 duration-10"
+          className={`absolute flex space-x-1 transition-opacity top-1 right-1 duration-100
+    ${
+      expanded
+        ? "opacity-100"
+        : "opacity-0 sm:opacity-0 group-hover/image:opacity-100"
+    }
+  `}
         >
           <button
             aria-label="mute sound button"
             onClick={handleMute}
-            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
             title="Mute sound"
           >
             <VolumeX size={17} />
@@ -609,7 +615,7 @@ export default function SimpleSound({
           <button
             aria-label="copy sound button"
             onClick={handleCopy}
-            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
             title="Copy sound"
           >
             <Copy size={14} />
@@ -617,7 +623,7 @@ export default function SimpleSound({
           <button
             aria-label="remove sound button"
             onClick={handleRemove}
-            className="flex items-center justify-center w-6 h-6 text-gray-200 bg-black/50 text-md hover:bg-red-700/60 hover:cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-red-800/50 sm:bg-black/50 text-md hover:bg-red-700/60 hover:cursor-pointer"
             title="Remove sound"
           >
             <X size={20} />
@@ -664,7 +670,7 @@ export default function SimpleSound({
           </div>
           {/* Triangle indicator - only shows on hover*/}
           <div
-            className="absolute mt-2 transition-opacity opacity-0 pointer-events-none duration-0 top-full group-hover/slider:opacity-100"
+            className="absolute hidden mt-2 transition-opacity opacity-0 pointer-events-none sm:block duration-0 top-full group-hover/slider:opacity-100"
             style={{ left: `calc(${volume}% - 4px)` }}
           >
             <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-emerald-300"></div>
@@ -675,18 +681,15 @@ export default function SimpleSound({
       {expanded && (
         <div
           aria-label="expanded options"
-          className="flex flex-col justify-start flex-1 gap-2 overflow-y-scroll border-b-8 border-gray-900 border-t-10"
+          className="flex flex-col justify-start flex-1 gap-0 px-3 pb-3 overflow-y-scroll border-2 border-t-0 border-gray-900 bg-gray-950"
         >
-          <div
-            aria-label="volume"
-            className="mx-2 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Volume</span>
-              <span className="text-xs text-gray-400">{volume}%</span>
+          <div aria-label="volume" className="">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5 font-bold">
+              <span className="text-xs text-gray-300">Volume</span>
+              <span className="text-xs text-gray-300">{volume}%</span>
             </div>
-            <div className="px-2 pb-2">
-              <div aria-label="volume slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="volume slider" className="relative h-2">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-emerald-900"></div>
                 {/* Filled portion */}
@@ -724,16 +727,13 @@ export default function SimpleSound({
             </div>
           </div>
 
-          <div
-            aria-label="direction"
-            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Left / Right</span>
-              <span className="text-xs text-gray-400">{direction}</span>
+          <div aria-label="direction" className="">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <span className="text-xs text-gray-300">Left / Right</span>
+              <span className="text-xs text-gray-300">{direction}</span>
             </div>
-            <div className="px-2 mb-2">
-              <div aria-label="direction slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="direction slider" className="relative h-2">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-stone-900"></div>
 
@@ -745,11 +745,11 @@ export default function SimpleSound({
 
                 {/* Fake slider handle */}
                 <div
-                  className="absolute w-2 h-1.5 -translate-y-1/2 bg-stone-400 top-1/2"
+                  className="absolute w-4 h-2 -translate-y-1/2 bg-stone-400 top-1/2"
                   style={{
                     left: `calc(${((direction + 1) / 2) * 100}% - (${
                       ((direction + 1) / 2) * 100
-                    }/100 * 8px))`,
+                    }/100 * 16px))`,
                   }}
                 ></div>
 
@@ -784,16 +784,13 @@ export default function SimpleSound({
             </div>
           </div>
 
-          <div
-            aria-label="speed"
-            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Speed</span>
-              <span className="text-xs text-gray-400">x{playbackRate}</span>
+          <div aria-label="speed" className="">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <span className="text-xs text-gray-300">Speed</span>
+              <span className="text-xs text-gray-300">x{playbackRate}</span>
             </div>
-            <div className="px-2 pb-2">
-              <div aria-label="playbackRate slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="playbackRate slider" className="relative h-2">
                 <div className="absolute inset-0 bg-blue-950"></div>
                 <div
                   className="absolute inset-y-0 bg-blue-400"
@@ -828,16 +825,13 @@ export default function SimpleSound({
             </div>
           </div>
 
-          <div
-            aria-label="reverb"
-            className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Echo</span>
-              <span className="text-xs text-gray-400">{reverbWet}%</span>
+          <div aria-label="reverb" className="">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <span className="text-xs text-gray-300">Echo</span>
+              <span className="text-xs text-gray-300">{reverbWet}%</span>
             </div>
-            <div className="px-2 pb-1">
-              <div aria-label="reverb wet slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="reverb wet slider" className="relative h-2">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-orange-950"></div>
                 {/* Filled portion */}
@@ -872,14 +866,14 @@ export default function SimpleSound({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Echo duration</span>
-              <span className="text-xs text-gray-400">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <span className="text-xs text-gray-300">Echo duration</span>
+              <span className="text-xs text-gray-300">
                 {reverbDecay.toFixed(1)}s
               </span>
             </div>
-            <div className="px-2 pb-2">
-              <div aria-label="reverb decay slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="reverb decay slider" className="relative h-2">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-orange-950"></div>
                 {/* Filled portion */}
@@ -917,16 +911,16 @@ export default function SimpleSound({
             </div>
           </div>
           {/* Equalizer */}
-          <div className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950">
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Low</span>
-              <span className="text-xs text-gray-400">
+          <div className="">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <span className="text-xs text-gray-300">Low</span>
+              <span className="text-xs text-gray-300">
                 {" "}
                 {Math.round(((lowGain + 50) / 50) * 100)}%
               </span>
             </div>
-            <div className="px-2 pb-1">
-              <div aria-label="low slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="low slider" className="relative h-2">
                 <div className="absolute inset-0 bg-rose-950"></div>
                 <div
                   className="absolute inset-y-0 bg-rose-400"
@@ -958,14 +952,14 @@ export default function SimpleSound({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">Mid</span>
-              <span className="text-xs text-gray-400">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <span className="text-xs text-gray-300">Mid</span>
+              <span className="text-xs text-gray-300">
                 {Math.round(((midGain + 50) / 50) * 100)}%
               </span>
             </div>
-            <div className="px-2 pb-1">
-              <div aria-label="mid slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="mid slider" className="relative h-2">
                 <div className="absolute inset-0 bg-rose-950"></div>
                 <div
                   className="absolute inset-y-0 bg-rose-400"
@@ -997,14 +991,14 @@ export default function SimpleSound({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
-              <span className="text-xs text-gray-400">High</span>
-              <span className="text-xs text-gray-400">
+            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <span className="text-xs text-gray-300">High</span>
+              <span className="text-xs text-gray-300">
                 {Math.round(((highGain + 50) / 50) * 100)}%
               </span>
             </div>
-            <div className="px-2 pb-2">
-              <div aria-label="high slider" className="relative h-1.5">
+            <div className="">
+              <div aria-label="high slider" className="relative h-2">
                 <div className="absolute inset-0 bg-rose-950"></div>
                 <div
                   className="absolute inset-y-0 bg-rose-400"
@@ -1042,7 +1036,7 @@ export default function SimpleSound({
             aria-label="frequency cut"
             className="hidden mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
           >
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+            <div className="flex items-center justify-between h-5 mt-1">
               <span className="text-xs text-gray-400">Low Cut</span>
               <span className="text-xs text-gray-400">
                 {Math.round(((lowCutFreq - 20) / 1980) * 100)}%
@@ -1085,7 +1079,7 @@ export default function SimpleSound({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between h-5 mx-2 mt-1">
+            <div className="flex items-center justify-between h-5 mt-1">
               <span className="text-xs text-gray-400">High Cut</span>
               <span className="text-xs text-gray-400">
                 {Math.round(((20000 - highCutFreq) / 19500) * 100)}%
@@ -1134,22 +1128,19 @@ export default function SimpleSound({
           </div>
 
           {repeat_delay && (
-            <div
-              aria-label="Repeat delay"
-              className="mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
-            >
-              <div className="flex items-center justify-between h-5 mx-2 mt-1">
-                <span className="text-xs text-gray-400">Plays every</span>
-                <span className="text-xs text-gray-400">
+            <div aria-label="Repeat delay" className="w-full">
+              <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                <span className="text-xs text-gray-300">Plays every</span>
+                <span className="text-xs text-gray-300">
                   &#177; {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
                 </span>
               </div>
-              <div className="w-full px-2 mb-2">
-                <div className="flex items-center mt-1 text-xs">
+              <div className="w-full mb-2.5">
+                <div className="flex items-center justify-center w-full text-xs">
                   <input
                     type="number"
                     min="0"
-                    className="w-12 px-2 py-1 bg-gray-800 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className=" px-2 py-1 w-[calc(50%-0.75rem)] bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     value={repeat_delay[0]}
                     onChange={(e) => {
                       const newMin = Number(e.target.value);
@@ -1175,7 +1166,7 @@ export default function SimpleSound({
                   <input
                     type="number"
                     min="0"
-                    className="w-12.5 px-2 py-1 bg-gray-800 rounded-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-[calc(50%-0.75rem)] px-2 py-1 bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     value={repeat_delay[1]}
                     onChange={(e) => {
                       const newMax = Number(e.target.value);
@@ -1203,7 +1194,7 @@ export default function SimpleSound({
           )}
           <div
             aria-label="note"
-            className="flex flex-col items-center justify-center flex-1 mx-2 mt-0 text-gray-700 border-2 rounded-xs border-gray-950 bg-gray-950 min-h-12 hover:cursor-pointer hover:text-gray-400"
+            className="flex flex-col items-center justify-center mt-4.5 text-gray-700 border-2 border-gray-900 sm:mt-auto rounded-xs justify-self-end-safe bg-gray-950 min-h-14 hover:cursor-pointer hover:text-gray-400"
           >
             <Pencil className="w-4 h-4 mb-0.5 "></Pencil>
             <span className="text-xs ">My notes</span>

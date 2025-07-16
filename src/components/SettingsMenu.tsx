@@ -110,9 +110,9 @@ export default function SettingsMenu() {
             aria-label="login button"
             type="button"
             onClick={() => setSigningUp(false)}
-            className={`px-8 py-2 mb-1 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
+            className={`px-8 py-2 mb0 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400  ${
               !signingUp
-                ? "text-gray-300  border-gray-300"
+                ? "text-gray-300  border-gray-400"
                 : "text-gray-700 border-gray-700 hover:border-gray-400 hover:text-gray-400"
             }`}
           >
@@ -122,13 +122,13 @@ export default function SettingsMenu() {
             aria-label="sign up button"
             type="button"
             onClick={() => setSigningUp(true)}
-            className={`px-8 py-2 mb-1 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400 border-b-0 rounded-b-none ${
+            className={`px-8 py-2 mb-0 text-sm font-bold rounded-sm flex-1 hover:cursor-pointer border-2 border-gray-400  ${
               signingUp
-                ? "text-gray-300  border-gray-300"
+                ? "text-gray-300  border-gray-400"
                 : "text-gray-700 border-gray-700 hover:border-gray-400 hover:text-gray-400"
             }`}
           >
-            Or sign up
+            Sign up
           </button>
         </div>
       )}

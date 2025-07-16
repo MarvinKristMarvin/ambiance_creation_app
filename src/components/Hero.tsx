@@ -166,11 +166,14 @@ export default function Hero() {
         quality={100}
       />
       <div className="flex flex-col items-center transform -translate-y-4">
-        <h2 className="font-title font-bold text-6xl mb-4 text-gray-50 tracking-[8] translate-x-2.5">
+        <h2 className="font-title font-bold text-6xl mb-1 text-white tracking-[8] translate-x-1.5">
           FOG
         </h2>
-        <p className="mb-6 text-2xl font-bold text-gray-50">
-          Listen to an ambiance or create yours
+        {/* <p className="text-lg font-bold uppercase text-gray-50">
+          Listen &middot; Modify &middot; Create
+        </p> */}
+        <p className="mb-6 text-lg font-bold uppercase text-white/60">
+          Audio ambiances
         </p>
         {/* <Image
           className="mb-5 rounded-xl"
@@ -180,10 +183,10 @@ export default function Hero() {
           height={200}
           quality={100}
         ></Image> */}
-        <div className="relative flex items-center justify-center gap-4 w-120">
+        <div className="relative flex flex-col items-center justify-center gap-4 sm:flex-row sm:w-120">
           <button
-            aria-label="load ambiance button"
-            className="flex-1 px-6 py-4 font-bold text-white border-2 rounded-full bg-black/25 hover:bg-black/50 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
+            aria-label="search ambiance button"
+            className="flex-1 px-3.5 py-4 font-bold w-[calc(100vw-2rem)] max-w-90 text-white border-2 rounded-full bg-black/50 hover:bg-black/70 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
             onClick={openSearchAmbianceMenu}
           >
             Search an ambiance
@@ -191,15 +194,28 @@ export default function Hero() {
           <button
             aria-label="create ambiance button"
             onClick={() => setCurrentAmbiance(defaultAmbiance)}
-            className="flex-1 px-6 py-4 font-bold text-white border-2 rounded-full bg-black/25 hover:bg-black/50 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
+            className="flex-1  px-3.5 py-4 font-bold w-[calc(100vw-2rem)] max-w-90 text-white border-2 rounded-full bg-black/50 hover:bg-black/70 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
           >
             Create an ambiance
           </button>
         </div>
 
-        <div className="relative mt-4">
+        <div className="mt-4">
           <button
-            className={`absolute -top-[-4.75rem] left-1/2 -translate-x-1/2 p-3.5 border-2 rounded-full  hover:cursor-pointer bg-black/50 hover:bg-black/70 ${
+            aria-label="random ambiance button"
+            onClick={handleGetThemedAmbiance}
+            className={`bg-black/60 px-3.5 w-[calc(100vw-2rem)] max-w-90 text-center py-2 font-bold text-white border-2 rounded-full text-md flex gap-1 items-center justify-center mx-auto hover:cursor-pointer hover:bg-black/80 ${currentTheme.borderClass}`}
+          >
+            <span className="px-2 py-2 rounded-full">
+              Or listen to a{currentTheme.vowel ? "n " : " "}
+              <span className={currentTheme.textClass}>
+                {currentTheme.name}
+              </span>{" "}
+              ambiance
+            </span>
+          </button>
+          <button
+            className={`p-3.5 mt-4 border-2 rounded-full  hover:cursor-pointer bg-black/60 hover:bg-black/80 ${
               hoverTheme ? "border-gray-50" : currentTheme.borderClass
             }`}
             onMouseEnter={() => setHoverTheme(true)}
@@ -211,20 +227,6 @@ export default function Hero() {
             ) : (
               <IconComponent className={`w-6 h-6 ${currentTheme.textClass}`} />
             )}
-          </button>
-
-          <button
-            aria-label="random ambiance button"
-            onClick={handleGetThemedAmbiance}
-            className={`bg-black/50 px-6 py-2 font-bold text-white border-2 rounded-full text-md w-fit flex gap-1 items-center mx-auto hover:cursor-pointer hover:bg-black/70 ${currentTheme.borderClass}`}
-          >
-            <span className="px-2 py-2 rounded-full">
-              Or listen to a{currentTheme.vowel ? "n " : " "}
-              <span className={currentTheme.textClass}>
-                {currentTheme.name}
-              </span>{" "}
-              ambiance
-            </span>
           </button>
         </div>
       </div>

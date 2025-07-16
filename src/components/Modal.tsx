@@ -21,13 +21,13 @@ export default function Modal({ onClose, children, title }: Props) {
 
   // Centered modal with black transparent background around it, taking a reactNode and adding to it a title and a close button
   return (
-    <div className="z-10 flex items-center justify-center flex-1 h-full bg-black/80 w-90">
+    <div className="fixed inset-0 z-50 flex items-center justify-center flex-1 w-full lg:h-full lg:w-90 bg-gray-950 lg:static lg:inset-auto">
       <div
         aria-label="modal window"
-        className="flex flex-col flex-1 w-full h-full max-h-screen px-3 border-gray-900 border-t-1 border-l-1 bg-gray-950"
+        className="z-50 flex flex-col flex-1 w-screen h-screen max-h-screen px-3 border-gray-900 lg:w-full border-t-1 border-l-1 bg-gray-950"
       >
         <div
-          className="flex items-center justify-between pt-2 mb-3 border-gray-900 border-b-1 bg-gray-950 text-md rounded-t-md hover:cursor-pointer group"
+          className="flex items-center justify-between pt-2 mb-3 border-gray-900 border-b-1 text-md rounded-t-md hover:cursor-pointer group"
           onClick={onClose}
         >
           <h2

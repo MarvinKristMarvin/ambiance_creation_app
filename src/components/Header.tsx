@@ -9,7 +9,7 @@ export default function Header() {
   return (
     <header
       aria-label="main header"
-      className={`relative flex text-center justify-center font-bold p-4 gap-4 flex-wrap`}
+      className={`relative flex text-center justify-center font-bold mb-4 sm:mb-0 p-4 gap-4 flex-wrap border-b-1 sm:border-0 border-gray-800 `}
       // className={`relative flex text-center justify-between p-3   ${
       //   currentAmbiance
       //     ? "after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-3/4 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-gray-800 after:to-transparent"

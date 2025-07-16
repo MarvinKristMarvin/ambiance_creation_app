@@ -9,4 +9,5 @@ Copier-coller toutes ces commandes d'un coup pour reset la db :
 \i C:/Tout/Projets_Dev/ambiance_creation_app/src/sql_scripts/create_tables.sql
 \i C:/Tout/Projets_Dev/ambiance_creation_app/src/sql_scripts/seed_tables.sql
 
-deployé sur vercel
+deployé sur vercel branche main
+db sur supabase dashboard
