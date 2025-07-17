@@ -219,13 +219,16 @@ TASKS
 - big ui and css modifications
 - add full responsiveness
 
+17/07/2025
+- optimize images with webp
+- accessibility : aria labels, aria hidden, aria live popups
+
 WAITING TO BE PUSHED
 
 WORKING ON
-- optimize sounds and images
 
 TO DO
-- accessibility : aria, audio popups, phone back button should not go to hero page, but maybe just hide the actual modal
+- better looping for sounds (dont cut between loop)
 - back office to add sounds
 - add youtube audio
 - debug sound modifications

@@ -99,7 +99,7 @@ export default function SettingsMenu() {
   };
 
   return (
-    <div aria-label="settings menu" className="text-gray-300 ">
+    <div aria-label="user settings menu" className="text-gray-300 ">
       <p className="mb-2 font-bold text-left text-gray-300 text-md">
         {session ? "Connected as " + session.user.name : "Connexion"}
       </p>
@@ -151,6 +151,7 @@ export default function SettingsMenu() {
 
           {signingUp && (
             <input
+              aria-label="name input"
               type="text"
               placeholder="Name"
               value={name}
@@ -160,6 +161,7 @@ export default function SettingsMenu() {
           )}
 
           <input
+            aria-label="password input"
             type="password"
             placeholder="Password"
             value={password}
@@ -169,6 +171,7 @@ export default function SettingsMenu() {
 
           {signingUp && (
             <input
+              aria-label="confirm password input"
               type="password"
               placeholder="Confirm password"
               value={confirmPassword}
@@ -228,7 +231,10 @@ export default function SettingsMenu() {
       <p className="pl-0 mt-0 mb-1.5 font-bold text-left text-gray-300 text-md">
         Shortcuts
       </p>
-      <div className="flex-col gap-2 text-sm font-bold">
+      <div
+        aria-label="shortcuts list"
+        className="flex-col gap-2 text-sm font-bold"
+      >
         <div className="flex justify-between">
           <span className="text-gray-400">Expand all sounds</span>
           <span className="text-gray-600">Ctrl + E</span>

@@ -6,7 +6,7 @@ VALUES
   (
     'Rain', -- sound name
     ARRAY['/audio/rain1.mp3'], -- audio paths
-    '/photos/rain2.jpeg', -- image
+    '/photos/rain2.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Aquatic', 'Elemental']::theme[], -- themes
@@ -15,7 +15,7 @@ VALUES
   (
     'Frog croaking',
     ARRAY['/audio/frog_croaking.mp3'],
-    '/photos/frog1.jpg',
+    '/photos/frog1.webp',
     true,
     'Animals',
     ARRAY['Night', 'Mysterious']::theme[],
@@ -24,7 +24,7 @@ VALUES
   (
     'Page flip',
     ARRAY['/audio/page_flip_1.mp3', '/audio/page_flip_2.mp3'],
-    '/photos/page_flip.jpeg',
+    '/photos/page_flip.webp',
     false,
     'Human',
     ARRAY['Night', 'Action']::theme[],
@@ -33,7 +33,7 @@ VALUES
   (
     'Cat purring', -- sound name
     ARRAY['/audio/cat_purring.mp3'], -- audio paths
-    '/photos/cat_purring.jpg', -- image
+    '/photos/cat_purring.webp', -- image
     true, -- looping
     'Animals', -- category
     ARRAY['Night', 'House']::theme[], -- themes
@@ -50,7 +50,7 @@ VALUES
   ),
   ('Cutting vegetables', -- sound name
     ARRAY['/audio/cutting_vegetables.mp3'], -- audio paths
-    '/photos/cutting_vegetables.jpg', -- image
+    '/photos/cutting_vegetables.webp', -- image
     true, -- looping
     'Human', -- category
     ARRAY['House', 'Action']::theme[], -- themes
@@ -86,7 +86,7 @@ VALUES
   (
     'Frying', -- sound name
     ARRAY['/audio/frying.mp3'], -- audio paths
-    '/photos/frying.jpg', -- image
+    '/photos/frying.webp', -- image
     true, -- looping
     'Human', -- category
     ARRAY['House', 'Action']::theme[], -- themes
@@ -95,7 +95,7 @@ VALUES
   (
     'Grassland birds', -- sound name
     ARRAY['/audio/grassland_birds.mp3'], -- audio paths
-    '/photos/grassland_birds.jpg', -- image
+    '/photos/grassland_birds.webp', -- image
     true, -- looping
     'Animals', -- category
     ARRAY['Bird']::theme[], -- themes
@@ -104,7 +104,7 @@ VALUES
   (
     'Horse galloping', -- sound name
     ARRAY['/audio/horse_galloping.mp3'], -- audio paths
-    '/photos/horse_galloping.jpg', -- image
+    '/photos/horse_galloping.webp', -- image
     true, -- looping
     'Animals', -- category
     ARRAY['Fantasy','Action']::theme[], -- themes
@@ -113,7 +113,7 @@ VALUES
   (
     'Jungle birds', -- sound name
     ARRAY['/audio/jungle_birds.mp3'], -- audio paths
-    '/photos/jungle_birds.jpeg', -- image
+    '/photos/jungle_birds.webp', -- image
     true, -- looping
     'Animals', -- category
     ARRAY['Bird']::theme[], -- themes
@@ -122,7 +122,7 @@ VALUES
   (
     'Kalimba atmosphere', -- sound name
     ARRAY['/audio/kalimba_atmosphere_1.mp3'], -- audio paths
-    '/photos/kalimba_atmosphere.jpg', -- image
+    '/photos/kalimba_atmosphere.webp', -- image
     false, -- looping
     'Music', -- category
     ARRAY['Mysterious', 'Instrument']::theme[], -- themes
@@ -131,7 +131,7 @@ VALUES
   (
     'Kalimba note', -- sound name
     ARRAY['/audio/kalimba_note_1.mp3'], -- audio paths
-    '/photos/kalimba_note.jpg', -- image
+    '/photos/kalimba_note.webp', -- image
     false, -- looping
     'Music', -- category
     ARRAY['Instrument']::theme[], -- themes
@@ -139,7 +139,7 @@ VALUES
   ),
   ('Peeling potatoes', -- sound name
     ARRAY['/audio/peeling_potatoes.mp3'], -- audio paths
-    '/photos/peeling_potatoes.jpg', -- image
+    '/photos/peeling_potatoes.webp', -- image
     true, -- looping
     'Human', -- category
     ARRAY['House', 'Action']::theme[], -- themes
@@ -148,7 +148,7 @@ VALUES
   (
     'River birds', -- sound name
     ARRAY['/audio/river_and_birds.mp3'], -- audio paths
-    '/photos/river_and_birds.jpg', -- image
+    '/photos/river_and_birds.webp', -- image
     true, -- looping
     'Animals', -- category
     ARRAY['Aquatic', 'Bird']::theme[], -- themes
@@ -157,7 +157,7 @@ VALUES
   (
     'Running water', -- sound name
     ARRAY['/audio/running_water.mp3'], -- audio paths
-    '/photos/running_water.jpg', -- image
+    '/photos/running_water.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Aquatic']::theme[], -- themes
@@ -165,7 +165,7 @@ VALUES
   ),
   ('Storm chimes', -- sound name   
     ARRAY['/audio/storm_chimes.mp3'], -- audio paths
-    '/photos/storm_chimes.jpg', -- image
+    '/photos/storm_chimes.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Elemental', 'Instrument']::theme[], -- themes
@@ -173,7 +173,7 @@ VALUES
   ),
   ('Underwater', -- sound name
     ARRAY['/audio/underwater_bubbles.mp3'], -- audio paths
-    '/photos/underwater_bubbles.jpg', -- image
+    '/photos/underwater_bubbles.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Aquatic']::theme[], -- themes
@@ -181,7 +181,7 @@ VALUES
   ),
   ('Violent wind', -- sound name
     ARRAY['/audio/violent_wind.mp3'], -- audio paths
-    '/photos/violent_wind.jpg', -- image
+    '/photos/violent_wind.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Elemental']::theme[], -- themes
@@ -191,7 +191,7 @@ VALUES
   (
     'Wind thunder', -- sound name
     ARRAY['/audio/wind_thunder.mp3'], -- audio paths
-    '/photos/wind_rain_thunder.jpg', -- image
+    '/photos/wind_rain_thunder.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Elemental']::theme[], -- themes
@@ -201,7 +201,7 @@ VALUES
   (
     'Wind trees', -- sound name
     ARRAY['/audio/wind_trees.mp3'], -- audio paths
-    '/photos/wind_trees.jpg', -- image
+    '/photos/wind_trees.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Elemental']::theme[], -- themes
@@ -211,7 +211,7 @@ VALUES
   (
     'Creepy voices', -- sound name
     ARRAY['/audio/creepy_voices_1.mp3'], -- audio paths
-    '/photos/creepy_voices.jpg', -- image
+    '/photos/creepy_voices.webp', -- image
     true, -- looping
     'Human', -- category
     ARRAY['Mysterious', 'Night', 'Fantasy']::theme[], -- themes
@@ -251,7 +251,7 @@ VALUES
   (
     'Dry thunder', -- sound name
     ARRAY['/audio/dry_thunder.mp3'], -- audio paths
-    '/photos/dry_thunder.jpg', -- image
+    '/photos/dry_thunder.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Elemental']::theme[], -- themes
@@ -261,7 +261,7 @@ VALUES
   (
     'Fireplace', -- sound name
     ARRAY['/audio/fireplace.mp3'], -- audio paths
-    '/photos/fireplace.jpg', -- image
+    '/photos/fireplace.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Elemental']::theme[], -- themes
@@ -271,7 +271,7 @@ VALUES
   (
     'Ethereal flute', -- sound name
     ARRAY['/audio/flute_ethereal.mp3'], -- audio paths
-    '/photos/flute_ethereal.jpg', -- image
+    '/photos/flute_ethereal.webp', -- image
     true, -- looping
     'Music', -- category
     ARRAY['Instrument', 'Ethereal']::theme[], -- themes
@@ -281,7 +281,7 @@ VALUES
   (
     'Forest storm', -- sound name
     ARRAY['/audio/forest_storm.mp3'], -- audio paths
-    '/photos/forest_storm.jpg', -- image
+    '/photos/forest_storm.webp', -- image
     true, -- looping
     'Nature', -- category
     ARRAY['Elemental']::theme[], -- themes

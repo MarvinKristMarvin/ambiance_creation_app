@@ -153,7 +153,8 @@ const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      aria-label="toast"
+      aria-label="popup"
+      aria-live="polite"
       className={`
         absolute p-5 transform -translate-x-1/2 ${
           toastConfig.bgColor
@@ -174,6 +175,7 @@ const Toast: React.FC<ToastProps> = ({
     >
       {/* Icon */}
       <div
+        aria-hidden
         className={`
           absolute p-2 transform -translate-x-1/2 ${toastConfig.iconBgColor}
           ${toastConfig.borderColor} rounded-full border-6 -top-8.5 left-1/2

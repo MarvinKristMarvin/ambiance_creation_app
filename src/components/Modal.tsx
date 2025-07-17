@@ -23,7 +23,7 @@ export default function Modal({ onClose, children, title }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center flex-1 w-full lg:h-full lg:w-90 bg-gray-950 lg:static lg:inset-auto">
       <div
-        aria-label="modal window"
+        aria-label="current opened menu"
         className="z-50 flex flex-col flex-1 w-screen h-screen max-h-screen px-3 border-gray-900 lg:w-full border-t-1 border-l-1 bg-gray-950"
       >
         <div
@@ -31,13 +31,13 @@ export default function Modal({ onClose, children, title }: Props) {
           onClick={onClose}
         >
           <h2
-            aria-label="modal title"
+            aria-label="menu title"
             className="pt-4.75 pb-5.75 pl-1 text-lg font-bold text-gray-100 "
           >
             {title}
           </h2>
           <button
-            aria-label="close modal button"
+            aria-label="close menu button"
             className="px-1 py-1 rounded-sm cursor-pointer group-hover:bg-gray-800"
           >
             <X className="w-5 h-5" />

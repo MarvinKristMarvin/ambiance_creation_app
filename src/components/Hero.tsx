@@ -153,12 +153,12 @@ export default function Hero() {
 
   return (
     <div
-      aria-label="presentation page"
+      aria-label="main page"
       className="relative flex flex-col justify-center flex-1 overflow-hidden text-center align-center"
     >
       {/* Background image */}
       <Image
-        src="/photos/herobg.jpg" // replace with your image path in public/
+        src="/photos/herobg.webp" // replace with your image path in public/
         alt="Background"
         fill
         className="z-0 object-cover"
@@ -166,13 +166,19 @@ export default function Hero() {
         quality={100}
       />
       <div className="flex flex-col items-center transform -translate-y-4">
-        <h2 className="font-title font-bold text-6xl mb-1 text-white tracking-[8] translate-x-1.5">
+        <h2
+          aria-label="title"
+          className="font-title font-bold text-6xl mb-1 text-white tracking-[8] translate-x-1.5"
+        >
           FOG
         </h2>
         {/* <p className="text-lg font-bold uppercase text-gray-50">
           Listen &middot; Modify &middot; Create
         </p> */}
-        <p className="mb-6 text-lg font-bold uppercase text-white/60">
+        <p
+          aria-label="subtitle"
+          className="mb-6 text-lg font-bold uppercase text-white/60"
+        >
           Audio ambiances
         </p>
         {/* <Image
@@ -202,7 +208,7 @@ export default function Hero() {
 
         <div className="mt-4">
           <button
-            aria-label="random ambiance button"
+            aria-label="open a random themed ambiance button"
             onClick={handleGetThemedAmbiance}
             className={`bg-black/60 px-3.5 w-[calc(100vw-2rem)] max-w-90 text-center py-2 font-bold text-white border-2 rounded-full text-md flex gap-1 items-center justify-center mx-auto hover:cursor-pointer hover:bg-black/80 ${currentTheme.borderClass}`}
           >
@@ -221,6 +227,7 @@ export default function Hero() {
             onMouseEnter={() => setHoverTheme(true)}
             onMouseLeave={() => setHoverTheme(false)}
             onClick={handleThemeChange}
+            aria-label="change ambiance theme button"
           >
             {hoverTheme ? (
               <RefreshCcw className="w-6 h-6 text-gray-50" />

@@ -3,7 +3,7 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { X, Copy, Pencil, VolumeX } from "lucide-react";
+import { X, Copy, VolumeX, ChevronUp } from "lucide-react";
 import * as Tone from "tone";
 import { useShowToast } from "@/hooks/useShowToast";
 
@@ -549,6 +549,7 @@ export default function SimpleSound({
     >
       <div className="relative bg-black min-h-24 sm:min-h-38 group/image">
         <Image
+          aria-label="toggle sound options on click"
           src={imagePath}
           alt={soundName}
           fill
@@ -568,6 +569,7 @@ export default function SimpleSound({
 
         {/* Show "more options" or "less options" when image is hovered */}
         <div
+          aria-label="toggle sound options on click"
           onClick={() => setExpanded(!expanded)}
           className={`absolute bottom-0 left-0 right-0 flex items-center ${
             hoverButton ? "justify-between" : "justify-center"
@@ -643,6 +645,7 @@ export default function SimpleSound({
             ></div>
             {/* Invisible but functional input */}
             <input
+              aria-label="volume slider input"
               type="range"
               min="0"
               max="100"
@@ -681,7 +684,7 @@ export default function SimpleSound({
       {expanded && (
         <div
           aria-label="expanded options"
-          className="flex flex-col justify-start flex-1 gap-0 px-3 pb-3 overflow-y-scroll border-2 border-t-0 border-gray-900 bg-gray-950"
+          className="flex flex-col justify-start flex-1 gap-0 px-3 pb-3 overflow-y-scroll border-t-0 border-gray-800 border-1 rounded-b-xs bg-gray-950"
         >
           <div aria-label="volume" className="">
             <div className="flex items-center justify-between h-5 mt-2 mb-0.5 font-bold">
@@ -699,6 +702,7 @@ export default function SimpleSound({
                 ></div>
                 {/* Invisible but functional input */}
                 <input
+                  aria-label="volume slider input"
                   type="range"
                   min="0"
                   max="100"
@@ -755,6 +759,7 @@ export default function SimpleSound({
 
                 {/* Transparent range slider with styled thumb */}
                 <input
+                  aria-label="direction slider input"
                   type="range"
                   min="-1"
                   max="1"
@@ -797,6 +802,7 @@ export default function SimpleSound({
                   style={{ width: `${((playbackRate - 0.1) / 2.9) * 100}%` }}
                 ></div>
                 <input
+                  aria-label="speed slider input"
                   type="range"
                   min="0.1"
                   max="3"
@@ -831,7 +837,7 @@ export default function SimpleSound({
               <span className="text-xs text-gray-300">{reverbWet}%</span>
             </div>
             <div className="">
-              <div aria-label="reverb wet slider" className="relative h-2">
+              <div aria-label="echo slider" className="relative h-2">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-orange-950"></div>
                 {/* Filled portion */}
@@ -841,6 +847,7 @@ export default function SimpleSound({
                 ></div>
                 {/* Invisible but functional input */}
                 <input
+                  aria-label="echo slider input"
                   type="range"
                   min="0"
                   max="100"
@@ -873,7 +880,7 @@ export default function SimpleSound({
               </span>
             </div>
             <div className="">
-              <div aria-label="reverb decay slider" className="relative h-2">
+              <div aria-label="echo duration slider" className="relative h-2">
                 {/* Track background */}
                 <div className="absolute inset-0 bg-orange-950"></div>
                 {/* Filled portion */}
@@ -883,6 +890,7 @@ export default function SimpleSound({
                 ></div>
                 {/* Invisible but functional input */}
                 <input
+                  aria-label="echo duration slider input"
                   type="range"
                   min="0"
                   max="10"
@@ -927,6 +935,7 @@ export default function SimpleSound({
                   style={{ width: `${((lowGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
+                  aria-label="low slider input"
                   type="range"
                   min={-50}
                   max={0}
@@ -966,6 +975,7 @@ export default function SimpleSound({
                   style={{ width: `${((midGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
+                  aria-label="mid slider input"
                   type="range"
                   min={-50}
                   max={0}
@@ -1005,6 +1015,7 @@ export default function SimpleSound({
                   style={{ width: `${((highGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
+                  aria-label="high slider input"
                   type="range"
                   min={-50}
                   max={0}
@@ -1053,6 +1064,7 @@ export default function SimpleSound({
                   style={{ width: `${((lowCutFreq - 20) / 2000) * 100}%` }}
                 ></div>
                 <input
+                  aria-label="low cut slider input"
                   type="range"
                   min="20"
                   max="2000"
@@ -1096,6 +1108,7 @@ export default function SimpleSound({
                   style={{ width: `${((20000 - highCutFreq) / 19500) * 100}%` }}
                 ></div>
                 <input
+                  aria-label="high cut slider input"
                   type="range"
                   min="0"
                   max="100"
@@ -1129,15 +1142,16 @@ export default function SimpleSound({
 
           {repeat_delay && (
             <div aria-label="Repeat delay" className="w-full">
-              <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+              <div className="flex items-center justify-between h-5 mt-2 mb-0.75">
                 <span className="text-xs text-gray-300">Plays every</span>
                 <span className="text-xs text-gray-300">
                   &#177; {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
                 </span>
               </div>
-              <div className="w-full mb-2.5">
+              <div className="w-full">
                 <div className="flex items-center justify-center w-full text-xs">
                   <input
+                    aria-label="repeat delay minimum input"
                     type="number"
                     min="0"
                     className=" px-2 py-1 w-[calc(50%-0.75rem)] bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -1164,6 +1178,7 @@ export default function SimpleSound({
                   />
                   <span className="mx-2 text-xs text-gray-600">to</span>
                   <input
+                    aria-label="repeat delay maximum input"
                     type="number"
                     min="0"
                     className="w-[calc(50%-0.75rem)] px-2 py-1 bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -1192,13 +1207,14 @@ export default function SimpleSound({
               </div>
             </div>
           )}
-          <div
-            aria-label="note"
-            className="flex flex-col items-center justify-center mt-4.5 text-gray-700 border-2 border-gray-900 sm:mt-auto rounded-xs justify-self-end-safe bg-gray-950 min-h-14 hover:cursor-pointer hover:text-gray-400"
+          <button
+            aria-label="close options button"
+            onClick={() => setExpanded(!expanded)}
+            className="flex flex-col items-center justify-center py-0.5 pt-3.5 mt-3 text-gray-500 border-gray-800 border-t-1 bg-gray-950 sm:mt-auto justify-self-end-safe hover:cursor-pointer hover:text-gray-50 "
           >
-            <Pencil className="w-4 h-4 mb-0.5 "></Pencil>
-            <span className="text-xs ">My notes</span>
-          </div>
+            <ChevronUp className="w-4 h-4 mb-0.5" strokeWidth={4}></ChevronUp>
+            {/* <span className="text-xs">Close</span> */}
+          </button>
         </div>
       )}
     </div>

@@ -279,7 +279,7 @@ export default function SearchAmbianceMenu() {
       <div className="flex flex-col gap-2 mb-2 align-center ">
         <div className="relative" ref={categoryRef}>
           <button
-            aria-label="category button"
+            aria-label="select categories dropdown"
             onClick={() => {
               setShowCategoryDropdown(!showCategoryDropdown);
               setShowThemeDropdown(false);
@@ -345,7 +345,7 @@ export default function SearchAmbianceMenu() {
         </div>
         <div className="relative" ref={themeRef}>
           <button
-            aria-label="themes button"
+            aria-label="select themes button"
             onClick={() => {
               setShowThemeDropdown(!showThemeDropdown);
               setShowCategoryDropdown(false);
@@ -410,7 +410,7 @@ export default function SearchAmbianceMenu() {
           )}
         </div>
       </div>
-      <div aria-label="sound search bar" className="flex mb-2 align-center">
+      <div aria-label="search bar" className="flex mb-2 align-center">
         <div className="relative w-full">
           {/* Left icon */}
           <div className="absolute inset-y-0 right-0 flex items-center">
@@ -433,7 +433,7 @@ export default function SearchAmbianceMenu() {
 
           {/* Input with extra left padding to avoid overlapping icon */}
           <input
-            aria-label="search bar"
+            aria-label="search input"
             type="text"
             placeholder="Search an ambiance by name"
             value={searchString}
@@ -524,6 +524,7 @@ export default function SearchAmbianceMenu() {
 
                   <div className="flex items-center gap-1"></div>
                   <button
+                    aria-label="save ambiance to favorite button"
                     onClick={(e) => {
                       e.stopPropagation(); // prevent loading the ambiance
                       toggleFavorite(ambiance.id, ambiance.is_favorite);

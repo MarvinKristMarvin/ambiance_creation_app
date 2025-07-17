@@ -45,6 +45,7 @@ export default function Sounds() {
 
   return (
     <div
+      aria-label="my ambiance sounds container"
       className={`relative flex flex-col sm:flex-row gap-4 pb-4 mx-4 w-[calc(100%-2rem)] h-full items-center overflow-x-auto overflow-y-auto whitespace-nowrap custom-scrollbar ${
         currentAmbiance.ambiance_sounds.length === 0
           ? "justify-center-safe"
@@ -93,6 +94,7 @@ export default function Sounds() {
       })}
       {currentAmbiance.ambiance_sounds.length === 0 && (
         <button
+          aria-label="add your first sound button"
           onClick={openSearchSoundsMenu}
           className="relative flex flex-col items-center gap-0 border-2 border-gray-500 border-dashed justify-self-center px-15 py-15 hover:border-gray-300 hover:cursor-pointer group"
         >

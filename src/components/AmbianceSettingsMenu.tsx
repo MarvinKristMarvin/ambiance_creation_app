@@ -33,8 +33,9 @@ export default function AmbianceSettingsMenu() {
       <p className="mb-2 ml-1 font-bold text-left text-gray-300 text-md">
         Your ambiance name
       </p>
-      <div aria-label="name" className="relative flex flex-col justify-center">
+      <div className="relative flex flex-col justify-center">
         <input
+          aria-label="ambiance name input"
           ref={inputRef}
           type="text"
           defaultValue={currentAmbiance ? currentAmbiance.ambiance_name : ""}

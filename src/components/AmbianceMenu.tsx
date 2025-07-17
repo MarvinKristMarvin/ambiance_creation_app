@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import {
-  SkipForward,
-  SkipBack,
   Plus,
   Volume2,
   Star,
@@ -152,14 +150,12 @@ export default function AmbianceMenu() {
 
   return (
     <>
-      <div
-        aria-label="mute button, volume slider and play button"
-        className="flex flex-row flex-1 h-12 gap-4 mx-0"
-      >
+      <div className="flex flex-row flex-1 h-12 gap-4 mx-0">
         <div className="relative flex flex-row items-center flex-1 h-full rounded-full text-md hover:cursor-pointer">
           <div className="h-12 mr-4 bg-gray-900 rounded-full hover:cursor-pointer hover:bg-gray-800">
             <h1
-              aria-label="logo"
+              aria-label="logo button"
+              role="button"
               onClick={() => setCurrentAmbiance(null)}
               className="tracking-[3] font-title font-light text-xl text-gray-50 
         hover:cursor-pointer  flex items-center transform justify-center px-4 translate-y-[0.65rem] translate-x-[0.1rem] "
@@ -169,7 +165,7 @@ export default function AmbianceMenu() {
             </h1>
           </div>
           <button
-            aria-label="mute button"
+            aria-label="mute audio button"
             onClick={updateGlobalVolume}
             className="relative flex items-center h-full px-4 py-2 mr-4 text-xs bg-gray-900 rounded-full hover:bg-gray-800 hover:cursor-pointer"
             style={{ zIndex: 2 }}
@@ -210,18 +206,15 @@ export default function AmbianceMenu() {
         </div>
       </div>
 
-      <div
-        aria-label="ambiance swapper"
-        className="flex flex-row h-12 mx-0 bg-gray-900 rounded-full flex-2 min-w-80"
-      >
-        <button
+      <div className="flex flex-row h-12 mx-0 bg-gray-900 rounded-full flex-2 min-w-80">
+        {/* <button
           aria-label="previous ambiance button"
           className="hidden flex flex-col justify-center px-3.5 py-1 pr-2.5 bg-gray-900 border-0 border-r-2 rounded-l-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
           <SkipBack className="w-5 h-5" />
-        </button>
+        </button> */}
         <button
-          aria-label="current ambiance button"
+          aria-label="ambiance settings button"
           onClick={openAmbianceSettingsMenu}
           className="flex flex-col items-center justify-center px-6 py-1 overflow-hidden bg-gray-900 border-0 rounded-full flex-2 border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
         >
@@ -243,20 +236,17 @@ export default function AmbianceMenu() {
           )}
         </button>
 
-        <button
+        {/* <button
           aria-label="next ambiance button"
           className="hidden flex flex-col justify-center px-3.5 py-1 pl-2.5 bg-gray-900 border-0 border-l-2 rounded-r-full align-center hover:bg-gray-800 hover:cursor-pointer border-gray-950"
         >
           <SkipForward className="w-5 h-5" />
-        </button>
+        </button> */}
       </div>
 
-      <div
-        aria-label="ambiance settings button and add sound button"
-        className="flex flex-1 h-12"
-      >
+      <div className="flex flex-1 h-12">
         <button
-          aria-label="ambiance settings button"
+          aria-label="search an ambiance button"
           onClick={openSearchAmbianceMenu}
           className="flex items-center flex-1 justify-center h-full md:px-3.75 px-0.5 py-1 text-sm bg-gray-900 border-0 border-gray-800 rounded-full hover:bg-gray-800 hover:cursor-pointer"
         >
@@ -306,7 +296,7 @@ export default function AmbianceMenu() {
           )}
         </button>
         <button
-          aria-label="settings button"
+          aria-label="user settings button"
           onClick={openSettingsMenu}
           className={`flex flex-row justify-center items-center bg-gray-900 ml-4  px-3.5 text-center text-gray-400 text-lg font-bold hover:bg-gray-800  h-12  rounded-full hover:cursor-pointer `}
         >
