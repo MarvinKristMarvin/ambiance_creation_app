@@ -40,7 +40,7 @@ export default function Modal({ onClose, children, title }: Props) {
             aria-label="close menu button"
             className="px-1 py-1 rounded-sm cursor-pointer group-hover:bg-gray-800"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-200" />
           </button>
         </div>
         {children}

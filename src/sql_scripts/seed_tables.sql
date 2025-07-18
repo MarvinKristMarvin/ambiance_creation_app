@@ -337,4 +337,11 @@ INSERT INTO user_has_favorite_sounds (user_id, sound_id)
 VALUES
   ('nUnk8X6wJozubjGALNir5ZBUyjNjfXn1', 2);
 
+-- Update the serial sequence id to avoid duplicate id conflicts
+SELECT setval(
+  pg_get_serial_sequence('ambiances', 'id'),
+  (SELECT MAX(id) FROM ambiances),
+  true
+);
+
 COMMIT;

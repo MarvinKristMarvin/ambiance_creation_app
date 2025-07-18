@@ -433,7 +433,7 @@ export default function SearchSoundsMenu() {
         <div className="relative" ref={categoryRef}>
           <div className="relative">
             <button
-              aria-label="category button"
+              aria-label="select category dropdown"
               onClick={() => {
                 setShowCategoryDropdown(!showCategoryDropdown);
                 setShowThemeDropdown(false);
@@ -500,7 +500,7 @@ export default function SearchSoundsMenu() {
         <div className="relative" ref={themeRef}>
           <div className="relative">
             <button
-              aria-label="themes button"
+              aria-label="select themes dropdown"
               onClick={() => {
                 setShowThemeDropdown(!showThemeDropdown);
                 setShowCategoryDropdown(false);
@@ -568,7 +568,7 @@ export default function SearchSoundsMenu() {
       </div>
 
       {/* Search Input */}
-      <div aria-label="sound search bar" className="flex mb-2 align-center">
+      <div aria-label="search bar" className="flex mb-2 align-center">
         <div className="relative w-full">
           {/* Right icon */}
           <div className="absolute inset-y-0 right-0 flex items-center">
@@ -591,7 +591,7 @@ export default function SearchSoundsMenu() {
 
           {/* Input */}
           <input
-            aria-label="search bar"
+            aria-label="search input"
             type="text"
             placeholder="Search a sound by name"
             value={searchString}

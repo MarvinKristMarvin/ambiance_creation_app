@@ -168,7 +168,7 @@ export default function Hero() {
       <div className="flex flex-col items-center transform -translate-y-4">
         <h2
           aria-label="title"
-          className="font-title font-bold text-6xl mb-1 text-white tracking-[8] translate-x-1.5"
+          className="font-title text-6xl mb-1 text-white tracking-[8] translate-x-1.5"
         >
           FOG
         </h2>

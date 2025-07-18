@@ -219,7 +219,7 @@ export default function AmbianceMenu() {
           className="flex flex-col items-center justify-center px-6 py-1 overflow-hidden bg-gray-900 border-0 rounded-full flex-2 border-gray-950 hover:bg-gray-800 hover:cursor-pointer"
         >
           <div className="relative flex items-center justify-center w-full gap-3 overflow-hidden text-sm leading-none text-center">
-            <span>
+            <span className="text-gray-200">
               {currentAmbiance
                 ? currentAmbiance.ambiance_name
                 : "edit ambiance"}{" "}
@@ -255,8 +255,10 @@ export default function AmbianceMenu() {
             strokeWidth={2.5}
           />
           <>
-            <span className="pr-1 ml-2 text-sm sm:hidden">Ambs</span>
-            <span className="hidden pr-1 ml-2 text-sm sm:inline">
+            <span className="pr-1 ml-2 text-sm text-gray-200 sm:hidden">
+              Ambs
+            </span>
+            <span className="hidden pr-1 ml-2 text-sm text-gray-200 sm:inline">
               Ambiances
             </span>
           </>
@@ -267,8 +269,11 @@ export default function AmbianceMenu() {
           onClick={openSearchSoundsMenu}
           className="flex items-center justify-center h-full px-3.25 py-1 ml-4 text-sm bg-gray-900 border-0 border-gray-800 rounded-full md:flex-1 md:pr-5 hover:bg-gray-800 hover:cursor-pointer"
         >
-          <Plus className="w-5.5 h-5.5 justify-self-start" strokeWidth={2.5} />
-          <p className="pr-0.5 ml-1 hidden md:block">Sound</p>
+          <Plus
+            className="w-5.5 h-5.5 justify-self-start text-gray-200"
+            strokeWidth={2.5}
+          />
+          <p className="pr-0.5 ml-1 hidden md:block text-gray-200">Sound</p>
         </button>
         <button
           aria-label="save ambiance button"

@@ -694,10 +694,10 @@ export default function SimpleSound({
             <div className="">
               <div aria-label="volume slider" className="relative h-2">
                 {/* Track background */}
-                <div className="absolute inset-0 bg-emerald-900"></div>
+                <div className="absolute inset-0 rounded-full bg-emerald-900"></div>
                 {/* Filled portion */}
                 <div
-                  className="absolute inset-y-0 bg-emerald-500"
+                  className="absolute inset-y-0 rounded-full bg-emerald-500"
                   style={{ width: `${volume}%` }}
                 ></div>
                 {/* Invisible but functional input */}
@@ -739,17 +739,17 @@ export default function SimpleSound({
             <div className="">
               <div aria-label="direction slider" className="relative h-2">
                 {/* Track background */}
-                <div className="absolute inset-0 bg-stone-900"></div>
+                <div className="absolute inset-0 rounded-full bg-stone-900"></div>
 
                 {/* Filled portion */}
                 <div
-                  className="absolute inset-y-0 bg-stone-900"
+                  className="absolute inset-y-0 rounded-full bg-stone-900"
                   style={{ width: `${((direction + 1) / 2) * 100}%` }}
                 ></div>
 
                 {/* Fake slider handle */}
                 <div
-                  className="absolute w-4 h-2 -translate-y-1/2 bg-stone-400 top-1/2"
+                  className="absolute w-4 h-2 -translate-y-1/2 rounded-full bg-stone-400 top-1/2"
                   style={{
                     left: `calc(${((direction + 1) / 2) * 100}% - (${
                       ((direction + 1) / 2) * 100
@@ -796,9 +796,9 @@ export default function SimpleSound({
             </div>
             <div className="">
               <div aria-label="playbackRate slider" className="relative h-2">
-                <div className="absolute inset-0 bg-blue-950"></div>
+                <div className="absolute inset-0 rounded-full bg-blue-950"></div>
                 <div
-                  className="absolute inset-y-0 bg-blue-400"
+                  className="absolute inset-y-0 bg-blue-400 rounded-full"
                   style={{ width: `${((playbackRate - 0.1) / 2.9) * 100}%` }}
                 ></div>
                 <input
@@ -839,10 +839,10 @@ export default function SimpleSound({
             <div className="">
               <div aria-label="echo slider" className="relative h-2">
                 {/* Track background */}
-                <div className="absolute inset-0 bg-orange-950"></div>
+                <div className="absolute inset-0 rounded-full bg-orange-950"></div>
                 {/* Filled portion */}
                 <div
-                  className="absolute inset-y-0 bg-orange-400"
+                  className="absolute inset-y-0 bg-orange-400 rounded-full"
                   style={{ width: `${reverbWet}%` }}
                 ></div>
                 {/* Invisible but functional input */}
@@ -882,10 +882,10 @@ export default function SimpleSound({
             <div className="">
               <div aria-label="echo duration slider" className="relative h-2">
                 {/* Track background */}
-                <div className="absolute inset-0 bg-orange-950"></div>
+                <div className="absolute inset-0 rounded-full bg-orange-950"></div>
                 {/* Filled portion */}
                 <div
-                  className="absolute inset-y-0 bg-orange-400"
+                  className="absolute inset-y-0 bg-orange-400 rounded-full"
                   style={{ width: `${(reverbDecay / 10) * 100}%` }}
                 ></div>
                 {/* Invisible but functional input */}
@@ -929,9 +929,9 @@ export default function SimpleSound({
             </div>
             <div className="">
               <div aria-label="low slider" className="relative h-2">
-                <div className="absolute inset-0 bg-rose-950"></div>
+                <div className="absolute inset-0 rounded-full bg-rose-950"></div>
                 <div
-                  className="absolute inset-y-0 bg-rose-400"
+                  className="absolute inset-y-0 rounded-full bg-rose-400"
                   style={{ width: `${((lowGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
@@ -969,9 +969,9 @@ export default function SimpleSound({
             </div>
             <div className="">
               <div aria-label="mid slider" className="relative h-2">
-                <div className="absolute inset-0 bg-rose-950"></div>
+                <div className="absolute inset-0 rounded-full bg-rose-950"></div>
                 <div
-                  className="absolute inset-y-0 bg-rose-400"
+                  className="absolute inset-y-0 rounded-full bg-rose-400"
                   style={{ width: `${((midGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
@@ -1009,9 +1009,9 @@ export default function SimpleSound({
             </div>
             <div className="">
               <div aria-label="high slider" className="relative h-2">
-                <div className="absolute inset-0 bg-rose-950"></div>
+                <div className="absolute inset-0 rounded-full bg-rose-950"></div>
                 <div
-                  className="absolute inset-y-0 bg-rose-400"
+                  className="absolute inset-y-0 rounded-full bg-rose-400"
                   style={{ width: `${((highGain + 50) / 50) * 100}%` }}
                 ></div>
                 <input
@@ -1058,9 +1058,9 @@ export default function SimpleSound({
                 aria-label="low cut frequency slider"
                 className="relative h-1.5"
               >
-                <div className="absolute inset-0 bg-purple-950"></div>
+                <div className="absolute inset-0 rounded-full bg-purple-950"></div>
                 <div
-                  className="absolute inset-y-0 bg-purple-400"
+                  className="absolute inset-y-0 bg-purple-400 rounded-full"
                   style={{ width: `${((lowCutFreq - 20) / 2000) * 100}%` }}
                 ></div>
                 <input
@@ -1102,9 +1102,9 @@ export default function SimpleSound({
                 aria-label="high cut frequency slider"
                 className="relative h-1.5"
               >
-                <div className="absolute inset-0 bg-purple-950"></div>
+                <div className="absolute inset-0 rounded-full bg-purple-950"></div>
                 <div
-                  className="absolute inset-y-0 bg-purple-400"
+                  className="absolute inset-y-0 bg-purple-400 rounded-full"
                   style={{ width: `${((20000 - highCutFreq) / 19500) * 100}%` }}
                 ></div>
                 <input
