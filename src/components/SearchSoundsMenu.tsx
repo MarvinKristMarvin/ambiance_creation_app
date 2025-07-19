@@ -1,5 +1,14 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, Star, ChevronDown, X, Search, Plus } from "lucide-react"; // themes icons
+import {
+  Check,
+  Star,
+  ChevronDown,
+  X,
+  Search,
+  Plus,
+  Pause,
+  Play,
+} from "lucide-react"; // themes icons
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
@@ -46,6 +55,11 @@ export default function SearchSoundsMenu() {
   const [optimisticFavorites, setOptimisticFavorites] = useState<
     Record<number, boolean>
   >({});
+
+  // State to track currently playing sound
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<number | null>(
+    null
+  );
 
   // Function to build query string
   const buildQueryString = () => {
@@ -221,6 +235,7 @@ export default function SearchSoundsMenu() {
 
   const handleAddSoundToAmbiance = async (soundId: number) => {
     try {
+      ShowToast("info", "addsound", "Downloading the sound...", 3000);
       console.log("Adding sound to ambiance:", soundId);
       const res = await fetch(`/api/sound/${soundId}`);
       if (!res.ok) throw new Error("Failed to fetch full sound data");
@@ -284,78 +299,62 @@ export default function SearchSoundsMenu() {
     }
   };
 
-  let currentAudio: HTMLAudioElement | null = null;
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const lastPlayedIndexMap: Record<number, number> = {};
 
   const handlePlaySound = (soundId: number) => {
-    const sound = searchedSoundsBasicInformations.find((s) => s.id === soundId);
+    if (currentlyPlayingId === soundId && currentAudioRef.current) {
+      // Stop playback
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+      setGlobalVolume(globalVolume);
+      setCurrentlyPlayingId(null);
+      return;
+    }
 
+    const sound = searchedSoundsBasicInformations.find((s) => s.id === soundId);
     if (!sound || !sound.audio_paths || sound.audio_paths.length === 0) {
       console.error("Sound not found or no audio paths available");
       return;
     }
 
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+    // Stop currently playing audio if any
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
     }
 
-    // Get the last played index for this sound or start with -1
     const lastIndex = lastPlayedIndexMap[soundId] ?? -1;
     const nextIndex = (lastIndex + 1) % sound.audio_paths.length;
-
-    // Update the map with the new index
     lastPlayedIndexMap[soundId] = nextIndex;
 
     const selectedAudioPath = sound.audio_paths[nextIndex];
-
     const previousGlobalVolume = globalVolume;
-    setGlobalVolume(0); // Mute all other audio globally
+    setGlobalVolume(0); // Mute all others
+    setCurrentlyPlayingId(soundId); // Mark as playing
 
-    if (sound.looping) {
-      playPartialAudio(selectedAudioPath, sound.volume, previousGlobalVolume);
-    } else {
-      playFullAudio(selectedAudioPath, sound.volume, previousGlobalVolume);
-    }
+    const onEnd = () => {
+      setGlobalVolume(previousGlobalVolume);
+      setCurrentlyPlayingId(null);
+      currentAudioRef.current = null;
+    };
 
-    console.log(
-      `Playing ${sound.sound_name}: ${selectedAudioPath} at volume ${sound.volume}%`
+    // Always use partial preview for all sounds
+    playPartialAudio(
+      selectedAudioPath,
+      sound.volume,
+      previousGlobalVolume,
+      onEnd
     );
-  };
-
-  const playFullAudio = (
-    audioPath: string,
-    volume: number,
-    originalGlobalVolume: number
-  ) => {
-    const audio = new Audio(audioPath);
-    if (originalGlobalVolume === 0) {
-      // if previous global volume was 0 then set audio volume to 0.5
-      audio.volume = 0.5;
-    } else {
-      audio.volume = (volume / 100) * originalGlobalVolume;
-    }
-
-    audio.play().catch((error) => {
-      console.error("Error playing audio:", error);
-      setGlobalVolume(originalGlobalVolume);
-    });
-
-    currentAudio = audio;
-
-    audio.addEventListener("ended", () => {
-      setGlobalVolume(originalGlobalVolume);
-    });
-
-    audio.addEventListener("error", () => {
-      setGlobalVolume(originalGlobalVolume);
-    });
   };
 
   const playPartialAudio = async (
     audioPath: string,
     volume: number,
-    originalGlobalVolume: number
+    originalGlobalVolume: number,
+    onEnd?: () => void
   ) => {
     try {
       const headResponse = await fetch(audioPath, { method: "HEAD" });
@@ -363,63 +362,53 @@ export default function SearchSoundsMenu() {
         headResponse.headers.get("content-length") || "0"
       );
 
-      if (totalSize === 0) {
-        playFullAudio(audioPath, volume, originalGlobalVolume);
-        return;
-      }
-
-      const estimatedBytesFor3Seconds = Math.min(80000, totalSize);
-
+      const estimatedBytes = Math.min(80000, totalSize);
       const response = await fetch(audioPath, {
-        headers: {
-          Range: `bytes=0-${Math.floor(estimatedBytesFor3Seconds)}`,
-        },
+        headers: { Range: `bytes=0-${Math.floor(estimatedBytes)}` },
       });
 
       if (!response.ok || response.status !== 206) {
-        playFullAudio(audioPath, volume, originalGlobalVolume);
+        playPartialAudio(audioPath, volume, originalGlobalVolume, onEnd);
         return;
       }
 
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
-
       const audio = new Audio(blobUrl);
-      if (originalGlobalVolume === 0) {
-        // if previous global volume was 0 then set audio volume to 0.5
-        audio.volume = 0.5;
-      } else {
-        audio.volume = (volume / 100) * originalGlobalVolume;
-      }
+      audio.volume =
+        originalGlobalVolume === 0
+          ? 0.5
+          : (volume / 100) * originalGlobalVolume;
 
       const cleanup = () => {
         URL.revokeObjectURL(blobUrl);
         setGlobalVolume(originalGlobalVolume);
+        onEnd?.();
       };
 
-      audio.addEventListener("ended", cleanup);
-      audio.addEventListener("error", cleanup);
-
       const timeoutId = setTimeout(() => {
-        if (audio && !audio.paused) {
+        if (!audio.paused) {
           audio.pause();
           cleanup();
         }
       }, 3000);
+
+      audio.addEventListener("ended", () => {
+        clearTimeout(timeoutId);
+        cleanup();
+      });
+
+      audio.addEventListener("error", cleanup);
 
       audio.play().catch((error) => {
         console.error("Error playing partial audio:", error);
         cleanup();
       });
 
-      currentAudio = audio;
-
-      audio.addEventListener("ended", () => {
-        clearTimeout(timeoutId);
-      });
+      currentAudioRef.current = audio;
     } catch (error) {
       console.error("Error with partial audio playback:", error);
-      playFullAudio(audioPath, volume, originalGlobalVolume);
+      playPartialAudio(audioPath, volume, originalGlobalVolume, onEnd);
     }
   };
 
@@ -626,65 +615,88 @@ export default function SearchSoundsMenu() {
               <article
                 aria-label="sound found"
                 key={sound.id}
-                className="flex items-center bg-gray-800 rounded-sm"
+                className="flex items-center overflow-hidden bg-gray-800 rounded-sm"
               >
-                <div className="overflow-hidden w-13 h-13">
-                  <Image
-                    src={sound.image_path}
-                    alt={sound.sound_name}
-                    width={100}
-                    height={100}
-                    className="object-cover w-full h-full rounded-l-sm"
-                  />
-                </div>
-                <div className="flex flex-row justify-between flex-1 rounded-r-md h-13">
-                  <div
-                    aria-label="sound details"
-                    onClick={() => handlePlaySound(sound.id)}
-                    className="flex flex-col justify-center flex-1 gap-1 pl-2 hover:bg-gray-700 hover:cursor-pointer"
-                  >
+                {/* Clickable left + center section */}
+                <div
+                  className="flex flex-row flex-1 cursor-pointer h-13 hover:bg-gray-700"
+                  onClick={() => handlePlaySound(sound.id)}
+                >
+                  <div className="w-13 h-13">
+                    <Image
+                      src={sound.image_path}
+                      alt={sound.sound_name}
+                      width={100}
+                      height={100}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+
+                  <div className="flex flex-col justify-center flex-1 gap-1 pl-2 border-l border-gray-950">
                     <h3 className="text-xs font-bold text-gray-300">
                       {sound.sound_name}
                     </h3>
-                    <p className="text-xs font-bold text-gray-500">
-                      Listen{" "}
-                      {sound.looping
-                        ? "loop"
-                        : `${sound.audio_paths.length} sound${
-                            sound.audio_paths.length > 1 ? "s" : ""
-                          }`}
-                    </p>
-                  </div>
-                  <div
-                    aria-label="buttons"
-                    className="flex flex-row justify-end"
-                  >
-                    <button
-                      aria-label="save sound in favorites button"
-                      onClick={() => handleSaveSoundInFavorites(sound.id)}
-                      className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700"
-                    >
-                      <Star
-                        className={`w-5 h-5 ${
-                          (
-                            optimisticFavorites[sound.id] !== undefined
-                              ? optimisticFavorites[sound.id]
-                              : sound.is_favorite
-                          )
-                            ? "text-yellow-200/80 fill-yellow-200/80"
-                            : "text-yellow-200/70"
+                    <div className="flex items-center">
+                      {currentlyPlayingId === sound.id ? (
+                        <Pause
+                          className="w-3.5 h-3.5 mr-1 text-gray-200 fill-gray-200"
+                          strokeWidth={1}
+                        />
+                      ) : (
+                        <Play
+                          className="w-3 h-3 mr-1 text-gray-500"
+                          strokeWidth={3}
+                        />
+                      )}
+                      <p
+                        className={`text-xs font-bold ${
+                          currentlyPlayingId === sound.id
+                            ? "text-gray-200"
+                            : "text-gray-500"
                         }`}
-                      />
-                    </button>
-
-                    <button
-                      aria-label="add the sound to the current ambiance button"
-                      onClick={() => handleAddSoundToAmbiance(sound.id)}
-                      className="px-4 cursor-pointer border-l-1 border-gray-950 hover:bg-gray-700 rounded-r-md"
-                    >
-                      <Plus className="w-5 h-5" strokeWidth={3} />
-                    </button>
+                      >
+                        {currentlyPlayingId === sound.id
+                          ? "Stop sound preview"
+                          : sound.looping
+                          ? "Listen loop"
+                          : `Listen ${sound.audio_paths.length} sound${
+                              sound.audio_paths.length > 1 ? "s" : ""
+                            }`}
+                      </p>
+                    </div>
                   </div>
+                </div>
+
+                {/* Right action buttons */}
+                <div
+                  aria-label="buttons"
+                  className="flex flex-row justify-end h-13"
+                >
+                  <button
+                    aria-label="save sound in favorites button"
+                    onClick={() => handleSaveSoundInFavorites(sound.id)}
+                    className="px-4 border-l cursor-pointer border-gray-950 hover:bg-gray-700"
+                  >
+                    <Star
+                      className={`w-5 h-5 ${
+                        (
+                          optimisticFavorites[sound.id] !== undefined
+                            ? optimisticFavorites[sound.id]
+                            : sound.is_favorite
+                        )
+                          ? "text-yellow-200/80 fill-yellow-200/80"
+                          : "text-yellow-200/70"
+                      }`}
+                    />
+                  </button>
+
+                  <button
+                    aria-label="add the sound to the current ambiance button"
+                    onClick={() => handleAddSoundToAmbiance(sound.id)}
+                    className="px-4 border-l cursor-pointer border-gray-950 hover:bg-gray-700 rounded-r-md"
+                  >
+                    <Plus className="w-5 h-5" strokeWidth={3} />
+                  </button>
                 </div>
               </article>
             ))

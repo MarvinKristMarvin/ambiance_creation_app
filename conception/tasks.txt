@@ -227,16 +227,20 @@ TASKS
 - correct error when saving an ambiance : {"error":"Failed to save ambiance","details":"duplicate key value violates unique constraint \"ambiances_pkey\""} (use id sequence fix in seeding)
 - fix : all audio files are loaded 2 times when simplesound is created (not in production so all good)
 
+19/07/2025
+- better ux when loading ambiance, loading sound, listening preview
+- stop audio preview button
+- better indicator when global volume is muted
+
 WAITING TO BE PUSHED
 
 
 WORKING ON
-
-TO DO
-- add direct ux when clicking on a button (show when previewing a sound, show when trying to add a sound etc)
 - on phone sound top right buttons still activable even when opacity to 0, fully disable instead
 - fix : mobile screen height hides toasts or menus titles
 - add local storage backup ambiance, when missclicking on fog or back arrow for example
+
+TO DO
 - back office to add sounds
 - logs system
 - security
@@ -247,10 +251,8 @@ TO DO
 - show more informations on sounds (show when they play, show when they will play, show their duration)
 - add youtube audio
 - debug sound modifications
-- optimize requests
 - delete account
 - rgpd / contact
-- premium account
 - in sound table, remove possible default options (all sounds will have same everything at the beginning in general)
 - playlist system (button to add in playlist in ambiance card) and in search ambiance menu : button show playlist => shoaw ambiance cards with mroe options (play for x minutes, move position..)
 - when scrolling down the search ambiance menu : every 10 ambiances, show a loading state to load 10 more (load icon + "loading more ambiances")

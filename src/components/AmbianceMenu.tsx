@@ -181,7 +181,13 @@ export default function AmbianceMenu() {
             className="relative flex-1 h-full mr-0 overflow-hidden rounded-full min-w-38"
           >
             {/* Background track */}
-            <div className="absolute inset-0 h-full rounded-full bg-emerald-950"></div>
+            <div className="absolute inset-0 h-full rounded-full bg-emerald-950">
+              {globalVolume < 0.001 && (
+                <div className="flex items-center justify-center h-full text-sm font-bold text-gray-200 animate-muted-fade">
+                  MUTED
+                </div>
+              )}
+            </div>
 
             {/* Filled portion */}
             <div

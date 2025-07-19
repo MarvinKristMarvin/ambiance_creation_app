@@ -212,6 +212,7 @@ export default function SearchAmbianceMenu() {
   // When clicking an ambiance, load the ambiance and its sounds
   const handleLoadAmbiance = async (ambianceId: number) => {
     try {
+      ShowToast("info", "ambiance", "Downloading the ambiance...");
       const loadedAmbiance = await fetch(`/api/ambiances/${ambianceId}`);
       // If the response is not ok, throw an error (stops execution and go to catch)
       if (!loadedAmbiance.ok) throw new Error("Failed to load ambiance");

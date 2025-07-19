@@ -20,6 +20,20 @@
   }
 }
 
+@keyframes mutedFade {
+  0%,
+  100% {
+    color: #f3f4f6; /* text-gray-100 */
+  }
+  50% {
+    color: transparent; /* fade to invisible */
+  }
+}
+
+.animate-muted-fade {
+  animation: mutedFade 1.5s infinite;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
