@@ -154,7 +154,7 @@ export default function Hero() {
   return (
     <div
       aria-label="main page"
-      className="relative flex flex-col justify-center flex-1 overflow-hidden text-center align-center"
+      className="relative flex flex-col justify-center flex-1 overflow-hidden text-center h-100dvh align-center"
     >
       {/* Background image */}
       <Image

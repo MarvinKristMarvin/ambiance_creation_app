@@ -615,7 +615,7 @@ export default function SearchSoundsMenu() {
               <article
                 aria-label="sound found"
                 key={sound.id}
-                className="flex items-center overflow-hidden bg-gray-800 rounded-sm"
+                className="flex items-center overflow-hidden bg-gray-800 rounded-sm min-h-13"
               >
                 {/* Clickable left + center section */}
                 <div

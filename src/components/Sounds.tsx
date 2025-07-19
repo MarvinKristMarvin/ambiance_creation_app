@@ -99,8 +99,8 @@ export default function Sounds() {
           className="relative flex flex-col items-center gap-0 border-2 border-gray-500 border-dashed justify-self-center px-15 py-15 hover:border-gray-300 hover:cursor-pointer group"
         >
           <Plus className="w-10 h-10 text-gray-500 stroke-2 group-hover:text-gray-300" />
-          <span className="absolute w-90 text-xl font-bold text-gray-700 bottom-[-70]">
-            Add a sound to your ambiance
+          <span className="absolute text-xl font-bold text-gray-700 bottom-[-50]">
+            Add a sound
           </span>
         </button>
       )}

@@ -231,13 +231,13 @@ TASKS
 - better ux when loading ambiance, loading sound, listening preview
 - stop audio preview button
 - better indicator when global volume is muted
+- fix : mobile screen height hides toasts or menus titles, try to use dynamic view height on screen div
 
 WAITING TO BE PUSHED
 
 
 WORKING ON
 - on phone sound top right buttons still activable even when opacity to 0, fully disable instead
-- fix : mobile screen height hides toasts or menus titles
 - add local storage backup ambiance, when missclicking on fog or back arrow for example
 
 TO DO

@@ -51,8 +51,8 @@ export default function Home() {
 
   // Show the hero component if there is no ambiance loaded, otherwise show the sounds component. manages modals too
   return (
-    <div className="flex">
-      <main className="flex flex-col w-screen h-screen min-w-0 bg-gray-950">
+    <div className="flex fullscreen-container bg-gray-950">
+      <main className="flex flex-col w-screen h-full min-w-0 ">
         {currentAmbiance ? (
           <>
             <Header />
