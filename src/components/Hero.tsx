@@ -26,8 +26,8 @@ const defaultAmbiance: Ambiance = {
 const themes = [
   {
     name: "mysterious",
-    borderClass: "border-black",
-    textClass: "text-black",
+    borderClass: "border-fuchsia-600",
+    textClass: "text-fuchsia-600",
     icon: Ghost,
     vowel: false,
   },
@@ -91,6 +91,55 @@ export default function Hero() {
 
   const [hoverTheme, setHoverTheme] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
+  const [storedAmbiance, setStoredAmbiance] = useState(null);
+
+  useEffect(() => {
+    console.log("Trying to find a stored ambiance");
+    const data = localStorage.getItem("storedAmbiance");
+    if (data) {
+      setStoredAmbiance(JSON.parse(data));
+      console.log("Stored ambiance found:", data);
+    }
+  }, []);
+
+  const recoverAmbiance = async () => {
+    if (storedAmbiance) {
+      console.log("Recovering:", storedAmbiance);
+      const stored = localStorage.getItem("storedAmbiance");
+      if (stored) {
+        try {
+          const parsed: Ambiance = JSON.parse(stored);
+          setCurrentAmbiance(parsed);
+          // Extract unique sound ids from the loaded ambiance
+          if (parsed.ambiance_sounds.length > 0) {
+            const soundIds = [
+              ...new Set(parsed.ambiance_sounds.map((sound) => sound.sound_id)),
+            ];
+            // Fetch sounds default data by their ids
+            const response = await fetch("/api/get_used_sounds", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ soundIds }),
+            });
+
+            // Put the sounds data in the zustand array soundsUsed
+            if (!response.ok) throw new Error("Failed to load sounds");
+            const soundsData: Sound[] = await response.json();
+            setSoundsUsed(soundsData);
+            console.log("Sounds used : ", soundsData);
+          }
+
+          setSearchAmbianceMenu(false);
+          ShowToast("success", "ambiance", "Ambiance recovered");
+        } catch (e) {
+          console.error("Failed to parse stored ambiance", e);
+          ShowToast("error", "ambiance", "Failed to recover your ambiance");
+        }
+      }
+    }
+  };
 
   const handleThemeChange = () => {
     setHoverTheme(false);
@@ -189,6 +238,19 @@ export default function Hero() {
           height={200}
           quality={100}
         ></Image> */}
+
+        {storedAmbiance && (
+          <div>
+            <button
+              aria-label="recover ambiance button"
+              className="flex-1 px-3.5 py-4 font-bold w-[calc(100vw-2rem)] max-w-90 mb-4 text-white border-2 rounded-full bg-black/50 hover:bg-black/70 hover:cursor-pointer text-md border-emerald-50 hover:border-gray-50"
+              onClick={recoverAmbiance}
+            >
+              Recover your last ambiance
+            </button>
+          </div>
+        )}
+
         <div className="relative flex flex-col items-center justify-center gap-4 sm:flex-row sm:w-120">
           <button
             aria-label="search ambiance button"

@@ -452,7 +452,7 @@ export default function SearchAmbianceMenu() {
             <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
           </div>
         )}
-        <div className="flex flex-col flex-1 gap-2 overflow-y-scroll rounded-sm border-gray-950 border-y-2 max-h-[calc(100vh-14.5rem)]">
+        <div className="flex flex-col flex-1 gap-2 overflow-y-scroll rounded-sm border-gray-950 border-y-2 max-h-[calc(100dvh-14.5rem)]">
           {searchedAmbiancesBasicInformations.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
               {searchString.trim() ||

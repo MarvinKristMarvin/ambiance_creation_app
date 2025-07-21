@@ -59,7 +59,13 @@ export const useGlobalStore = create<Store>((set) => ({
   soundsCentering: "Center",
   setSoundsCentering: (value) => set({ soundsCentering: value }),
   currentAmbiance: null,
-  setCurrentAmbiance: (value) => set({ currentAmbiance: value }),
+  setCurrentAmbiance: (value) => {
+    if (value) {
+      localStorage.setItem("storedAmbiance", JSON.stringify(value));
+    }
+    set({ currentAmbiance: value });
+  },
+
   soundsUsed: [],
   setSoundsUsed: (value) => set({ soundsUsed: value }),
   globalVolume: 0.5,

@@ -233,12 +233,15 @@ TASKS
 - better indicator when global volume is muted
 - fix : mobile screen height hides toasts or menus titles, try to use dynamic view height on screen div
 
+21/07/2025
+- fix : search menu last card is hidden by the phone footer
+- on phone sound top right buttons still activable even when opacity to 0, fully disable instead
+- add local storage backup for the last ambiance listened, useful when the user quits the ambiance page without saving
+
 WAITING TO BE PUSHED
 
 
 WORKING ON
-- on phone sound top right buttons still activable even when opacity to 0, fully disable instead
-- add local storage backup ambiance, when missclicking on fog or back arrow for example
 
 TO DO
 - back office to add sounds

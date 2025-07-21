@@ -602,7 +602,7 @@ export default function SimpleSound({
     ${
       expanded
         ? "opacity-100"
-        : "opacity-0 sm:opacity-0 group-hover/image:opacity-100"
+        : "opacity-0 sm:opacity-0 hidden sm:flex group-hover/image:opacity-100"
     }
   `}
         >
@@ -635,7 +635,7 @@ export default function SimpleSound({
 
       {!expanded && (
         <div className="relative px-0 mt-0 group/slider">
-          <div aria-label="volume slider" className="relative h-2.5">
+          <div aria-label="volume slider" className="relative h-5 sm:h-2.5">
             {/* Track background */}
             <div className="absolute inset-0 bg-emerald-800"></div>
             {/* Filled portion */}
