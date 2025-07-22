@@ -1,6 +1,52 @@
+/**
+ * API route to save or update an ambiance
+ *
+ * This endpoint handles creating new ambiances or updating existing ones.
+ * It uses Better Auth for authentication and PostgreSQL with transactions.
+ *
+ * @param request - POST request containing ambiance data
+ * @returns JSON response with the saved ambiance data
+ */
+
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
+
+// Zod schema for ambiance sound validation
+const ambianceSoundSchema = z.object({
+  sound_id: z.number().int().positive("sound_id must be a positive integer"),
+  volume: z.number().min(0).max(100).optional().default(50),
+  reverb: z.number().min(0).optional().default(0),
+  direction: z.number().optional().default(0),
+  speed: z.number().positive("speed must be positive").optional().default(1),
+  reverb_duration: z.number().min(0).optional().default(0),
+  repeat_delay: z.number().nullable().optional().default(null),
+  low: z.number().optional().default(0),
+  mid: z.number().optional().default(0),
+  high: z.number().optional().default(0),
+  low_cut: z
+    .number()
+    .positive("low_cut must be positive")
+    .optional()
+    .default(20),
+  high_cut: z
+    .number()
+    .positive("high_cut must be positive")
+    .optional()
+    .default(20000),
+});
+
+// Zod schema for the main request body
+const saveAmbianceSchema = z.object({
+  ambiance_name: z
+    .string()
+    .min(1, "ambiance_name is required and cannot be empty"),
+  ambiance_sounds: z.array(ambianceSoundSchema).optional().default([]),
+});
+
+// Type inference from Zod schemas
+type SaveAmbianceRequest = z.infer<typeof saveAmbianceSchema>;
 
 export async function POST(request: Request) {
   try {
@@ -14,11 +60,28 @@ export async function POST(request: Request) {
     }
 
     const userId = session.user.id;
-    const ambianceData = await request.json();
 
-    if (!ambianceData.ambiance_name) {
+    // Parse and validate the request body using Zod
+    let ambianceData: SaveAmbianceRequest;
+    try {
+      const rawBody = await request.json();
+      ambianceData = saveAmbianceSchema.parse(rawBody);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            error: "Invalid request data",
+            details: error.issues.map((issue) => ({
+              field: issue.path.join("."),
+              message: issue.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
       return NextResponse.json(
-        { error: "Missing required field: ambiance_name" },
+        { error: "Invalid JSON in request body" },
         { status: 400 }
       );
     }
@@ -89,7 +152,7 @@ export async function POST(request: Request) {
       await client.query(addFavoriteQuery, [userId, ambianceId]);
 
       // Add sounds
-      if (ambianceData.ambiance_sounds?.length > 0) {
+      if (ambianceData.ambiance_sounds.length > 0) {
         const insertSoundsQuery = `
           INSERT INTO ambiances_sounds (
             ambiance_id, sound_id, volume, reverb, direction, speed,
@@ -102,17 +165,17 @@ export async function POST(request: Request) {
           await client.query(insertSoundsQuery, [
             ambianceId,
             sound.sound_id,
-            sound.volume ?? 50,
-            sound.reverb ?? 0,
-            sound.direction ?? 0,
-            sound.speed ?? 1,
-            sound.reverb_duration ?? 0,
-            sound.repeat_delay ?? null,
-            sound.low ?? 0,
-            sound.mid ?? 0,
-            sound.high ?? 0,
-            sound.low_cut ?? 20,
-            sound.high_cut ?? 20000,
+            sound.volume,
+            sound.reverb,
+            sound.direction,
+            sound.speed,
+            sound.reverb_duration,
+            sound.repeat_delay,
+            sound.low,
+            sound.mid,
+            sound.high,
+            sound.low_cut,
+            sound.high_cut,
           ]);
         }
       }

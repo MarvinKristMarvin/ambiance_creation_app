@@ -1,21 +1,65 @@
+/**
+ * API route to get a specific sound by ID
+ *
+ * @param request - GET request with soundId in the URL path
+ * @returns JSON response with the sound data
+ */
+
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import pool from "@/lib/db_client";
 
-// Get all ambiances
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const soundId = url.pathname.split("/").pop(); // Extract ID from URL
+// Zod schema for URL parameter validation
+const getSoundParamsSchema = z.object({
+  soundId: z
+    .string()
+    .regex(/^\d+$/, "soundId must be a valid number")
+    .transform(Number),
+});
 
-  if (!soundId || isNaN(Number(soundId))) {
-    return NextResponse.json({ error: "Invalid sound ID" }, { status: 400 });
-  }
+// Type inference from Zod schema
+type GetSoundParams = z.infer<typeof getSoundParamsSchema>;
+
+export async function GET(request: Request) {
   try {
+    const url = new URL(request.url);
+    const soundIdParam = url.pathname.split("/").pop(); // Extract ID from URL
+
+    // Validate the URL parameter using Zod
+    let params: GetSoundParams;
+    try {
+      params = getSoundParamsSchema.parse({ soundId: soundIdParam });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            error: "Invalid sound ID",
+            details: error.issues.map((issue) => ({
+              field: issue.path.join("."),
+              message: issue.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Invalid request parameters" },
+        { status: 400 }
+      );
+    }
+
+    const { soundId } = params;
+
     const result = await pool.query("SELECT * FROM sounds WHERE id = $1", [
       soundId,
     ]);
 
-    const rawSound = result.rows[0];
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: "Sound not found" }, { status: 404 });
+    }
 
+    const rawSound = result.rows[0];
     const parsedSound = {
       ...rawSound,
       direction:
@@ -27,6 +71,7 @@ export async function GET(request: Request) {
           : 0,
       // add other conversions as needed
     };
+
     return NextResponse.json([parsedSound]);
   } catch (error) {
     // Send the error message on the console

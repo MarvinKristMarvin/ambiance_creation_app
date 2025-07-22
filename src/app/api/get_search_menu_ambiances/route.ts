@@ -1,8 +1,31 @@
+/**
+ * API route to get ambiances based on filters for the search ambiance menu.
+ *
+ * @param request - GET request with optional query parameters:
+ *   - search: string to filter by ambiance name (partial match)
+ *   - category: one or more categories (must all match)
+ *   - theme: one or more themes (must all match)
+ *
+ * If the user is logged in, adds `is_favorite` and total number of favorites per ambiance.
+ * If no filters are applied, returns the user's favorite ambiances (if logged in).
+ *
+ * @returns JSON response with an array of ambiance metadata
+ */
+
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
 
-// Get searched ambiances basic information to display in the search ambiance menu
+// Zod schema for query validation
+const getAmbiancesQuerySchema = z.object({
+  search: z.string().trim().optional(),
+  category: z.union([z.string(), z.array(z.string())]).optional(),
+  theme: z.union([z.string(), z.array(z.string())]).optional(),
+});
+
+type GetAmbiancesQueryParams = z.infer<typeof getAmbiancesQuerySchema>;
+
 export async function GET(request: Request) {
   try {
     let session = null;
@@ -22,35 +45,72 @@ export async function GET(request: Request) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const searchString = searchParams.get("search");
-    const categories = searchParams.getAll("category");
-    const themes = searchParams.getAll("theme");
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+
+    // Extract and validate query parameters using Zod
+    let params: GetAmbiancesQueryParams;
+    try {
+      const rawParams = {
+        search: searchParams.get("search") ?? undefined,
+        category: searchParams.getAll("category") ?? undefined,
+        theme: searchParams.getAll("theme") ?? undefined,
+      };
+
+      params = getAmbiancesQuerySchema.parse(rawParams);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            error: "Invalid query parameters",
+            details: error.issues.map((issue) => ({
+              field: issue.path.join("."),
+              message: issue.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Invalid request parameters" },
+        { status: 400 }
+      );
+    }
+
+    const { search, category, theme } = params;
+    const categories = Array.isArray(category)
+      ? category
+      : category
+      ? [category]
+      : [];
+
+    const themes = Array.isArray(theme) ? theme : theme ? [theme] : [];
 
     const isFilterEmpty =
-      !searchString?.trim() && categories.length === 0 && themes.length === 0;
+      !search?.trim() && categories.length === 0 && themes.length === 0;
 
-    // Base SELECT
+    // Base query
     let query = `
-  SELECT
-    a.id,
-    a.ambiance_name,
-    a.categories,
-    a.themes,
-    a.author_id,
-    ${
-      userId
-        ? "CASE WHEN uhfa.user_id IS NOT NULL THEN true ELSE false END as is_favorite"
-        : "false as is_favorite"
-    },
-    COALESCE(fav_counts.count, 0) AS number_of_favorites
-  FROM ambiances a
-  LEFT JOIN (
-    SELECT ambiance_id, COUNT(*) AS count
-    FROM user_has_favorite_ambiances
-    GROUP BY ambiance_id
-  ) AS fav_counts ON a.id = fav_counts.ambiance_id
-`;
+      SELECT
+        a.id,
+        a.ambiance_name,
+        a.categories,
+        a.themes,
+        a.author_id,
+        ${
+          userId
+            ? "CASE WHEN uhfa.user_id IS NOT NULL THEN true ELSE false END as is_favorite"
+            : "false as is_favorite"
+        },
+        COALESCE(fav_counts.count, 0) AS number_of_favorites
+      FROM ambiances a
+      LEFT JOIN (
+        SELECT ambiance_id, COUNT(*) AS count
+        FROM user_has_favorite_ambiances
+        GROUP BY ambiance_id
+      ) AS fav_counts ON a.id = fav_counts.ambiance_id
+    `;
 
     if (userId) {
       query += `
@@ -67,14 +127,12 @@ export async function GET(request: Request) {
       values.push(userId);
     }
 
-    // Search filter
-    if (searchString && searchString.trim()) {
+    if (search && search.trim()) {
       conditions.push(`a.ambiance_name ILIKE $${paramIndex}`);
-      values.push(`%${searchString.trim()}%`);
+      values.push(`%${search.trim()}%`);
       paramIndex++;
     }
 
-    // Category filter (all required)
     if (categories.length > 0) {
       conditions.push(
         `a.categories @> ARRAY[${categories
@@ -85,7 +143,6 @@ export async function GET(request: Request) {
       paramIndex += categories.length;
     }
 
-    // Theme filter (all required)
     if (themes.length > 0) {
       conditions.push(
         `a.themes @> ARRAY[${themes
@@ -96,7 +153,6 @@ export async function GET(request: Request) {
       paramIndex += themes.length;
     }
 
-    // Apply WHERE clause
     if (isFilterEmpty) {
       if (userId) {
         query += ` WHERE uhfa.user_id IS NOT NULL`;
@@ -109,7 +165,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // Ordering based on match quality
     const categoryScore = categories
       .map((cat) => `COALESCE(array_position(a.categories, '${cat}'), 1000)`)
       .join(" + ");
@@ -125,7 +180,6 @@ export async function GET(request: Request) {
         ? `(${categoryScore})`
         : `(${themeScore})`;
 
-    // ORDER BY
     if (!isFilterEmpty && (categories.length > 0 || themes.length > 0)) {
       query += ` ORDER BY ${
         userId ? "is_favorite DESC," : ""

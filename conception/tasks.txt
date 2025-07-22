@@ -241,13 +241,14 @@ TASKS
 22/07/2025
 - audit fix
 - add rate limiting (in memory, global and per route)
+- add zod validation to API
+- JSDoc the API
 
 WAITING TO BE PUSHED
 
 WORKING ON
 
 TO DO
-- 404
 - back office to add sounds
 - logs system
 - security and rate limiting

@@ -1,8 +1,3 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import pool from "@/lib/db_client";
-import { z } from "zod";
-
 /**
  * API route to toggle an ambiance's favorite status for the authenticated user
  *
@@ -12,6 +7,24 @@ import { z } from "zod";
  * @param request - POST request containing ambianceId in the body
  * @returns JSON response with the updated favorite status
  */
+
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { auth } from "@/lib/auth";
+import pool from "@/lib/db_client";
+
+// Zod schema for request body validation
+const toggleFavoriteAmbianceSchema = z.object({
+  ambianceId: z
+    .number()
+    .int()
+    .positive("ambianceId must be a positive integer"),
+});
+
+// Type inference from Zod schema
+type ToggleFavoriteAmbianceRequest = z.infer<
+  typeof toggleFavoriteAmbianceSchema
+>;
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,30 +40,33 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id;
-    const schema = z
-      .object({
-        ambianceId: z.number().int().positive(),
-      })
-      .strict();
 
-    const body = await request.json();
-    const parsed = schema.safeParse(body);
+    // Parse and validate the request body using Zod
+    let body: ToggleFavoriteAmbianceRequest;
+    try {
+      const rawBody = await request.json();
+      body = toggleFavoriteAmbianceSchema.parse(rawBody);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            error: "Invalid request data",
+            details: error.issues.map((issue) => ({
+              field: issue.path.join("."),
+              message: issue.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
 
-    if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-    }
-
-    const { ambianceId } = parsed.data;
-
-    if (!ambianceId || typeof ambianceId !== "number") {
       return NextResponse.json(
-        {
-          error:
-            "Invalid request - ambianceId is required and must be a number",
-        },
+        { error: "Invalid JSON in request body" },
         { status: 400 }
       );
     }
+
+    const { ambianceId } = body;
 
     const ambianceExists = await pool.query(
       "SELECT id FROM ambiances WHERE id = $1",

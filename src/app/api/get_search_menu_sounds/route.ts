@@ -1,6 +1,31 @@
+/**
+ * API route to get filtered or favorite sounds for the search menu
+ *
+ * @param request - GET request with optional query parameters:
+ *   - search: string to filter by sound name (partial match)
+ *   - category: string to filter by category
+ *   - theme: one or more themes to filter by (must all match)
+ *
+ * If the user is logged in, it also includes `is_favorite` status for each sound.
+ * If no filters are applied, it returns the user's favorites (if logged in).
+ *
+ * @returns JSON response with an array of sound metadata
+ */
+
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
+
+// Zod schema for query parameters
+const getSearchMenuSoundsSchema = z.object({
+  search: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  theme: z.union([z.string(), z.array(z.string())]).optional(),
+});
+
+// Type inference from schema
+type GetSearchMenuSoundsParams = z.infer<typeof getSearchMenuSoundsSchema>;
 
 // GET /api/get_search_menu_sounds
 export async function GET(request: Request) {
@@ -22,15 +47,45 @@ export async function GET(request: Request) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const searchString = searchParams.get("search");
-    const category = searchParams.get("category");
-    const themes = searchParams.getAll("theme");
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
 
-    const isFilterEmpty =
-      !searchString?.trim() && !category && themes.length === 0;
+    // Parse and validate with Zod
+    let params: GetSearchMenuSoundsParams;
+    try {
+      const rawParams = {
+        search: searchParams.get("search") ?? undefined,
+        category: searchParams.get("category") ?? undefined,
+        theme: searchParams.getAll("theme") ?? undefined,
+      };
 
-    // Base SELECT
+      params = getSearchMenuSoundsSchema.parse(rawParams);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            error: "Invalid query parameters",
+            details: error.issues.map((issue) => ({
+              field: issue.path.join("."),
+              message: issue.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Invalid request parameters" },
+        { status: 400 }
+      );
+    }
+
+    const { search, category, theme } = params;
+    const themes = Array.isArray(theme) ? theme : theme ? [theme] : [];
+
+    const isFilterEmpty = !search?.trim() && !category && themes.length === 0;
+
+    // Base SELECT query
     let query = `
       SELECT
         s.id,
@@ -62,21 +117,18 @@ export async function GET(request: Request) {
 
     if (userId) values.push(userId);
 
-    // Search by sound name
-    if (searchString && searchString.trim()) {
+    if (search && search.trim()) {
       conditions.push(`s.sound_name ILIKE $${paramIndex}`);
-      values.push(`%${searchString.trim()}%`);
+      values.push(`%${search.trim()}%`);
       paramIndex++;
     }
 
-    // Filter by category
     if (category) {
       conditions.push(`s.category = $${paramIndex}`);
       values.push(category);
       paramIndex++;
     }
 
-    // Theme filter (all required)
     if (themes.length > 0) {
       conditions.push(
         `s.themes @> ARRAY[${themes
@@ -87,7 +139,6 @@ export async function GET(request: Request) {
       paramIndex += themes.length;
     }
 
-    // WHERE clause
     if (isFilterEmpty) {
       if (userId) {
         query += ` WHERE ufs.user_id IS NOT NULL`;
@@ -98,13 +149,11 @@ export async function GET(request: Request) {
       query += ` WHERE ${conditions.join(" AND ")}`;
     }
 
-    // Match score: fewer themes = higher relevance
     const themeScore = themes
       .map((theme) => `COALESCE(array_position(s.themes, '${theme}'), 1000)`)
       .join(" + ");
     const totalScore = themes.length > 0 ? `(${themeScore})` : "0";
 
-    // ORDER BY
     if (!isFilterEmpty && themes.length > 0) {
       query += `
         ORDER BY

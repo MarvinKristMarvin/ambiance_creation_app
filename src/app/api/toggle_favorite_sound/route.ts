@@ -1,7 +1,3 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import pool from "@/lib/db_client";
-
 /**
  * API route to toggle a sound's favorite status for the authenticated user
  *
@@ -11,6 +7,20 @@ import pool from "@/lib/db_client";
  * @param request - POST request containing soundId in the body
  * @returns JSON response with the updated favorite status
  */
+
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { auth } from "@/lib/auth";
+import pool from "@/lib/db_client";
+
+// Zod schema for request body validation
+const toggleFavoriteSchema = z.object({
+  soundId: z.number().int().positive("soundId must be a positive integer"),
+});
+
+// Type inference from Zod schema
+type ToggleFavoriteRequest = z.infer<typeof toggleFavoriteSchema>;
+
 export async function POST(request: NextRequest) {
   try {
     // Get the authenticated session using Better Auth
@@ -31,18 +41,32 @@ export async function POST(request: NextRequest) {
     // Extract the user ID from the authenticated session
     const userId = session.user.id;
 
-    // Parse the request body to get the sound ID
-    // We expect the frontend to send { soundId: number }
-    const body = await request.json();
-    const { soundId } = body;
+    // Parse and validate the request body using Zod
+    let body: ToggleFavoriteRequest;
+    try {
+      const rawBody = await request.json();
+      body = toggleFavoriteSchema.parse(rawBody);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            error: "Invalid request data",
+            details: error.issues.map((issue) => ({
+              field: issue.path.join("."),
+              message: issue.message,
+            })),
+          },
+          { status: 400 }
+        );
+      }
 
-    // Validate that soundId is provided and is a valid number
-    if (!soundId || typeof soundId !== "number") {
       return NextResponse.json(
-        { error: "Invalid request - soundId is required and must be a number" },
+        { error: "Invalid JSON in request body" },
         { status: 400 }
       );
     }
+
+    const { soundId } = body;
 
     // First, verify that the sound actually exists in the database
     // This prevents users from favoriting non-existent sounds
@@ -71,7 +95,6 @@ export async function POST(request: NextRequest) {
         "DELETE FROM user_has_favorite_sounds WHERE user_id = $1 AND sound_id = $2",
         [userId, soundId]
       );
-
       isFavorite = false;
       console.log(`User ${userId} removed sound ${soundId} from favorites`);
     } else {
@@ -81,7 +104,6 @@ export async function POST(request: NextRequest) {
         "INSERT INTO user_has_favorite_sounds (user_id, sound_id) VALUES ($1, $2)",
         [userId, soundId]
       );
-
       isFavorite = true;
       console.log(`User ${userId} added sound ${soundId} to favorites`);
     }
@@ -111,27 +133,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Explicitly disable other HTTP methods
-// This ensures the endpoint only accepts POST requests
-export async function GET() {
-  return NextResponse.json(
-    { error: "Method not allowed - Use POST to toggle favorites" },
-    { status: 405 }
-  );
-}
-
-export async function PUT() {
-  return NextResponse.json(
-    { error: "Method not allowed - Use POST to toggle favorites" },
-    { status: 405 }
-  );
-}
-
-export async function DELETE() {
-  return NextResponse.json(
-    { error: "Method not allowed - Use POST to toggle favorites" },
-    { status: 405 }
-  );
 }
