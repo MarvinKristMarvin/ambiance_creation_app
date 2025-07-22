@@ -238,16 +238,20 @@ TASKS
 - on phone sound top right buttons still activable even when opacity to 0, fully disable instead
 - add local storage backup for the last ambiance listened, useful when the user quits the ambiance page without saving
 
-WAITING TO BE PUSHED
+22/07/2025
+- audit fix
+- add rate limiting (in memory, global and per route)
 
+WAITING TO BE PUSHED
 
 WORKING ON
 
 TO DO
+- 404
 - back office to add sounds
 - logs system
-- security
-- premium 
+- security and rate limiting
+- premium
 - remake conception docs
 
 - better looping for sounds (dont cut between loop)
@@ -258,6 +262,7 @@ TO DO
 - rgpd / contact
 - in sound table, remove possible default options (all sounds will have same everything at the beginning in general)
 - playlist system (button to add in playlist in ambiance card) and in search ambiance menu : button show playlist => shoaw ambiance cards with mroe options (play for x minutes, move position..)
+- start loops at a random time of their duration (avoid 2 same loops playing exactly the smae audio at the same time)
 - when scrolling down the search ambiance menu : every 10 ambiances, show a loading state to load 10 more (load icon + "loading more ambiances")
 - autosave after 10 seconds after a current ambiance modification
 

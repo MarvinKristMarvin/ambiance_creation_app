@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import pool from "@/lib/db_client";
+import { z } from "zod";
 
 /**
  * API route to toggle an ambiance's favorite status for the authenticated user
@@ -11,6 +12,7 @@ import pool from "@/lib/db_client";
  * @param request - POST request containing ambianceId in the body
  * @returns JSON response with the updated favorite status
  */
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
@@ -25,8 +27,20 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = session.user.id;
+    const schema = z
+      .object({
+        ambianceId: z.number().int().positive(),
+      })
+      .strict();
+
     const body = await request.json();
-    const { ambianceId } = body;
+    const parsed = schema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    }
+
+    const { ambianceId } = parsed.data;
 
     if (!ambianceId || typeof ambianceId !== "number") {
       return NextResponse.json(

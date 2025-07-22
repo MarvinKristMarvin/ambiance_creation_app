@@ -24,3 +24,12 @@ http://{ipv4}:3000
 deployé sur vercel branche main
 db sur supabase dashboard
 
+SECURITY 
+OK - XSS
+- Check auth on routes and validate input, prevent privilege escalation
+- CSRF protection
+- Content-Type Sniffing / X-Content-Type-Options 
+- Content Security Policy (CSP)
+- HTTP Parameter Pollution
+- Source Maps in Production
+- Rate Limiting
