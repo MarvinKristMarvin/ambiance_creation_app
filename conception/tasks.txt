@@ -250,23 +250,23 @@ TASKS
 WAITING TO BE PUSHED
 
 WORKING ON
+- logs system
+
 
 TO DO
 - back office to add sounds
-- logs system
-- security and rate limiting
 - premium
 - remake conception docs
+- rgpd / contact
 
 - better looping for sounds (dont cut between loop)
 - show more informations on sounds (show when they play, show when they will play, show their duration)
 - add youtube audio
-- debug sound modifications
+- fix sound modifications
 - delete account
-- rgpd / contact
-- in sound table, remove possible default options (all sounds will have same everything at the beginning in general)
+- in sound table, remove possible default options (all sounds will have same everything at the beginning i think)
 - playlist system (button to add in playlist in ambiance card) and in search ambiance menu : button show playlist => shoaw ambiance cards with mroe options (play for x minutes, move position..)
-- start loops at a random time of their duration (avoid 2 same loops playing exactly the smae audio at the same time)
+- start need to loops at a random time of their duration (avoid 2 same loops playing exactly the smae audio at the same time)
 - when scrolling down the search ambiance menu : every 10 ambiances, show a loading state to load 10 more (load icon + "loading more ambiances")
 - autosave after 10 seconds after a current ambiance modification
 
