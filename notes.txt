@@ -25,11 +25,12 @@ deployé sur vercel branche main
 db sur supabase dashboard
 
 SECURITY 
+OK - SQL injections
 OK - XSS
-- Check auth on routes and validate input, prevent privilege escalation
-- CSRF protection
-- Content-Type Sniffing / X-Content-Type-Options 
-- Content Security Policy (CSP)
-- HTTP Parameter Pollution
-- Source Maps in Production
-- Rate Limiting
+OK - Check auth on routes and validate input, prevent privilege escalation
+OK - CSRF protection
+OK - Content-Type Sniffing / X-Content-Type-Options 
+OK - Content Security Policy (CSP)
+OK - HTTP Parameter Pollution
+OK - Source Maps in Production
+OK - Rate Limiting

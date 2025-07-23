@@ -244,6 +244,9 @@ TASKS
 - add zod validation to API
 - JSDoc the API
 
+23/07/2025
+- implement full security (SQLI, XSS, CSRF, CSP, nosniff, input validation, secured auth, rate limiting)
+
 WAITING TO BE PUSHED
 
 WORKING ON
