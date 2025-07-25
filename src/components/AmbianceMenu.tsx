@@ -10,7 +10,7 @@ import {
   //AudioWaveform,
 } from "lucide-react";
 import { useShowToast } from "@/hooks/useShowToast";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/nextjs";
 
 export default function AmbianceMenu() {
   const { ShowToast } = useShowToast();
