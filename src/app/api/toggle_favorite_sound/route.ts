@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import pool from "@/lib/db_client";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema for request body validation
 const toggleFavoriteSchema = z.object({
@@ -122,6 +123,7 @@ export async function POST(request: NextRequest) {
     // Log the error for debugging purposes
     // In production, you might want to use a proper logging service
     console.error("Error toggling favorite sound:", error);
+    Sentry.captureException(error);
 
     // Return generic error response to avoid exposing internal details
     // This helps maintain security while still providing useful feedback

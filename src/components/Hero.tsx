@@ -15,6 +15,7 @@ import { useGlobalStore } from "@/stores/useGlobalStore";
 import { useEffect, useState } from "react";
 import { useShowToast } from "@/hooks/useShowToast";
 import Image from "next/image";
+import * as Sentry from "@sentry/nextjs";
 
 const defaultAmbiance: Ambiance = {
   id: 0,
@@ -103,6 +104,7 @@ export default function Hero() {
   }, []);
 
   const recoverAmbiance = async () => {
+    Sentry.captureMessage("Click on recover ambiance in hero page", "info");
     if (storedAmbiance) {
       console.log("Recovering:", storedAmbiance);
       const stored = localStorage.getItem("storedAmbiance");
@@ -158,6 +160,10 @@ export default function Hero() {
   const IconComponent = currentTheme.icon;
 
   const handleGetThemedAmbiance = async () => {
+    Sentry.captureMessage(
+      `Click on get themed ambiance in hero page with theme : ${currentTheme.name}`,
+      "info"
+    );
     try {
       const res = await fetch("/api/get_themed_ambiance", {
         method: "POST",
@@ -255,13 +261,25 @@ export default function Hero() {
           <button
             aria-label="search ambiance button"
             className="flex-1 px-3.5 py-4 font-bold w-[calc(100vw-2rem)] max-w-90 text-white border-2 rounded-full bg-black/50 hover:bg-black/70 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
-            onClick={openSearchAmbianceMenu}
+            onClick={() => {
+              Sentry.captureMessage(
+                "Click on search ambiance button in hero page",
+                "info"
+              );
+              openSearchAmbianceMenu();
+            }}
           >
             Search an ambiance
           </button>
           <button
             aria-label="create ambiance button"
-            onClick={() => setCurrentAmbiance(defaultAmbiance)}
+            onClick={() => {
+              Sentry.captureMessage(
+                "Click on create ambiance button in hero page",
+                "info"
+              );
+              setCurrentAmbiance(defaultAmbiance);
+            }}
             className="flex-1  px-3.5 py-4 font-bold w-[calc(100vw-2rem)] max-w-90 text-white border-2 rounded-full bg-black/50 hover:bg-black/70 hover:cursor-pointer text-md border-gray-50 hover:border-gray-50"
           >
             Create an ambiance

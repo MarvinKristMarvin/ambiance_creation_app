@@ -248,12 +248,14 @@ TASKS
 - implement full security (SQLI, XSS, CSRF, CSP, nosniff, input validation, secured auth, rate limiting)
 
 25/07/2025
+- add sentry to the project
+- make sentry logs for the front and the API
+- test in prod
+- fix zod validation for repeat_delay for non looping sounds in post_ambiance route
 
 WAITING TO BE PUSHED
 
 WORKING ON
-- logs system
-
 
 TO DO
 - back office to add sounds

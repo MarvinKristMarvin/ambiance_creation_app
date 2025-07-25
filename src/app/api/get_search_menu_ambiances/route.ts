@@ -16,6 +16,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema for query validation
 const getAmbiancesQuerySchema = z.object({
@@ -204,6 +205,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Database error when getting ambiances basic informations:");
     console.error("Full error:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         error: "Internal Server Error",

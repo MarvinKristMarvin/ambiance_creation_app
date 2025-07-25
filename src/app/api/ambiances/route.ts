@@ -6,6 +6,7 @@
 
 import { NextResponse } from "next/server";
 import pool from "@/lib/db_client";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET() {
   try {
@@ -13,6 +14,7 @@ export async function GET() {
     return NextResponse.json(result.rows);
   } catch (error) {
     console.error("Database error:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

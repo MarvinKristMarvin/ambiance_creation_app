@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import pool from "@/lib/db_client";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema for request body validation
 const getThemedAmbianceSchema = z.object({
@@ -149,6 +150,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(rows[0]);
   } catch (error) {
     console.error("API error:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

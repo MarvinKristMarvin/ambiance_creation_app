@@ -11,6 +11,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import pool from "@/lib/db_client";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema for request body validation
 const getSoundsByIdsSchema = z.object({
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
     return NextResponse.json(sounds.rows);
   } catch (error) {
     console.error("Error fetching sounds by IDs:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Failed to fetch sounds by IDs" },
       { status: 500 }

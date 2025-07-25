@@ -16,6 +16,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema for query parameters
 const getSearchMenuSoundsSchema = z.object({
@@ -179,6 +180,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Database error when getting sounds basic information:");
     console.error("Full error:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         error: "Internal Server Error",

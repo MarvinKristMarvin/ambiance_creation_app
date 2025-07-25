@@ -12,6 +12,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import pool from "@/lib/db_client";
 import { auth } from "@/lib/auth";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema for ambiance sound validation
 const ambianceSoundSchema = z.object({
@@ -21,7 +22,10 @@ const ambianceSoundSchema = z.object({
   direction: z.number().optional().default(0),
   speed: z.number().positive("speed must be positive").optional().default(1),
   reverb_duration: z.number().min(0).optional().default(0),
-  repeat_delay: z.number().nullable().optional().default(null),
+  repeat_delay: z
+    .union([z.tuple([z.number(), z.number()]), z.null()])
+    .optional()
+    .default(null),
   low: z.number().optional().default(0),
   mid: z.number().optional().default(0),
   high: z.number().optional().default(0),
@@ -68,6 +72,7 @@ export async function POST(request: Request) {
       ambianceData = saveAmbianceSchema.parse(rawBody);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        Sentry.captureException(error);
         return NextResponse.json(
           {
             error: "Invalid request data",
@@ -271,6 +276,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error("Error saving ambiance:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         error: "Failed to save ambiance",

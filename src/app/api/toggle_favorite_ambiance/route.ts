@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import pool from "@/lib/db_client";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema for request body validation
 const toggleFavoriteAmbianceSchema = z.object({
@@ -115,6 +116,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error toggling favorite ambiance:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       {
         error: "Internal server error - Unable to update favorites",

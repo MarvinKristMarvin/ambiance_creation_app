@@ -8,6 +8,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import pool from "@/lib/db_client";
+import * as Sentry from "@sentry/nextjs";
 
 // Zod schema to validate ambianceId as a numeric string
 const getAmbianceParamsSchema = z.object({
@@ -71,6 +72,7 @@ export async function GET(request: Request) {
     return NextResponse.json(result.rows);
   } catch (error) {
     console.error("Database error:", error);
+    Sentry.captureException(error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
