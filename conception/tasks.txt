@@ -247,6 +247,8 @@ TASKS
 23/07/2025
 - implement full security (SQLI, XSS, CSRF, CSP, nosniff, input validation, secured auth, rate limiting)
 
+25/07/2025
+
 WAITING TO BE PUSHED
 
 WORKING ON

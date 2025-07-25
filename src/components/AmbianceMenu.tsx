@@ -10,6 +10,7 @@ import {
   //AudioWaveform,
 } from "lucide-react";
 import { useShowToast } from "@/hooks/useShowToast";
+import * as Sentry from "@sentry/browser";
 
 export default function AmbianceMenu() {
   const { ShowToast } = useShowToast();
@@ -42,11 +43,21 @@ export default function AmbianceMenu() {
 
   useEffect(() => {
     console.log("current ambiance : ", currentAmbiance);
+    Sentry.addBreadcrumb({
+      category: "ui.ambianceMenu",
+      message: `useEffect activated"`,
+      level: "info",
+    });
   });
 
   // Callback to update global volume when muting / unmuting
   const updateGlobalVolume = useCallback(() => {
     // If global volume is greater than 0, set it to 0 when muting
+    try {
+      throw new Error("Manual throw test");
+    } catch (err) {
+      Sentry.captureException(err);
+    }
     if (globalVolume > 0) {
       volumeBeforeMuting.current = globalVolume;
       setGlobalVolume(0);
@@ -63,6 +74,7 @@ export default function AmbianceMenu() {
   // Save as new ambiance, but if author id = session id and ambiance name already exist, patch the ambiance
   const handleSaveAmbiance = async () => {
     try {
+      Sentry.captureMessage("User tries to save", "info");
       if (!currentAmbiance || saveState === "loading") return;
 
       setSaveState("loading");
