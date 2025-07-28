@@ -256,6 +256,7 @@ TASKS
 28/07/2025
 - add unit/component/integration tests with Jest
 - create an index db which contains sounds used and sounds that was used with their audio files (blobs)
+- load looping sounds mp3 from indexed db when already stored instead of fetching mp3
 
 WAITING TO BE PUSHED
 

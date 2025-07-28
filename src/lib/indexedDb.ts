@@ -35,6 +35,21 @@ export async function getAllIndexedDbSounds(): Promise<IndexedDbSound[]> {
   });
 }
 
+export async function getIndexedDbSoundById(
+  id: number
+): Promise<IndexedDbSound | null> {
+  const db = await getDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.get(id);
+    request.onsuccess = () => {
+      resolve(request.result ?? null);
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
 export async function addIndexedDbSound(sound: IndexedDbSound): Promise<void> {
   const db = await getDB();
   return new Promise((resolve, reject) => {

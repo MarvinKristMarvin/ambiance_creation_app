@@ -25,6 +25,7 @@ interface Props {
   id: number;
   looping: boolean;
   repeat_delay: number[] | null;
+  audioBlobs: Blob[];
 }
 
 export default function SimpleSound({
@@ -45,6 +46,7 @@ export default function SimpleSound({
   initialHigh,
   initialLowCut,
   initialHighCut,
+  audioBlobs,
 }: Props) {
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
@@ -195,14 +197,18 @@ export default function SimpleSound({
     lowpassFilterRef.current = lowpassFilter;
 
     // Create the actual audio player
+    let objectUrl: string | null = null;
+    if (audioBlobs?.[0]) {
+      objectUrl = URL.createObjectURL(audioBlobs[0]);
+    }
     const player = new Tone.Player({
-      url: audioPaths[0],
+      url: objectUrl ?? audioPaths[0], // fallback to original URL if no blob
       loop: looping,
       autostart: false,
       onload: () => {
-        player.start(); // Start playback once loaded
+        player.start();
       },
-    }).connect(gainNode); // connect the player to our gain node
+    }).connect(gainNode);
 
     player.playbackRate = playbackRate;
     playerRef.current = player; // save reference to the player
@@ -216,6 +222,9 @@ export default function SimpleSound({
       lowpassFilter.dispose();
       reverb.dispose();
       eq.dispose();
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
     };
   }, [audioPaths[0], looping, mute]);
 

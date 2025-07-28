@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://browser.sentry-cdn.com;
-  connect-src 'self' https://${"*"}.ingest.sentry.io https://${"*"}.ingest.de.sentry.io;  worker-src 'self' blob:;
+  connect-src 'self' blob: https://${"*"}.ingest.sentry.io https://${"*"}.ingest.de.sentry.io;  worker-src 'self' blob:;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' blob: data:;

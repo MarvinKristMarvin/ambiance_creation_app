@@ -1,7 +1,9 @@
 import { Plus } from "lucide-react";
 import SimpleSound from "./SimpleSound";
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { getIndexedDbSoundById } from "@/lib/indexedDb";
+import { IndexedDbSound } from "@/types";
 
 export default function Sounds() {
   // Zustand
@@ -35,6 +37,34 @@ export default function Sounds() {
     };
   }, []);
 
+  const [indexedDbSoundsMap, setIndexedDbSoundsMap] = useState<
+    Map<number, IndexedDbSound>
+  >(new Map());
+
+  useEffect(() => {
+    const fetchBlobs = async () => {
+      if (currentAmbiance === null) return;
+      const soundIds = currentAmbiance.ambiance_sounds.map((s) => s.sound_id);
+      const newMap = new Map(indexedDbSoundsMap); // Clone existing map
+
+      for (const id of soundIds) {
+        if (!newMap.has(id)) {
+          const stored = await getIndexedDbSoundById(id);
+          if (stored) {
+            newMap.set(id, stored);
+          }
+        }
+      }
+
+      setIndexedDbSoundsMap(newMap);
+      console.log("IndexedDbSoundsMap updated:", newMap);
+    };
+
+    if (currentAmbiance) {
+      fetchBlobs();
+    }
+  }, [currentAmbiance]);
+
   // If there is no ambiance or no sounds used, don't show Sounds.tsx
   if (!currentAmbiance) {
     return null;
@@ -66,6 +96,9 @@ export default function Sounds() {
           const number = currentCount + 1;
           soundCounts.set(sound.sound_id, number);
 
+          const indexedDbSound = indexedDbSoundsMap.get(sound.sound_id);
+          const audioBlobs = indexedDbSound?.audios ?? [];
+
           return (
             <SimpleSound
               key={sound.id}
@@ -86,6 +119,7 @@ export default function Sounds() {
               initialHighCut={sound.high_cut}
               number={number}
               id={sound.id}
+              audioBlobs={audioBlobs}
             />
           );
         }
