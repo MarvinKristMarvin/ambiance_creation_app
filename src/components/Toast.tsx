@@ -10,6 +10,7 @@ import {
   Trash2,
   SquarePlus,
   AudioWaveform,
+  UserRound,
 } from "lucide-react";
 import { ToastType, ToastIcon } from "@/types";
 
@@ -141,6 +142,12 @@ const Toast: React.FC<ToastProps> = ({
     },
     addsound: {
       component: SquarePlus,
+      color: "text-gray-200",
+      strokeWidth: 2,
+      fill: false,
+    },
+    user: {
+      component: UserRound,
       color: "text-gray-200",
       strokeWidth: 2,
       fill: false,

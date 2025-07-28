@@ -48,6 +48,12 @@ export interface Sound {
   repeat_delay: number[] | null;
 }
 
+// IndexedDbSound has the same properties as Sound but with an array of real mp3 files
+export interface IndexedDbSound extends Sound {
+  storageIndex: number;
+  audios: Blob[];
+}
+
 // Sound for display purposes in the search sounds menu
 export interface SoundBasicInformations {
   id: number;
@@ -71,6 +77,7 @@ export type ToastIcon =
   | "error"
   | "info"
   | "addsound"
+  | "user"
   | "delete";
 
 export interface ToastConfig {

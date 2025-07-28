@@ -21,6 +21,7 @@ import {
   type Category,
   type Theme,
 } from "@/lib/iconMappings";
+import { buildQueryString } from "@/lib/buildQueryString";
 
 export default function SearchSoundsMenu() {
   // Existing Zustand state
@@ -61,27 +62,6 @@ export default function SearchSoundsMenu() {
     null
   );
 
-  // Function to build query string
-  const buildQueryString = () => {
-    const params = new URLSearchParams();
-
-    if (searchString.trim()) {
-      params.append("search", searchString.trim());
-    }
-
-    if (selectedCategory) {
-      params.append("category", selectedCategory);
-    }
-
-    if (selectedThemes.length > 0) {
-      selectedThemes.forEach((theme) => {
-        params.append("theme", theme);
-      });
-    }
-
-    return params.toString();
-  };
-
   // Function to handle adding/removing sound from favorites
   const handleSaveSoundInFavorites = async (soundId: number) => {
     // Get current favorite status (either from optimistic state or original data)
@@ -114,8 +94,8 @@ export default function SearchSoundsMenu() {
         if (response.status === 401) {
           ShowToast(
             "error",
-            "error",
-            "Please log in to save sounds in favorites",
+            "user",
+            "Log in to save sounds in favorites",
             5000
           );
           // Revert the optimistic update
@@ -162,7 +142,11 @@ export default function SearchSoundsMenu() {
 
   // Function to perform search
   const performSearch = async () => {
-    const queryString = buildQueryString();
+    const queryString = buildQueryString(
+      searchString,
+      selectedCategory,
+      selectedThemes
+    );
     setLoading(true); // start loading
 
     try {
@@ -292,7 +276,7 @@ export default function SearchSoundsMenu() {
       } else {
         console.log("Sound already exists in soundsUsed");
       }
-
+      console.log("soundsUsed:", useGlobalStore.getState().soundsUsed);
       ShowToast("success", "addsound", "Sound added to the ambiance");
     } catch (error) {
       console.error("Error adding sound to ambiance:", error);

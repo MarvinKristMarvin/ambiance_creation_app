@@ -93,6 +93,7 @@ export default function Hero() {
   const [hoverTheme, setHoverTheme] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
   const [storedAmbiance, setStoredAmbiance] = useState(null);
+  const [loadingThemedAmbiance, setLoadingThemedAmbiance] = useState(false);
 
   useEffect(() => {
     console.log("Trying to find a stored ambiance");
@@ -164,6 +165,7 @@ export default function Hero() {
       `Click on get themed ambiance in hero page with theme : ${currentTheme.name}`,
       "info"
     );
+    setLoadingThemedAmbiance(true);
     try {
       const res = await fetch("/api/get_themed_ambiance", {
         method: "POST",
@@ -173,19 +175,15 @@ export default function Hero() {
         body: JSON.stringify({ theme: currentTheme.name }),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch themed ambiance");
-      }
+      if (!res.ok) throw new Error("Failed to fetch themed ambiance");
 
       const ambiance: Ambiance = await res.json();
       setCurrentAmbiance(ambiance);
 
-      // Extract unique sound ids from the loaded ambiance
       const soundIds = [
         ...new Set(ambiance.ambiance_sounds.map((sound) => sound.sound_id)),
       ];
 
-      // Fetch sounds default data by their ids
       const response = await fetch("/api/get_used_sounds", {
         method: "POST",
         headers: {
@@ -194,15 +192,17 @@ export default function Hero() {
         body: JSON.stringify({ soundIds }),
       });
 
-      // Put the sounds data in the zustand array soundsUsed
       if (!response.ok) throw new Error("Failed to load sounds");
       const soundsData: Sound[] = await response.json();
       setSoundsUsed(soundsData);
-      console.log("Sounds used : ", soundsData);
+
       setSearchAmbianceMenu(false);
       ShowToast("success", "ambiance", "Ambiance loaded");
     } catch (error) {
       console.error("Error fetching themed ambiance:", error);
+      ShowToast("error", "ambiance", "Failed to load themed ambiance");
+    } finally {
+      setLoadingThemedAmbiance(false);
     }
   };
 
@@ -249,6 +249,7 @@ export default function Hero() {
           <div>
             <button
               aria-label="recover ambiance button"
+              data-testid="recover-ambiance-button"
               className="flex-1 px-3.5 py-4 font-bold w-[calc(100vw-2rem)] max-w-90 mb-4 text-white border-2 rounded-full bg-black/50 hover:bg-black/70 hover:cursor-pointer text-md border-emerald-50 hover:border-gray-50"
               onClick={recoverAmbiance}
             >
@@ -290,16 +291,25 @@ export default function Hero() {
           <button
             aria-label="open a random themed ambiance button"
             onClick={handleGetThemedAmbiance}
+            disabled={loadingThemedAmbiance}
             className={`bg-black/60 px-3.5 w-[calc(100vw-2rem)] max-w-90 text-center py-2 font-bold text-white border-2 rounded-full text-md flex gap-1 items-center justify-center mx-auto hover:cursor-pointer hover:bg-black/80 ${currentTheme.borderClass}`}
           >
-            <span className="px-2 py-2 rounded-full">
-              Or listen to a{currentTheme.vowel ? "n " : " "}
-              <span className={currentTheme.textClass}>
-                {currentTheme.name}
-              </span>{" "}
-              ambiance
-            </span>
+            {loadingThemedAmbiance ? (
+              <div className="flex items-center gap-2 py-2">
+                <RefreshCcw className="w-5 h-5 animate-spin" />
+                <span>Loading ambiance...</span>
+              </div>
+            ) : (
+              <span className="px-2 py-2 rounded-full">
+                Or listen to a{currentTheme.vowel ? "n " : " "}
+                <span className={currentTheme.textClass}>
+                  {currentTheme.name}
+                </span>{" "}
+                ambiance
+              </span>
+            )}
           </button>
+
           <button
             className={`p-3.5 mt-4 border-2 rounded-full  hover:cursor-pointer bg-black/60 hover:bg-black/80 ${
               hoverTheme ? "border-gray-50" : currentTheme.borderClass

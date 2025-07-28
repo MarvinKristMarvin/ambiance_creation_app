@@ -11,6 +11,7 @@ import AmbianceSettingsMenu from "@/components/AmbianceSettingsMenu";
 import ToastContainer from "@/components/ToastContainer";
 import * as Tone from "tone";
 import { useEffect } from "react";
+import { syncSoundsUsedWithIndexedDb } from "@/lib/sync";
 
 export default function Home() {
   // Zustand
@@ -26,6 +27,18 @@ export default function Home() {
 
   // Modal management functions from store
   const closeAllModals = useGlobalStore((state) => state.closeAllModals);
+
+  const AudioManager = () => {
+    const soundsUsed = useGlobalStore((state) => state.soundsUsed);
+
+    useEffect(() => {
+      if (soundsUsed.length > 0) {
+        syncSoundsUsedWithIndexedDb(soundsUsed);
+      }
+    }, [soundsUsed]);
+
+    return null;
+  };
 
   // Start Tone.js on first interaction
   useEffect(() => {
@@ -52,6 +65,7 @@ export default function Home() {
   // Show the hero component if there is no ambiance loaded, otherwise show the sounds component. manages modals too
   return (
     <div className="flex fullscreen-container bg-gray-950">
+      <AudioManager />
       <main className="flex flex-col w-screen h-full min-w-0 ">
         {currentAmbiance ? (
           <>

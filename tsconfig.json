@@ -20,9 +20,11 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["jest", "@testing-library/jest-dom"]
   },
   "include": [
+    "jest.d.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",

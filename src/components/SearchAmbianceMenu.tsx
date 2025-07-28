@@ -79,8 +79,8 @@ export default function SearchAmbianceMenu() {
         if (response.status === 401) {
           ShowToast(
             "error",
-            "error",
-            "Please log in to save an ambiance in favorites",
+            "user",
+            "Log in to save an ambiance in favorites",
             5000
           );
           // Revert update

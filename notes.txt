@@ -34,3 +34,8 @@ OK - Content Security Policy (CSP)
 OK - HTTP Parameter Pollution
 OK - Source Maps in Production
 OK - Rate Limiting
+
+BANDWIDTH OPTIMIZATION
+OK - Webp cache + size reduction from nextjs
+- When receiving a sound, store it in the local storage (the mp3, name, id etc)
+- When need to use sounds, use the local storage in priority, and for other sounds not yet in local storage, get them

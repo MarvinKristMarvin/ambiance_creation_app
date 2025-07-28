@@ -96,8 +96,8 @@ export default function AmbianceMenu() {
           setSaveState("idle");
           ShowToast(
             "error",
-            "error",
-            "Please log in to save an ambiance in favorites",
+            "user",
+            "Log in to save an ambiance in favorites",
             5000
           );
 

@@ -253,6 +253,10 @@ TASKS
 - test in prod
 - fix zod validation for repeat_delay for non looping sounds in post_ambiance route
 
+28/07/2025
+- add unit/component/integration tests with Jest
+- create an index db which contains sounds used and sounds that was used with their audio files (blobs)
+
 WAITING TO BE PUSHED
 
 WORKING ON
@@ -262,6 +266,7 @@ TO DO
 - premium
 - remake conception docs
 - rgpd / contact
+- instead of showing nothing in the beginning when searching sounds/ambiances, explain better and add a button to beign search with a random theme
 
 - better looping for sounds (dont cut between loop)
 - show more informations on sounds (show when they play, show when they will play, show their duration)
