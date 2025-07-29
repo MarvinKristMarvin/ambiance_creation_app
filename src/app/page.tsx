@@ -11,7 +11,7 @@ import AmbianceSettingsMenu from "@/components/AmbianceSettingsMenu";
 import ToastContainer from "@/components/ToastContainer";
 import * as Tone from "tone";
 import { useEffect } from "react";
-import { syncSoundsUsedWithIndexedDb } from "@/lib/sync";
+import { syncWithRetry } from "@/lib/sync";
 
 export default function Home() {
   // Zustand
@@ -33,7 +33,7 @@ export default function Home() {
 
     useEffect(() => {
       if (soundsUsed.length > 0) {
-        syncSoundsUsedWithIndexedDb(soundsUsed);
+        syncWithRetry(soundsUsed);
       }
     }, [soundsUsed]);
 

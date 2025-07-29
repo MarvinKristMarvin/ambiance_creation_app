@@ -264,6 +264,7 @@ TASKS
 WAITING TO BE PUSHED
 
 WORKING ON
+- remove unused sounds from indexed db to save space
 
 TO DO
 - back office to add sounds
