@@ -131,7 +131,6 @@ export default function Hero() {
             if (!response.ok) throw new Error("Failed to load sounds");
             const soundsData: Sound[] = await response.json();
             setSoundsUsed(soundsData);
-            console.log("Sounds used : ", soundsData);
           }
 
           setSearchAmbianceMenu(false);

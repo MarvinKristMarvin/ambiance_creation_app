@@ -108,7 +108,6 @@ export default function AmbianceMenu() {
 
       const result = await response.json();
       if (result.success) {
-        console.log("Ambiance saved successfully:", result.data);
         setSaveState("saved");
         ShowToast("success", "star", "Ambiance saved successfully");
 

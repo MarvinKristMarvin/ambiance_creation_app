@@ -219,7 +219,6 @@ export default function SearchAmbianceMenu() {
       // Data retrieved must be of type Ambiance
       const data: Ambiance = await loadedAmbiance.json();
       setCurrentAmbiance(data);
-      console.log("Ambiance loaded : ", data);
 
       // Extract unique sound ids from the loaded ambiance
       const soundIds = [
@@ -239,7 +238,6 @@ export default function SearchAmbianceMenu() {
       if (!response.ok) throw new Error("Failed to load sounds");
       const soundsData: Sound[] = await response.json();
       setSoundsUsed(soundsData);
-      console.log("Sounds used : ", soundsData);
       setSearchAmbianceMenu(false);
       ShowToast("success", "ambiance", "Ambiance loaded");
     } catch (error) {

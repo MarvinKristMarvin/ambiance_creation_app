@@ -124,10 +124,6 @@ export default function SearchSoundsMenu() {
         `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`,
         3000
       );
-
-      console.log(
-        `Sound ${result.is_favorite ? "added to" : "removed from"} favorites`
-      );
     } catch (error) {
       ShowToast("error", "error", "Failed to update favorites", 3000);
       console.error("Error toggling favorite sound:", error);
@@ -220,11 +216,9 @@ export default function SearchSoundsMenu() {
   const handleAddSoundToAmbiance = async (soundId: number) => {
     try {
       ShowToast("info", "addsound", "Downloading the sound...", 3000);
-      console.log("Adding sound to ambiance:", soundId);
       const res = await fetch(`/api/sound/${soundId}`);
       if (!res.ok) throw new Error("Failed to fetch full sound data");
       const loadedSound: AmbianceSound[] = await res.json();
-      console.log("Loaded sound:", loadedSound[0]);
       if (!currentAmbiance) return;
 
       const maxId = Math.max(
@@ -272,9 +266,6 @@ export default function SearchSoundsMenu() {
       const alreadyExists = existingSounds.some((s) => s.id === newSound.id);
       if (!alreadyExists) {
         setSoundsUsed([...existingSounds, newSound]);
-        console.log("Sound added to soundsUsed:", newSound);
-      } else {
-        console.log("Sound already exists in soundsUsed");
       }
       console.log("soundsUsed:", useGlobalStore.getState().soundsUsed);
       ShowToast("success", "addsound", "Sound added to the ambiance");

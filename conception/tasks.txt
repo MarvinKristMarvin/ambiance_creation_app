@@ -258,6 +258,9 @@ TASKS
 - create an index db which contains sounds used and sounds that was used with their audio files (blobs)
 - load looping sounds mp3 from indexed db when already stored instead of fetching mp3
 
+29/07/2025
+- handle punctual sounds playing from indexed db when already downloaded the audio file
+
 WAITING TO BE PUSHED
 
 WORKING ON

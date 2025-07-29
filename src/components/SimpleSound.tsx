@@ -144,7 +144,7 @@ export default function SimpleSound({
     muteRef.current = mute;
   }, [mute]);
 
-  // PONCTUAL SOUNDS SETUP AND PLAYBACK
+  // LOOPING SOUNDS SETUP AND PLAYBACK
   useEffect(() => {
     if (!audioPaths[0] || !looping) return; // Only run this if there's an audio path and it's looping
 
@@ -338,10 +338,20 @@ export default function SimpleSound({
 
     const loadBuffers = async () => {
       try {
-        // Load all audio files in parallel using fromUrl
-        const bufferPromises = audioPaths.map((path) =>
-          Tone.ToneAudioBuffer.fromUrl(path)
-        );
+        // Load all audio files in parallel using either audioBlobs or fromUrl
+        const bufferPromises = audioPaths.map((path, index) => {
+          // Use audioBlob if available for this index, otherwise fallback to URL
+          if (audioBlobs?.[index]) {
+            const objectUrl = URL.createObjectURL(audioBlobs[index]);
+            return Tone.ToneAudioBuffer.fromUrl(objectUrl).then((buffer) => {
+              // Clean up the object URL after loading
+              URL.revokeObjectURL(objectUrl);
+              return buffer;
+            });
+          } else {
+            return Tone.ToneAudioBuffer.fromUrl(path);
+          }
+        });
 
         const buffers = await Promise.all(bufferPromises);
 
@@ -363,7 +373,7 @@ export default function SimpleSound({
       audioBuffersRef.current = [];
       buffersLoadedRef.current = false;
     };
-  }, [audioPaths, looping]);
+  }, [audioPaths, audioBlobs, looping]);
 
   /// PUNCTUAL SOUNDS PLAYBACK WITH PRELOADED BUFFERS
   useEffect(() => {

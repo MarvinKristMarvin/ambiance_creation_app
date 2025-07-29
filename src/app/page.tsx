@@ -45,7 +45,6 @@ export default function Home() {
     const startAudioContext = async () => {
       try {
         await Tone.start();
-        console.log("✅ Tone.js started");
         // Remove the event listeners after starting
         window.removeEventListener("click", startAudioContext);
         window.removeEventListener("touchstart", startAudioContext);

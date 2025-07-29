@@ -99,6 +99,11 @@ export default function Sounds() {
           const indexedDbSound = indexedDbSoundsMap.get(sound.sound_id);
           const audioBlobs = indexedDbSound?.audios ?? [];
 
+          console.log(
+            "sound " + matchingSound.sound_name + " has audio blobs : ",
+            audioBlobs
+          );
+
           return (
             <SimpleSound
               key={sound.id}
