@@ -1,5 +1,5 @@
 // indexedDb.ts
-import { IndexedDbSound } from "@/types";
+import { IndexedDbSound, Ambiance } from "@/types";
 
 const DB_NAME = "MyAppDB";
 const STORE_NAME = "sounds";
@@ -163,6 +163,135 @@ export async function addIndexedDbSound(sound: IndexedDbSound): Promise<void> {
     console.error("Error in addIndexedDbSound:", error);
     throw error; // Re-throw for sync.ts to handle
   }
+}
+
+export async function addIndexedDbSoundWithEviction(
+  sound: IndexedDbSound,
+  currentAmbiance: Ambiance
+): Promise<void> {
+  const estimatedSize = sound.audios.reduce((sum, blob) => sum + blob.size, 0);
+  const estimatedSizeMB = (estimatedSize / 1024 / 1024).toFixed(1);
+
+  const { allowedBytes } = await getStorageQuota(); // Dynamically get 80% limit
+  const allowedMB = (allowedBytes / 1024 / 1024).toFixed(1);
+
+  console.log(
+    `\n🟡 Attempting to add sound: ${sound.sound_name} (${estimatedSizeMB}MB)`
+  );
+
+  const existingSounds = await getAllIndexedDbSounds();
+  const usedSoundIds = new Set(
+    currentAmbiance.ambiance_sounds.map((s) => s.sound_id)
+  );
+
+  const totalStoredBytes = existingSounds.reduce(
+    (acc, s) => acc + s.audios.reduce((sum, blob) => sum + blob.size, 0),
+    0
+  );
+
+  const totalStoredMB = (totalStoredBytes / 1024 / 1024).toFixed(1);
+  const projectedTotal = totalStoredBytes + estimatedSize;
+  const projectedTotalMB = (projectedTotal / 1024 / 1024).toFixed(1);
+
+  console.log(`📦 Current storage: ${totalStoredMB}MB / ${allowedMB}MB`);
+  console.log(`📈 After adding: ${projectedTotalMB}MB / ${allowedMB}MB`);
+
+  if (projectedTotal > allowedBytes) {
+    console.warn(
+      `🚨 Storage would exceed limit! Deleting unused sounds to free space...`
+    );
+
+    let reclaimedBytes = 0;
+    for (const s of existingSounds) {
+      if (!usedSoundIds.has(s.id)) {
+        const size = s.audios.reduce((sum, b) => sum + b.size, 0);
+        await deleteIndexedDbSoundById(s.id);
+        reclaimedBytes += size;
+        console.log(
+          `🗑️ Removed unused sound: ${s.sound_name} (${(
+            size /
+            1024 /
+            1024
+          ).toFixed(1)}MB)`
+        );
+      }
+    }
+
+    const recheckSounds = await getAllIndexedDbSounds();
+    const recheckUsed = recheckSounds.reduce(
+      (acc, s) => acc + s.audios.reduce((sum, b) => sum + b.size, 0),
+      0
+    );
+    const recheckTotal = recheckUsed + estimatedSize;
+
+    if (recheckTotal > allowedBytes) {
+      console.error(
+        `⚠️ Still not enough space after deleting unused sounds. Clearing all sounds...`
+      );
+      await clearDatabase();
+    } else {
+      console.log(
+        `✅ Freed ${(reclaimedBytes / 1024 / 1024).toFixed(
+          1
+        )}MB from unused sounds.`
+      );
+    }
+  }
+
+  await addIndexedDbSound(sound);
+
+  const updatedSounds = await getAllIndexedDbSounds();
+  const finalUsedBytes = updatedSounds.reduce(
+    (acc, s) => acc + s.audios.reduce((sum, blob) => sum + blob.size, 0),
+    0
+  );
+  const finalUsedMB = (finalUsedBytes / 1024 / 1024).toFixed(1);
+
+  console.log(`✅ Sound '${sound.sound_name}' added successfully!`);
+  console.log(`📦 Updated storage: ${finalUsedMB}MB / ${allowedMB}MB`);
+
+  console.log("📋 IndexedDB now contains:");
+  for (const s of updatedSounds) {
+    const size = s.audios.reduce((sum, blob) => sum + blob.size, 0);
+    console.log(`   - ${s.sound_name}: ${(size / 1024 / 1024).toFixed(1)}MB`);
+  }
+}
+
+export async function getStorageQuota(): Promise<{
+  quota: number;
+  usage: number;
+  allowedBytes: number;
+}> {
+  if (navigator.storage && navigator.storage.estimate) {
+    const { quota = 0, usage = 0 } = await navigator.storage.estimate();
+    const allowedBytes = quota * 0.8; // 80% of total quota
+
+    console.log(`💾 Storage estimate:`);
+    console.log(`   - Total quota: ${(quota / 1024 / 1024).toFixed(1)}MB`);
+    console.log(`   - Used: ${(usage / 1024 / 1024).toFixed(1)}MB`);
+    console.log(
+      `   - Limit (80%): ${(allowedBytes / 1024 / 1024).toFixed(1)}MB`
+    );
+
+    return { quota, usage, allowedBytes };
+  } else {
+    console.warn("⚠️ StorageManager API not supported. Falling back to 50MB.");
+    const fallbackBytes = 50 * 1024 * 1024;
+    return { quota: fallbackBytes, usage: 0, allowedBytes: fallbackBytes };
+  }
+}
+
+export async function deleteIndexedDbSoundById(id: number): Promise<void> {
+  const db = await ensureDbReady();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.delete(id);
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+    tx.onerror = () => reject(tx.error);
+  });
 }
 
 export async function fetchAudioBlobs(audioPaths: string[]): Promise<Blob[]> {

@@ -373,7 +373,7 @@ export default function SimpleSound({
       audioBuffersRef.current = [];
       buffersLoadedRef.current = false;
     };
-  }, [audioPaths, audioBlobs, looping]);
+  }, [audioPaths, looping]);
 
   /// PUNCTUAL SOUNDS PLAYBACK WITH PRELOADED BUFFERS
   useEffect(() => {

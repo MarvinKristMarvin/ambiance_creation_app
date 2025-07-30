@@ -261,12 +261,16 @@ TASKS
 29/07/2025
 - handle punctual sounds playing from indexed db when already downloaded the audio file
 
+30/07/2025
+- add an indexed db limit, if limit reached clear all unused sounds (by the current ambiance) from the indexed db to make more space
+
 WAITING TO BE PUSHED
 
 WORKING ON
 - remove unused sounds from indexed db to save space
 
 TO DO
+- remove sliders automatic arrows on google, and it takes space (want the same behavior as firefox for the sliders)
 - back office to add sounds
 - premium
 - remake conception docs

@@ -33,7 +33,7 @@ export default function Home() {
 
     useEffect(() => {
       if (soundsUsed.length > 0) {
-        syncWithRetry(soundsUsed);
+        syncWithRetry(soundsUsed, currentAmbiance);
       }
     }, [soundsUsed]);
 

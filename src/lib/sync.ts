@@ -1,17 +1,18 @@
-//sync.ts
 import {
   getAllIndexedDbSounds,
-  addIndexedDbSound,
+  addIndexedDbSoundWithEviction,
   fetchAudioBlobs,
 } from "./indexedDb";
-import { Sound, IndexedDbSound } from "@/types";
+import { Sound, IndexedDbSound, Ambiance } from "@/types";
 
-// Call this when soundsUsed changes
-export async function syncSoundsUsedWithIndexedDb(soundsUsed: Sound[]) {
+// Update this function to also accept currentAmbiance
+export async function syncSoundsUsedWithIndexedDb(
+  soundsUsed: Sound[],
+  currentAmbiance: Ambiance | null
+) {
   try {
     console.log("Starting sync with IndexedDB...");
 
-    // Get existing sounds with error handling
     let existingSounds: IndexedDbSound[] = [];
     try {
       existingSounds = await getAllIndexedDbSounds();
@@ -20,7 +21,6 @@ export async function syncSoundsUsedWithIndexedDb(soundsUsed: Sound[]) {
       );
     } catch (error) {
       console.error("Error getting existing sounds from IndexedDB:", error);
-      // Continue with empty array - this will cause all sounds to be re-added
       existingSounds = [];
     }
 
@@ -35,15 +35,13 @@ export async function syncSoundsUsedWithIndexedDb(soundsUsed: Sound[]) {
     );
     console.log(`Need to add ${soundsToAdd.length} new sounds to IndexedDB`);
 
-    // Process sounds one by one to avoid overwhelming the system
     for (const sound of soundsToAdd) {
       try {
         console.log(`Processing sound ${sound.id}: ${sound.sound_name}`);
 
-        // Fetch audio blobs with timeout
         const audioFetchPromise = fetchAudioBlobs(sound.audio_paths);
         const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error("Audio fetch timeout")), 30000); // 30 second timeout
+          setTimeout(() => reject(new Error("Audio fetch timeout")), 30000);
         });
 
         const audios = await Promise.race([audioFetchPromise, timeoutPromise]);
@@ -54,14 +52,18 @@ export async function syncSoundsUsedWithIndexedDb(soundsUsed: Sound[]) {
           audios,
         };
 
-        await addIndexedDbSound(newIndexedSound);
-        console.log(`Successfully added sound ${sound.id} to IndexedDB`);
+        if (currentAmbiance) {
+          await addIndexedDbSoundWithEviction(newIndexedSound, currentAmbiance);
+        } else {
+          console.warn("⚠️ currentAmbiance is null — skipping eviction logic.");
+          // fallback to simple add if no ambiance context
+          // optionally you could throw here or skip the sound
+        }
 
-        // Small delay between operations to prevent overwhelming the browser
+        console.log(`Successfully added sound ${sound.id} to IndexedDB`);
         await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
         console.error(`Failed to add sound ${sound.id} to IndexedDB:`, error);
-        // Continue with next sound instead of failing completely
         continue;
       }
     }
@@ -69,18 +71,18 @@ export async function syncSoundsUsedWithIndexedDb(soundsUsed: Sound[]) {
     console.log("IndexedDB sync completed");
   } catch (error) {
     console.error("Error in syncSoundsUsedWithIndexedDb:", error);
-    // Don't throw here - let the app continue without IndexedDB
   }
 }
 
-// Helper function to retry sync if it fails
+// Updated retry helper to match new function signature
 export async function syncWithRetry(
   soundsUsed: Sound[],
+  currentAmbiance: Ambiance | null,
   maxRetries: number = 3
 ): Promise<void> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await syncSoundsUsedWithIndexedDb(soundsUsed);
+      await syncSoundsUsedWithIndexedDb(soundsUsed, currentAmbiance);
       console.log(`Sync successful on attempt ${attempt}`);
       return;
     } catch (error) {
@@ -91,7 +93,6 @@ export async function syncWithRetry(
         return;
       }
 
-      // Wait before retrying (exponential backoff)
       const delay = Math.pow(2, attempt) * 1000;
       console.log(`Retrying sync in ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
