@@ -163,6 +163,10 @@ export default function SimpleSound({
     muteRef.current = mute;
   }, [mute]);
 
+  useEffect(() => {
+    console.warn("rerender simplecomponent");
+  }, []);
+
   // LOOPING SOUNDS SETUP AND PLAYBACK
   useEffect(() => {
     if (!audioPaths[0] || !looping) return; // Only run this if there's an audio path and it's looping
