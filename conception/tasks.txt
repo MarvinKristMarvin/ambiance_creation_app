@@ -264,15 +264,17 @@ TASKS
 30/07/2025
 - add an indexed db limit, if limit reached clear all unused sounds (by the current ambiance) from the indexed db to make more space
 
+01/08/2025
+- add "audio file downloaded count" per user, verified server side, to implement later a limitation per user
+
 WAITING TO BE PUSHED
 
 WORKING ON
-- remove unused sounds from indexed db to save space
+- sounds downloads limitations system (user, signed user, premiumm user) verifying + blocking in the server and showing toasts in UI
 
 TO DO
-- remove sliders automatic arrows on google, and it takes space (want the same behavior as firefox for the sliders)
+- remove sliders automatic arrows on google, and it takes space (want the same behavior as firefox for the sliders (or maybe find another solution))
 - back office to add sounds
-- premium
 - remake conception docs
 - rgpd / contact
 - instead of showing nothing in the beginning when searching sounds/ambiances, explain better and add a button to beign search with a random theme

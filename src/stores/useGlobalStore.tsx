@@ -53,6 +53,9 @@ interface Store {
   // Refresh search ambiance menu when save ambiance
   refreshSearchAmbianceMenu: boolean;
   setRefreshSearchAmbianceMenu: (value: boolean) => void;
+  // Number of sounds downloaded (from x-download-count header)
+  numberOfSoundsDownloaded: number;
+  setNumberOfSoundsDownloaded: (value: number) => void;
 }
 
 export const useGlobalStore = create<Store>((set) => ({
@@ -149,4 +152,8 @@ export const useGlobalStore = create<Store>((set) => ({
   refreshSearchAmbianceMenu: false,
   setRefreshSearchAmbianceMenu: (value) =>
     set({ refreshSearchAmbianceMenu: value }),
+  // Number of sounds downloaded (from x-download-count header)
+  numberOfSoundsDownloaded: 0,
+  setNumberOfSoundsDownloaded: (value) =>
+    set({ numberOfSoundsDownloaded: value }),
 }));

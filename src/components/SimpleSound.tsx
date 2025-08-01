@@ -28,6 +28,22 @@ interface Props {
   audioBlobs: Blob[];
 }
 
+// Helper to fetch download count via HEAD request
+async function fetchDownloadCountFromHead(url: string): Promise<number | null> {
+  try {
+    const response = await fetch(url, { method: "HEAD" });
+    if (!response.ok) {
+      console.error("HEAD request failed");
+      return null;
+    }
+    const count = response.headers.get("X-Download-Count");
+    return count ? parseInt(count, 10) : null;
+  } catch (err) {
+    console.error("HEAD request error:", err);
+    return null;
+  }
+}
+
 export default function SimpleSound({
   imagePath,
   audioPaths,
@@ -54,6 +70,9 @@ export default function SimpleSound({
     (state) => state.setCurrentAmbiance
   );
   const { ShowToast } = useShowToast();
+  // const setNumberOfSoundsDownloaded = useGlobalStore(
+  //   (state) => state.setNumberOfSoundsDownloaded
+  // );
 
   const [mute, setMute] = useState(1);
   const [volume, setVolume] = useState(initialVolume);
@@ -198,11 +217,25 @@ export default function SimpleSound({
 
     // Create the actual audio player
     let objectUrl: string | null = null;
+    let finalUrl: string;
+
     if (audioBlobs?.[0]) {
       objectUrl = URL.createObjectURL(audioBlobs[0]);
+      finalUrl = objectUrl;
+    } else {
+      finalUrl = "/api" + audioPaths[0];
+
+      // ✅ HEAD request only when using API URL
+      fetchDownloadCountFromHead(finalUrl).then((count) => {
+        if (count !== null) {
+          ShowToast("warning", "info", `Number of sounds downloaded: ${count}`);
+        }
+      });
     }
+
     const player = new Tone.Player({
-      url: objectUrl ?? audioPaths[0], // fallback to original URL if no blob
+      //url: objectUrl ?? "/api" + audioPaths[0], // fallback to original URL if no blob
+      url: finalUrl,
       loop: looping,
       autostart: false,
       onload: () => {
@@ -338,18 +371,39 @@ export default function SimpleSound({
 
     const loadBuffers = async () => {
       try {
-        // Load all audio files in parallel using either audioBlobs or fromUrl
+        // Only check HEAD for audioPaths[0] if no corresponding blob
+        if (!audioBlobs?.[0]) {
+          try {
+            const headRes = await fetch("/api" + audioPaths[0], {
+              method: "HEAD",
+            });
+            const count = headRes.headers.get("X-Download-Count");
+            if (count) {
+              ShowToast(
+                "warning",
+                "info",
+                `number of sounds downloaded (from x-download-count): ${count}`
+              );
+            }
+          } catch (err) {
+            console.warn(
+              "HEAD request failed for:",
+              "/api" + audioPaths[0],
+              err
+            );
+          }
+        }
+
+        // Load all audio files in parallel
         const bufferPromises = audioPaths.map((path, index) => {
-          // Use audioBlob if available for this index, otherwise fallback to URL
           if (audioBlobs?.[index]) {
             const objectUrl = URL.createObjectURL(audioBlobs[index]);
             return Tone.ToneAudioBuffer.fromUrl(objectUrl).then((buffer) => {
-              // Clean up the object URL after loading
               URL.revokeObjectURL(objectUrl);
               return buffer;
             });
           } else {
-            return Tone.ToneAudioBuffer.fromUrl(path);
+            return Tone.ToneAudioBuffer.fromUrl("/api" + path);
           }
         });
 
