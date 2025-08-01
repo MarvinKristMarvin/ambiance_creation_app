@@ -6,6 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import { X, Copy, VolumeX, ChevronUp } from "lucide-react";
 import * as Tone from "tone";
 import { useShowToast } from "@/hooks/useShowToast";
+import { useCallback } from "react";
+import {
+  addIndexedDbSoundWithEviction,
+  getIndexedDbSoundById,
+} from "@/lib/indexedDb";
+import { IndexedDbSound, Ambiance } from "@/types";
 
 interface Props {
   imagePath: string;
@@ -26,6 +32,69 @@ interface Props {
   looping: boolean;
   repeat_delay: number[] | null;
   audioBlobs: Blob[];
+  category: string;
+  dbSoundId: number;
+  onBlobStored: (soundId: number, indexedDbSound: IndexedDbSound) => void;
+}
+
+// Helper function to convert AudioBuffer to WAV Blob
+async function audioBufferToWavBlob(
+  buffer: AudioBuffer,
+  sampleRate: number
+): Promise<Blob> {
+  const numberOfChannels = buffer.numberOfChannels;
+  const length = buffer.length * numberOfChannels * 2 + 44;
+  const result = new ArrayBuffer(length);
+  const view = new DataView(result);
+  const channels = [];
+  let offset = 0;
+  let pos = 0;
+
+  // Write WAV header
+  const setUint16 = (data: number) => {
+    view.setUint16(pos, data, true);
+    pos += 2;
+  };
+  const setUint32 = (data: number) => {
+    view.setUint32(pos, data, true);
+    pos += 4;
+  };
+
+  // RIFF chunk descriptor
+  setUint32(0x46464952); // "RIFF"
+  setUint32(length - 8); // file length - 8
+  setUint32(0x45564157); // "WAVE"
+
+  // FMT sub-chunk
+  setUint32(0x20746d66); // "fmt "
+  setUint32(16); // subchunk1 size, PCM
+  setUint16(1); // audio format, PCM
+  setUint16(numberOfChannels);
+  setUint32(sampleRate);
+  setUint32(sampleRate * numberOfChannels * 2); // byte rate
+  setUint16(numberOfChannels * 2); // block align
+  setUint16(16); // bits per sample
+
+  // Data sub-chunk
+  setUint32(0x61746164); // "data"
+  setUint32(length - pos - 4); // subchunk2 size
+
+  // Write interleaved data
+  for (let i = 0; i < numberOfChannels; i++) {
+    channels.push(buffer.getChannelData(i));
+  }
+
+  while (pos < length) {
+    for (let i = 0; i < numberOfChannels; i++) {
+      let sample = Math.max(-1, Math.min(1, channels[i][offset]));
+      sample = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+      view.setInt16(pos, sample, true);
+      pos += 2;
+    }
+    offset++;
+  }
+
+  return new Blob([result], { type: "audio/wav" });
 }
 
 // Helper to fetch download count via HEAD request
@@ -63,6 +132,8 @@ export default function SimpleSound({
   initialLowCut,
   initialHighCut,
   audioBlobs,
+  category,
+  dbSoundId,
 }: Props) {
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const currentAmbiance = useGlobalStore((state) => state.currentAmbiance);
@@ -163,47 +234,88 @@ export default function SimpleSound({
     muteRef.current = mute;
   }, [mute]);
 
-  useEffect(() => {
-    console.warn("rerender simplecomponent");
-  }, []);
+  // Add this function to capture and store the loaded audio
+  const captureAndStoreAudio = useCallback(
+    async (
+      soundId: number,
+      soundName: string,
+      audioPath: string,
+      audioBlob: Blob,
+      currentAmbiance: Ambiance // Replace with your Ambiance type
+    ) => {
+      try {
+        // Check if this sound is already in IndexedDB
+        const existingSound = await getIndexedDbSoundById(soundId);
+        if (existingSound) {
+          return; // Already stored
+        }
+
+        // Create IndexedDbSound object
+        const indexedSound: IndexedDbSound = {
+          id: soundId,
+          sound_name: soundName,
+          audio_paths: [audioPath],
+          image_path: imagePath,
+          looping: looping,
+          volume: volume,
+          reverb: reverbWet,
+          reverb_duration: reverbDecay,
+          speed: playbackRate,
+          direction: direction,
+          category: category,
+          repeat_delay: repeat_delay,
+          // Add other required properties from your Sound type
+          audios: [audioBlob],
+          storageIndex: Date.now(), // Temporary index, will be updated if needed
+        };
+
+        // Store in IndexedDB with eviction logic
+        if (currentAmbiance) {
+          await addIndexedDbSoundWithEviction(indexedSound, currentAmbiance);
+          console.log(
+            `✅ Captured and stored audio for sound ${soundId}: ${soundName}`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Failed to capture and store audio for sound ${soundId}:`,
+          error
+        );
+      }
+    },
+    []
+  );
 
   // LOOPING SOUNDS SETUP AND PLAYBACK
   useEffect(() => {
-    if (!audioPaths[0] || !looping) return; // Only run this if there's an audio path and it's looping
+    if (!audioPaths[0] || !looping) return;
 
-    // Create a gain node (volume control)
+    // Create audio nodes (same as before)
     const gainNode = new Tone.Gain(
       (volumeRef.current / 100) * globalVolumeRef.current * muteRef.current
     );
-    // Create a panner node (for stereo left-right direction)
-    const panner = new Tone.Panner(direction); // Normalize from [0–100] to [-1–1]
-
-    // Create EQ
+    const panner = new Tone.Panner(direction);
     const eq = new Tone.EQ3({
       low: lowGain,
       mid: midGain,
       high: highGain,
     });
-
-    // Create a reverb effect with some configuration
     const reverb = new Tone.Reverb({
-      decay: reverbDecay + 0.001, // how long the reverb lasts
-      wet: reverbWet / 100, // how much reverb to mix in (0–1)
+      decay: reverbDecay + 0.001,
+      wet: reverbWet / 100,
     });
-
     const highpassFilter = new Tone.Filter({
       type: "highpass",
       frequency: lowCutFreq,
       rolloff: -24,
     });
-
     const lowpassFilter = new Tone.Filter({
       type: "lowpass",
       frequency: highCutFreq,
       rolloff: -24,
     });
 
-    // Connect the audio nodes together: Gain → Panner → Reverb → Speakers
+    // Connect nodes (same as before)
     gainNode.connect(panner);
     panner.connect(highpassFilter);
     highpassFilter.connect(lowpassFilter);
@@ -211,7 +323,7 @@ export default function SimpleSound({
     eq.connect(reverb);
     reverb.toDestination();
 
-    // Save references to nodes so we can update/dispose them later
+    // Save references (same as before)
     gainNodeRef.current = gainNode;
     reverbRef.current = reverb;
     pannerRef.current = panner;
@@ -219,17 +331,23 @@ export default function SimpleSound({
     highpassFilterRef.current = highpassFilter;
     lowpassFilterRef.current = lowpassFilter;
 
-    // Create the actual audio player
+    // MODIFIED: Create player with blob capture logic
     let objectUrl: string | null = null;
     let finalUrl: string;
+    let shouldCaptureBlob = false;
 
     if (audioBlobs?.[0]) {
+      // Use existing blob
       objectUrl = URL.createObjectURL(audioBlobs[0]);
       finalUrl = objectUrl;
+      console.log(`🟢 Using cached blob for sound`);
     } else {
+      // Use API URL and mark for capture
       finalUrl = "/api" + audioPaths[0];
+      shouldCaptureBlob = true;
+      console.log(`🟡 Loading from URL, will capture blob: ${finalUrl}`);
 
-      // ✅ HEAD request only when using API URL
+      // HEAD request for download count
       fetchDownloadCountFromHead(finalUrl).then((count) => {
         if (count !== null) {
           ShowToast("warning", "info", `Number of sounds downloaded: ${count}`);
@@ -238,19 +356,51 @@ export default function SimpleSound({
     }
 
     const player = new Tone.Player({
-      //url: objectUrl ?? "/api" + audioPaths[0], // fallback to original URL if no blob
       url: finalUrl,
       loop: looping,
       autostart: false,
-      onload: () => {
+      onload: async () => {
+        // MODIFIED: Capture the loaded audio if it came from URL
+        if (shouldCaptureBlob && player.buffer && currentAmbiance) {
+          try {
+            // Convert the loaded audio buffer to blob
+            const audioContext = Tone.getContext();
+            const buffer = player.buffer.get();
+
+            if (buffer instanceof AudioBuffer) {
+              // Convert AudioBuffer to WAV blob
+              const wavBlob = await audioBufferToWavBlob(
+                buffer,
+                audioContext.sampleRate
+              );
+
+              // Find the sound info (you might need to pass more props to SimpleSound)
+              //! maybe use id instead of dbSoundId
+              const soundId = dbSoundId; // Assuming you have sound ID available
+              const name = soundName; // Assuming you have sound name available
+
+              // Capture and store the blob
+              await captureAndStoreAudio(
+                soundId,
+                name,
+                audioPaths[0],
+                wavBlob,
+                currentAmbiance
+              );
+            }
+          } catch (error) {
+            console.error("Failed to capture audio blob:", error);
+          }
+        }
+
         player.start();
       },
     }).connect(gainNode);
 
     player.playbackRate = playbackRate;
-    playerRef.current = player; // save reference to the player
+    playerRef.current = player;
 
-    // Clean up everything when component unmounts or dependencies change
+    // Cleanup (same as before)
     return () => {
       player.dispose();
       gainNode.dispose();
@@ -263,7 +413,7 @@ export default function SimpleSound({
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [audioPaths[0], looping, mute]);
+  }, [audioPaths[0], looping, mute, currentAmbiance, captureAndStoreAudio]);
 
   // Looping sounds updates when slider changes
   useEffect(() => {

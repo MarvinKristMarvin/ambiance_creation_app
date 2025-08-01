@@ -1,7 +1,8 @@
+// Updated Sounds.tsx with better blob management
 import { Plus } from "lucide-react";
 import SimpleSound from "./SimpleSound";
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { getIndexedDbSoundById } from "@/lib/indexedDb";
 import { IndexedDbSound } from "@/types";
 
@@ -15,6 +16,12 @@ export default function Sounds() {
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [indexedDbSoundsMap, setIndexedDbSoundsMap] = useState<
+    Map<number, IndexedDbSound>
+  >(new Map());
+
+  // Add loading states to track which sounds are being fetched
+  const [loadingSounds, setLoadingSounds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -23,49 +30,106 @@ export default function Sounds() {
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey) return; // Allow zoom
       if (e.deltaY === 0) return;
-
-      // We can't call preventDefault unless passive: false
-      // So instead of preventDefault, let it scroll naturally
       el.scrollLeft += e.deltaY;
     };
 
-    // Add listener without preventDefault
     el.addEventListener("wheel", onWheel, { passive: true });
-
     return () => {
       el.removeEventListener("wheel", onWheel);
     };
   }, []);
 
-  const [indexedDbSoundsMap, setIndexedDbSoundsMap] = useState<
-    Map<number, IndexedDbSound>
-  >(new Map());
+  // Memoized fetch function to avoid unnecessary re-fetches
+  const fetchSoundBlob = useCallback(
+    async (soundId: number): Promise<IndexedDbSound | null> => {
+      if (loadingSounds.has(soundId)) {
+        return null; // Already loading
+      }
+
+      setLoadingSounds((prev) => new Set(prev).add(soundId));
+
+      try {
+        const stored = await getIndexedDbSoundById(soundId);
+        return stored;
+      } catch (error) {
+        console.error(`Error fetching sound ${soundId}:`, error);
+        return null;
+      } finally {
+        setLoadingSounds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(soundId);
+          return newSet;
+        });
+      }
+    },
+    [loadingSounds]
+  );
 
   useEffect(() => {
     const fetchBlobs = async () => {
       if (currentAmbiance === null) return;
+
       const soundIds = currentAmbiance.ambiance_sounds.map((s) => s.sound_id);
       const newMap = new Map(indexedDbSoundsMap); // Clone existing map
 
-      for (const id of soundIds) {
-        if (!newMap.has(id)) {
-          const stored = await getIndexedDbSoundById(id);
-          if (stored) {
-            newMap.set(id, stored);
-          }
-        }
+      // Track which sounds we need to fetch
+      const soundsToFetch = soundIds.filter(
+        (id) => !newMap.has(id) && !loadingSounds.has(id)
+      );
+
+      if (soundsToFetch.length === 0) {
+        return; // Nothing to fetch
       }
 
-      setIndexedDbSoundsMap(newMap);
-      console.log("IndexedDbSoundsMap updated:", newMap);
+      console.log(
+        `Fetching blobs for ${soundsToFetch.length} sounds:`,
+        soundsToFetch
+      );
+
+      // Fetch sounds in parallel with concurrency limit
+      const concurrentLimit = 3;
+      const fetchPromises = soundsToFetch.map(async (id) => {
+        const stored = await fetchSoundBlob(id);
+        return { id, stored };
+      });
+
+      // Process in batches
+      for (let i = 0; i < fetchPromises.length; i += concurrentLimit) {
+        const batch = fetchPromises.slice(i, i + concurrentLimit);
+        const results = await Promise.allSettled(batch);
+
+        results.forEach((result) => {
+          if (result.status === "fulfilled" && result.value.stored) {
+            newMap.set(result.value.id, result.value.stored);
+          }
+        });
+      }
+
+      // Only update state if we have new data
+      if (newMap.size !== indexedDbSoundsMap.size) {
+        setIndexedDbSoundsMap(newMap);
+        console.log("IndexedDbSoundsMap updated:", newMap);
+      }
     };
 
     if (currentAmbiance) {
       fetchBlobs();
     }
-  }, [currentAmbiance]);
+  }, [currentAmbiance, fetchSoundBlob, indexedDbSoundsMap.size]);
 
-  // If there is no ambiance or no sounds used, don't show Sounds.tsx
+  // Add a function to handle when a sound stores its blob
+  const handleSoundBlobStored = useCallback(
+    (soundId: number, indexedDbSound: IndexedDbSound) => {
+      setIndexedDbSoundsMap((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(soundId, indexedDbSound);
+        return newMap;
+      });
+    },
+    []
+  );
+
+  // If there is no ambiance, don't show Sounds.tsx
   if (!currentAmbiance) {
     return null;
   }
@@ -119,7 +183,10 @@ export default function Sounds() {
               initialHighCut={sound.high_cut}
               number={number}
               id={sound.id}
+              dbSoundId={matchingSound.id} // Pass the actual sound ID
               audioBlobs={audioBlobs}
+              category={matchingSound.category}
+              onBlobStored={handleSoundBlobStored} // Callback for when blob is stored
             />
           );
         }
