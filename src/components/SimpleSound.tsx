@@ -6,12 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import { X, Copy, VolumeX, ChevronUp } from "lucide-react";
 import * as Tone from "tone";
 import { useShowToast } from "@/hooks/useShowToast";
-import { useCallback } from "react";
 import {
   addIndexedDbSoundWithEviction,
   getIndexedDbSoundById,
+  getAllIndexedDbSounds,
 } from "@/lib/indexedDb";
-import { IndexedDbSound, Ambiance } from "@/types";
+import { IndexedDbSound } from "@/types";
 
 interface Props {
   imagePath: string;
@@ -35,66 +35,6 @@ interface Props {
   category: string;
   dbSoundId: number;
   onBlobStored: (soundId: number, indexedDbSound: IndexedDbSound) => void;
-}
-
-// Helper function to convert AudioBuffer to WAV Blob
-async function audioBufferToWavBlob(
-  buffer: AudioBuffer,
-  sampleRate: number
-): Promise<Blob> {
-  const numberOfChannels = buffer.numberOfChannels;
-  const length = buffer.length * numberOfChannels * 2 + 44;
-  const result = new ArrayBuffer(length);
-  const view = new DataView(result);
-  const channels = [];
-  let offset = 0;
-  let pos = 0;
-
-  // Write WAV header
-  const setUint16 = (data: number) => {
-    view.setUint16(pos, data, true);
-    pos += 2;
-  };
-  const setUint32 = (data: number) => {
-    view.setUint32(pos, data, true);
-    pos += 4;
-  };
-
-  // RIFF chunk descriptor
-  setUint32(0x46464952); // "RIFF"
-  setUint32(length - 8); // file length - 8
-  setUint32(0x45564157); // "WAVE"
-
-  // FMT sub-chunk
-  setUint32(0x20746d66); // "fmt "
-  setUint32(16); // subchunk1 size, PCM
-  setUint16(1); // audio format, PCM
-  setUint16(numberOfChannels);
-  setUint32(sampleRate);
-  setUint32(sampleRate * numberOfChannels * 2); // byte rate
-  setUint16(numberOfChannels * 2); // block align
-  setUint16(16); // bits per sample
-
-  // Data sub-chunk
-  setUint32(0x61746164); // "data"
-  setUint32(length - pos - 4); // subchunk2 size
-
-  // Write interleaved data
-  for (let i = 0; i < numberOfChannels; i++) {
-    channels.push(buffer.getChannelData(i));
-  }
-
-  while (pos < length) {
-    for (let i = 0; i < numberOfChannels; i++) {
-      let sample = Math.max(-1, Math.min(1, channels[i][offset]));
-      sample = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
-      view.setInt16(pos, sample, true);
-      pos += 2;
-    }
-    offset++;
-  }
-
-  return new Blob([result], { type: "audio/wav" });
 }
 
 // Helper to fetch download count via HEAD request
@@ -234,58 +174,6 @@ export default function SimpleSound({
     muteRef.current = mute;
   }, [mute]);
 
-  // Add this function to capture and store the loaded audio
-  const captureAndStoreAudio = useCallback(
-    async (
-      soundId: number,
-      soundName: string,
-      audioPath: string,
-      audioBlob: Blob,
-      currentAmbiance: Ambiance // Replace with your Ambiance type
-    ) => {
-      try {
-        // Check if this sound is already in IndexedDB
-        const existingSound = await getIndexedDbSoundById(soundId);
-        if (existingSound) {
-          return; // Already stored
-        }
-
-        // Create IndexedDbSound object
-        const indexedSound: IndexedDbSound = {
-          id: soundId,
-          sound_name: soundName,
-          audio_paths: [audioPath],
-          image_path: imagePath,
-          looping: looping,
-          volume: volume,
-          reverb: reverbWet,
-          reverb_duration: reverbDecay,
-          speed: playbackRate,
-          direction: direction,
-          category: category,
-          repeat_delay: repeat_delay,
-          // Add other required properties from your Sound type
-          audios: [audioBlob],
-          storageIndex: Date.now(), // Temporary index, will be updated if needed
-        };
-
-        // Store in IndexedDB with eviction logic
-        if (currentAmbiance) {
-          await addIndexedDbSoundWithEviction(indexedSound, currentAmbiance);
-          console.log(
-            `✅ Captured and stored audio for sound ${soundId}: ${soundName}`
-          );
-        }
-      } catch (error) {
-        console.error(
-          `Failed to capture and store audio for sound ${soundId}:`,
-          error
-        );
-      }
-    },
-    []
-  );
-
   // LOOPING SOUNDS SETUP AND PLAYBACK
   useEffect(() => {
     if (!audioPaths[0] || !looping) return;
@@ -331,89 +219,156 @@ export default function SimpleSound({
     highpassFilterRef.current = highpassFilter;
     lowpassFilterRef.current = lowpassFilter;
 
-    // MODIFIED: Create player with blob capture logic
-    let objectUrl: string | null = null;
-    let finalUrl: string;
-    let shouldCaptureBlob = false;
+    // SIMPLIFIED: Handle audio loading with single fetch
+    const setupAudio = async () => {
+      let audioBlob: Blob | null = null;
+      let cleanup: (() => void) | null = null;
 
-    if (audioBlobs?.[0]) {
-      // Use existing blob
-      objectUrl = URL.createObjectURL(audioBlobs[0]);
-      finalUrl = objectUrl;
-      console.log(`🟢 Using cached blob for sound`);
-    } else {
-      // Use API URL and mark for capture
-      finalUrl = "/api" + audioPaths[0];
-      shouldCaptureBlob = true;
-      console.log(`🟡 Loading from URL, will capture blob: ${finalUrl}`);
+      try {
+        if (audioBlobs?.[0]) {
+          // Use existing blob
+          audioBlob = audioBlobs[0];
+          console.log(`🟢 Using cached blob for sound ${dbSoundId}`);
+        } else {
+          // Fetch audio once
+          const apiUrl = "/api" + audioPaths[0];
+          console.log(`🟡 Fetching audio once from: ${apiUrl}`);
 
-      // HEAD request for download count
-      fetchDownloadCountFromHead(finalUrl).then((count) => {
-        if (count !== null) {
-          ShowToast("warning", "info", `Number of sounds downloaded: ${count}`);
-        }
-      });
-    }
-
-    const player = new Tone.Player({
-      url: finalUrl,
-      loop: looping,
-      autostart: false,
-      onload: async () => {
-        // MODIFIED: Capture the loaded audio if it came from URL
-        if (shouldCaptureBlob && player.buffer && currentAmbiance) {
-          try {
-            // Convert the loaded audio buffer to blob
-            const audioContext = Tone.getContext();
-            const buffer = player.buffer.get();
-
-            if (buffer instanceof AudioBuffer) {
-              // Convert AudioBuffer to WAV blob
-              const wavBlob = await audioBufferToWavBlob(
-                buffer,
-                audioContext.sampleRate
-              );
-
-              // Find the sound info (you might need to pass more props to SimpleSound)
-              //! maybe use id instead of dbSoundId
-              const soundId = dbSoundId; // Assuming you have sound ID available
-              const name = soundName; // Assuming you have sound name available
-
-              // Capture and store the blob
-              await captureAndStoreAudio(
-                soundId,
-                name,
-                audioPaths[0],
-                wavBlob,
-                currentAmbiance
+          // HEAD request for download count (optional)
+          fetchDownloadCountFromHead(apiUrl).then((count) => {
+            if (count !== null) {
+              ShowToast(
+                "warning",
+                "info",
+                `Number of sounds downloaded: ${count}`
               );
             }
-          } catch (error) {
-            console.error("Failed to capture audio blob:", error);
+          });
+
+          // Fetch the audio blob
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch audio: ${response.statusText}`);
+          }
+
+          audioBlob = await response.blob();
+
+          // Store in IndexedDB in background
+          if (currentAmbiance && audioBlob) {
+            storeAudioInBackground(audioBlob).catch((error) => {
+              console.error("Failed to store audio in IndexedDB:", error);
+            });
           }
         }
 
+        // Convert blob to ArrayBuffer and then to AudioBuffer
+        const arrayBuffer = await audioBlob.arrayBuffer();
+        const audioContext = Tone.getContext();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        // Create Tone.Buffer from AudioBuffer (no network requests!)
+        const toneBuffer = new Tone.ToneAudioBuffer(audioBuffer);
+
+        // Create player with the Tone.Buffer
+        const player = new Tone.Player({
+          loop: looping,
+          autostart: false,
+        }).connect(gainNode);
+
+        // Set the buffer directly
+        player.buffer = toneBuffer;
+        player.playbackRate = playbackRate;
+
+        // Player is ready immediately since we have the buffer
+        console.log(
+          `🎵 Audio buffer loaded and ready to play for sound ${dbSoundId}`
+        );
         player.start();
-      },
-    }).connect(gainNode);
 
-    player.playbackRate = playbackRate;
-    playerRef.current = player;
+        playerRef.current = player;
 
-    // Cleanup (same as before)
+        // Return cleanup function
+        cleanup = () => {
+          player.dispose();
+          toneBuffer.dispose();
+        };
+      } catch (error) {
+        console.error(`Failed to setup audio for sound ${dbSoundId}:`, error);
+        cleanup = () => {}; // Return empty cleanup function
+      }
+
+      return cleanup;
+    };
+
+    // Background function to store audio in IndexedDB
+    const storeAudioInBackground = async (blob: Blob) => {
+      try {
+        // Check if this sound is already in IndexedDB
+        const existingSound = await getIndexedDbSoundById(dbSoundId);
+        if (existingSound) {
+          console.log(`Sound ${dbSoundId} already exists in IndexedDB`);
+          return;
+        }
+
+        // Get existing sounds to determine storage index
+        const existingSounds = await getAllIndexedDbSounds();
+        const maxIndex = existingSounds.reduce(
+          (max, s) => Math.max(max, s.storageIndex),
+          -1
+        );
+
+        // Create IndexedDbSound object
+        const indexedSound: IndexedDbSound = {
+          id: dbSoundId,
+          sound_name: soundName,
+          audio_paths: [audioPaths[0]],
+          image_path: imagePath,
+          looping: looping,
+          volume: volume,
+          reverb: reverbWet,
+          reverb_duration: reverbDecay,
+          speed: playbackRate,
+          direction: direction,
+          category: category,
+          repeat_delay: repeat_delay,
+          // Add other required properties from your Sound type
+          audios: [blob],
+          storageIndex: maxIndex + 1,
+        };
+
+        // Store in IndexedDB with eviction logic
+        await addIndexedDbSoundWithEviction(indexedSound, currentAmbiance!);
+        console.log(
+          `✅ Stored audio for sound ${dbSoundId}: ${soundName} in IndexedDB`
+        );
+      } catch (error) {
+        console.error(`Failed to store audio for sound ${dbSoundId}:`, error);
+      }
+    };
+
+    // Set up audio and get cleanup function
+    let audioCleanup: (() => void) | null = null;
+
+    setupAudio().then((cleanupFn) => {
+      audioCleanup = cleanupFn;
+    });
+
+    // Return cleanup function
     return () => {
-      player.dispose();
+      // Dispose of audio nodes
       gainNode.dispose();
       panner.dispose();
       highpassFilter.dispose();
       lowpassFilter.dispose();
       reverb.dispose();
       eq.dispose();
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
+
+      // Call audio-specific cleanup if available
+      if (audioCleanup) {
+        audioCleanup();
       }
     };
-  }, [audioPaths[0], looping, mute, currentAmbiance, captureAndStoreAudio]);
+  }, [audioPaths[0], looping, mute]);
 
   // Looping sounds updates when slider changes
   useEffect(() => {
@@ -515,7 +470,7 @@ export default function SimpleSound({
     ShowToast("neutral", "addsound", "Sound copied");
   };
 
-  // PRELOAD AUDIO BUFFERS FOR PUNCTUAL SOUNDS
+  // PRELOAD AUDIO BUFFERS FOR PUNCTUAL SOUNDS WITH BLOB CACHING
   useEffect(() => {
     if (!audioPaths.length || looping) return;
 
@@ -525,40 +480,70 @@ export default function SimpleSound({
 
     const loadBuffers = async () => {
       try {
-        // Only check HEAD for audioPaths[0] if no corresponding blob
-        if (!audioBlobs?.[0]) {
-          try {
-            const headRes = await fetch("/api" + audioPaths[0], {
-              method: "HEAD",
-            });
-            const count = headRes.headers.get("X-Download-Count");
-            if (count) {
-              ShowToast(
-                "warning",
-                "info",
-                `number of sounds downloaded (from x-download-count): ${count}`
+        // Load all audio files in parallel with blob caching
+        const bufferPromises = audioPaths.map(async (path, index) => {
+          let audioBlob: Blob | null = null;
+
+          if (audioBlobs?.[index]) {
+            // Use existing blob
+            audioBlob = audioBlobs[index];
+            console.log(
+              `🟢 Using cached blob for punctual sound ${dbSoundId} path ${index}`
+            );
+          } else {
+            // Fetch audio blob
+            const apiUrl = "/api" + path;
+            console.log(`🟡 Fetching punctual audio from: ${apiUrl}`);
+
+            // HEAD request for download count (only for first path to avoid spam)
+            if (index === 0) {
+              try {
+                const headRes = await fetch(apiUrl, { method: "HEAD" });
+                const count = headRes.headers.get("X-Download-Count");
+                if (count) {
+                  ShowToast(
+                    "warning",
+                    "info",
+                    `Number of sounds downloaded: ${count}`
+                  );
+                }
+              } catch (err) {
+                console.warn("HEAD request failed for:", apiUrl, err);
+              }
+            }
+
+            // Fetch the audio blob
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch audio: ${response.statusText}`);
+            }
+            audioBlob = await response.blob();
+
+            // Store in IndexedDB in background (for punctual sounds, store all paths)
+            if (currentAmbiance && audioBlob) {
+              storeAudioInBackgroundForPunctual(audioBlob, path, index).catch(
+                (error) => {
+                  console.error(
+                    `Failed to store punctual audio ${index} in IndexedDB:`,
+                    error
+                  );
+                }
               );
             }
-          } catch (err) {
-            console.warn(
-              "HEAD request failed for:",
-              "/api" + audioPaths[0],
-              err
-            );
           }
-        }
 
-        // Load all audio files in parallel
-        const bufferPromises = audioPaths.map((path, index) => {
-          if (audioBlobs?.[index]) {
-            const objectUrl = URL.createObjectURL(audioBlobs[index]);
-            return Tone.ToneAudioBuffer.fromUrl(objectUrl).then((buffer) => {
-              URL.revokeObjectURL(objectUrl);
-              return buffer;
-            });
-          } else {
-            return Tone.ToneAudioBuffer.fromUrl("/api" + path);
-          }
+          // Convert blob to ArrayBuffer and then to AudioBuffer
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const audioContext = Tone.getContext();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+          // Create Tone.Buffer from AudioBuffer (no network requests!)
+          const toneBuffer = new Tone.ToneAudioBuffer(audioBuffer);
+
+          console.log(
+            `🎵 Punctual audio buffer ${index} loaded for sound ${dbSoundId}`
+          );
+          return toneBuffer;
         });
 
         const buffers = await Promise.all(bufferPromises);
@@ -566,9 +551,102 @@ export default function SimpleSound({
         if (!isCancelled) {
           audioBuffersRef.current = buffers;
           buffersLoadedRef.current = true;
+          console.log(
+            `✅ All ${buffers.length} punctual audio buffers loaded for sound ${dbSoundId}`
+          );
         }
       } catch (error) {
-        console.error("Error loading audio buffers:", error);
+        console.error("Error loading punctual audio buffers:", error);
+      }
+    };
+
+    // Background function to store punctual audio in IndexedDB
+    // We'll use a Map to collect blobs for this sound across all paths
+    const collectedBlobs = new Map<number, Blob>();
+
+    const storeAudioInBackgroundForPunctual = async (
+      blob: Blob,
+      audioPath: string,
+      pathIndex: number
+    ) => {
+      try {
+        // Check if this sound is already completely stored in IndexedDB
+        const existingSound = await getIndexedDbSoundById(dbSoundId);
+        if (
+          existingSound &&
+          existingSound.audios.length === audioPaths.length
+        ) {
+          console.log(
+            `Punctual sound ${dbSoundId} already fully cached in IndexedDB`
+          );
+          return;
+        }
+
+        // Add this blob to our collection
+        collectedBlobs.set(pathIndex, blob);
+        console.log(
+          `📦 Collected blob ${pathIndex + 1}/${
+            audioPaths.length
+          } for sound ${dbSoundId}`
+        );
+
+        // Check if we have all the blobs we need for this sound
+        const hasAllBlobs = audioPaths.every((_, index) => {
+          return audioBlobs?.[index] || collectedBlobs.has(index);
+        });
+
+        if (hasAllBlobs) {
+          console.log(
+            `🎯 All blobs collected for sound ${dbSoundId}, storing in IndexedDB...`
+          );
+
+          // Create the complete audios array
+          const audios: Blob[] = audioPaths.map((_, index) => {
+            return audioBlobs?.[index] || collectedBlobs.get(index)!;
+          });
+
+          // Get existing sounds to determine storage index
+          const existingSounds = await getAllIndexedDbSounds();
+          const maxIndex = existingSounds.reduce(
+            (max, s) => Math.max(max, s.storageIndex),
+            -1
+          );
+
+          const indexedSound: IndexedDbSound = {
+            id: dbSoundId,
+            sound_name: soundName,
+            audio_paths: audioPaths,
+            image_path: imagePath,
+            looping: looping,
+            volume: volume,
+            reverb: reverbWet,
+            reverb_duration: reverbDecay,
+            speed: playbackRate,
+            direction: direction,
+            category: category,
+            repeat_delay: repeat_delay,
+            audios: audios,
+            storageIndex: maxIndex + 1,
+          };
+
+          // Store in IndexedDB with eviction logic
+          await addIndexedDbSoundWithEviction(indexedSound, currentAmbiance!);
+          console.log(
+            `✅ Stored complete punctual sound ${dbSoundId}: ${soundName} in IndexedDB`
+          );
+
+          // Clear the collected blobs since they're now stored
+          collectedBlobs.clear();
+        } else {
+          console.log(
+            `⏳ Waiting for more blobs for sound ${dbSoundId} (${collectedBlobs.size}/${audioPaths.length})`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Failed to store punctual audio ${pathIndex} for sound ${dbSoundId}:`,
+          error
+        );
       }
     };
 
@@ -583,7 +661,7 @@ export default function SimpleSound({
     };
   }, [audioPaths, looping]);
 
-  /// PUNCTUAL SOUNDS PLAYBACK WITH PRELOADED BUFFERS
+  /// PUNCTUAL SOUNDS PLAYBACK WITH PRELOADED BUFFERS (unchanged logic)
   useEffect(() => {
     if (!audioPaths.length || looping) return;
 
@@ -911,7 +989,7 @@ export default function SimpleSound({
       {expanded && (
         <div
           aria-label="expanded options"
-          className="flex flex-col justify-start flex-1 gap-0 px-3 pb-3 overflow-y-scroll border-t-0 border-gray-800 border-1 rounded-b-xs bg-gray-950"
+          className="flex flex-col justify-start flex-1 gap-0 px-3 pb-3 overflow-y-auto border-t-0 border-gray-800 border-1 rounded-b-xs bg-gray-950"
         >
           <div aria-label="volume" className="">
             <div className="flex items-center justify-between h-5 mt-2 mb-0.5 font-bold">

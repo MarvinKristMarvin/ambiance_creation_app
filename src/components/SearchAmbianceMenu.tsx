@@ -309,7 +309,7 @@ export default function SearchAmbianceMenu() {
           </button>
 
           {showCategoryDropdown && (
-            <div className="absolute z-10 w-full mt-1 overflow-y-scroll bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5">
+            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5 overflow-y-auto custom-scrollbar">
               <button
                 onClick={() => {
                   setSelectedCategories([]);
@@ -375,7 +375,7 @@ export default function SearchAmbianceMenu() {
           </button>
 
           {showThemeDropdown && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-scroll">
+            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-auto custom-scrollbar">
               <button
                 onClick={() => {
                   setSelectedThemes([]);

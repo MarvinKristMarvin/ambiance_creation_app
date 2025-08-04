@@ -22,7 +22,6 @@ import {
   type Theme,
 } from "@/lib/iconMappings";
 import { buildQueryString } from "@/lib/buildQueryString";
-
 export default function SearchSoundsMenu() {
   // Existing Zustand state
   const setSearchedSoundsBasicInformations = useGlobalStore(
@@ -422,7 +421,7 @@ export default function SearchSoundsMenu() {
             </button>
 
             {showCategoryDropdown && (
-              <div className="absolute z-10 w-full mt-1 overflow-y-scroll bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5">
+              <div className="absolute z-10 w-full mt-1  bg-gray-800 border-gray-700 rounded-sm shadow-lg border-3 max-h-65.5 overflow-y-auto custom-scrollbar">
                 <button
                   onClick={() => {
                     setSelectedCategory(null);
@@ -461,21 +460,21 @@ export default function SearchSoundsMenu() {
         </div>
 
         {/* Theme Filter */}
-        <div className="relative" ref={themeRef}>
-          <div className="relative">
+        <div className="relative " ref={themeRef}>
+          <div className="relative ">
             <button
-              aria-label="select themes dropdown"
+              aria-label="select themes dropdown "
               onClick={() => {
                 setShowThemeDropdown(!showThemeDropdown);
                 setShowCategoryDropdown(false);
               }}
               className="flex items-center justify-between w-full px-3 py-2 text-sm font-bold text-left text-gray-300 bg-gray-900 rounded-sm hover:bg-gray-700 hover:cursor-pointer"
             >
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 ">
                 {selectedThemes.length > 0 ? (
                   <>
                     <span>Themes:</span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 ">
                       {selectedThemes.map((theme) => (
                         <React.Fragment key={theme}>
                           {getThemeIcon(theme)}
@@ -495,13 +494,13 @@ export default function SearchSoundsMenu() {
             </button>
 
             {showThemeDropdown && (
-              <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-scroll">
+              <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-auto custom-scrollbar">
                 <button
                   onClick={() => {
                     setSelectedThemes([]);
                     setShowThemeDropdown(false);
                   }}
-                  className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
+                  className=" w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
                   <X className="w-4 h-4 text-gray-400" />
                   <span>All Themes</span>
@@ -510,13 +509,13 @@ export default function SearchSoundsMenu() {
                   <button
                     key={theme}
                     onClick={() => handleThemeToggle(theme)}
-                    className={`w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                    className={` w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
                       selectedThemes.includes(theme)
                         ? "text-emerald-400 bg-gray-700"
                         : "text-gray-300"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 ">
                       {getThemeIcon(theme)}
                       <span>{theme}</span>
                     </div>
@@ -567,14 +566,14 @@ export default function SearchSoundsMenu() {
 
       <div
         aria-label="results"
-        className="relative flex flex-col flex-1 rounded-sm bg-gray-950"
+        className="relative flex flex-col flex-1 rounded-sm bg-gray-950 "
       >
         {loading && (
           <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
             <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
           </div>
         )}
-        <div className="flex flex-col flex-1 gap-2  overflow-y-scroll rounded-sm border-gray-950  max-h-[calc(100dvh-14.5rem)]">
+        <div className="flex flex-col flex-1 gap-2 overflow-y-auto custom-scrollbar rounded-sm border-gray-950  max-h-[calc(100dvh-14.5rem)]">
           {searchedSoundsBasicInformations.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
               {searchString.trim() ||

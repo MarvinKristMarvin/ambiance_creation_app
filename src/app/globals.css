@@ -56,10 +56,6 @@ body {
   background: transparent;
 }
 
-.custom-scrollbar {
-  overflow-x: scroll !important;
-}
-
 .custom-scrollbar::-webkit-scrollbar {
   height: 16px;
   background: oklch(13% 0.028 261.692);
@@ -72,8 +68,6 @@ body {
 
 /* Firefox */
 .custom-scrollbar {
-  overflow-x: scroll !important;
-
   /* These two lines control Firefox scrollbars */
   scrollbar-width: auto; /* Options: auto | thin | none */
   scrollbar-color: oklch(37.2% 0.044 257.287) transparent;

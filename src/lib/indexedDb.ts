@@ -294,24 +294,7 @@ export async function deleteIndexedDbSoundById(id: number): Promise<void> {
   });
 }
 
-export async function fetchAudioBlobs(audioPaths: string[]): Promise<Blob[]> {
-  const blobs: Blob[] = [];
-  for (const path of audioPaths) {
-    try {
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${path}: ${response.statusText}`);
-      }
-      const blob = await response.blob();
-      blobs.push(blob);
-    } catch (error) {
-      console.error(`Error fetching audio blob for ${path}:`, error);
-      // You might want to push an empty blob or skip this path
-      // For now, we'll skip failed fetches
-    }
-  }
-  return blobs;
-}
+// REMOVED: fetchAudioBlobs function - no longer needed since components handle fetching
 
 // Utility function to clear the database (useful for debugging)
 export async function clearDatabase(): Promise<void> {

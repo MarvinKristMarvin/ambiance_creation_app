@@ -267,13 +267,17 @@ TASKS
 01/08/2025
 - add "audio file downloaded count" per user, verified server side, to implement later a limitation per user
 
+04/08/2025
+- reduce audio fetches for both looping sounds and punctual sounds
+- harmonize style between browsers (scrollbars especially)
+
 WAITING TO BE PUSHED
 
 WORKING ON
 - sounds downloads limitations system (user, signed user, premiumm user) verifying + blocking in the server and showing toasts in UI
 
 TO DO
-- remove sliders automatic arrows on google, and it takes space (want the same behavior as firefox for the sliders (or maybe find another solution))
+- reduce audio fetches when laoding ambiances and store in indexed db
 - back office to add sounds
 - remake conception docs
 - rgpd / contact
