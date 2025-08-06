@@ -1,7 +1,11 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
 import React, { useEffect, useState } from "react";
+import { authClient } from "@/lib/auth-client";
 
 export default function SoundLimitCounter() {
+  // Get session informations from better auth
+  const { data: session } = authClient.useSession();
+
   // Zustand
   const openSettingsMenu = useGlobalStore((state) => state.openSettingsMenu);
   const numberOfSoundsDownloaded = useGlobalStore(
@@ -15,7 +19,7 @@ export default function SoundLimitCounter() {
 
   // States
   const [limit, setLimit] = useState(0);
-  const [userStatus] = useState("unsigned");
+  const [userStatus, setUserStatus] = useState("unsigned");
 
   // Update sounds download limit based on user status
   useEffect(() => {
@@ -23,6 +27,13 @@ export default function SoundLimitCounter() {
     else if (userStatus === "signed") setLimit(signedLimit);
     else if (userStatus === "premium") setLimit(premiumLimit);
   }, [userStatus]);
+
+  useEffect(() => {
+    // @ts-expect-error - role exists but ts error persists
+    if (session?.user?.role === "premium") setUserStatus("premium");
+    else if (session?.user) setUserStatus("signed");
+    else setUserStatus("unsigned");
+  }, [session]);
 
   if (userStatus !== "premium") {
     return (
@@ -50,7 +61,7 @@ export default function SoundLimitCounter() {
               >
                 Sign up
               </button>{" "}
-              to upgrade to 20 sounds
+              to upgrade to {signedLimit} sounds
             </p>
             <p className="mt-2 text-xs text-emerald-200/100">
               Once a sound is downloaded, it will not count towards the limit
@@ -62,6 +73,7 @@ export default function SoundLimitCounter() {
         {/* FOR SIGNED USER*/}
         {limit === signedLimit && (
           <>
+            <p className="text-gray-200"> you are {userStatus}</p>
             {numberOfSoundsDownloaded >= limit && (
               <p className="mb-1 text-amber-200">LIMIT REACHED</p>
             )}
@@ -89,5 +101,9 @@ export default function SoundLimitCounter() {
   }
 
   // FOR PREMIUM USER SHOW NOTHING
-  return <></>;
+  return (
+    <>
+      <div>{userStatus}</div>
+    </>
+  );
 }

@@ -271,7 +271,15 @@ TASKS
 - reduce audio fetches for both looping sounds and punctual sounds
 - harmonize style between browsers (scrollbars especially)
 
+06/08/2025
+- create UI for number of downloaded sounds
+- add role column to better auth user table
+- add a reset delay for the sounds downloaded limit
+- limit the sounds downloads depending on unsigned/signed and premium users
+
+
 WAITING TO BE PUSHED
+
 
 WORKING ON
 - sounds downloads limitations system (user, signed user, premiumm user) verifying + blocking in the server and showing toasts in UI

@@ -3,16 +3,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { auth } from "@/lib/auth";
 
 // User interface
 interface User {
   ip: string;
   status: "unsigned" | "signed" | "premium";
   number_of_downloaded_sounds: number;
+  reset_date: Date;
 }
 
 // In-memory users list (will be cleared when server restarts)
 const users: User[] = [];
+
+// Limits
+const MAX_UNSIGNED_DOWNLOADS = 5;
+const MAX_SIGNED_DOWNLOADS = 10;
+const MAX_PREMIUM_DOWNLOADS = 200;
+const RESET_DELAY = 12 * 60 * 60 * 1000; // 12 hours
 
 // Helper function to get or create a user (used in both GET and HEAD)
 function getOrCreateUser(ip: string): User {
@@ -24,7 +32,8 @@ function getOrCreateUser(ip: string): User {
   const newUser: User = {
     ip,
     status: "unsigned",
-    number_of_downloaded_sounds: 0, // initialized as 0, only incremented in GET
+    number_of_downloaded_sounds: 0,
+    reset_date: new Date(Date.now() + RESET_DELAY),
   };
   users.push(newUser);
   return newUser;
@@ -32,10 +41,8 @@ function getOrCreateUser(ip: string): User {
 
 // Shared logic to extract IP from request
 function getIP(req: NextRequest): string {
-  let ip =
+  const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const testIp = req.nextUrl.searchParams.get("testip");
-  if (testIp) ip = testIp;
   return ip;
 }
 
@@ -47,15 +54,17 @@ export async function GET(
   const { filename } = await params;
   const ip = getIP(req);
   const user = getOrCreateUser(ip);
+  // Check if user is really signed in or premium using better auth
+  const session = await auth.api.getSession({
+    headers: req.headers,
+  });
 
-  // ✅ Count small sounds (ending by _.mp3 for example) as 0.1
-  const isSmallSound = /_\d+\.mp3$/.test(filename);
-  const increment = isSmallSound ? 0.1 : 1;
-  user.number_of_downloaded_sounds += increment;
-  user.number_of_downloaded_sounds =
-    Math.round(user.number_of_downloaded_sounds * 10) / 10;
+  // Determine user status
+  user.status = "unsigned";
+  if (session?.user?.role === "premium") user.status = "premium";
+  else if (session?.user) user.status = "signed";
 
-  // Log users info
+  // Logs
   console.log(`Download limitation total users: ${users.length}`);
   users.forEach((user, index) => {
     console.log(
@@ -66,7 +75,36 @@ export async function GET(
   });
   console.log(`User IP: ${ip} fetched audio: ${filename}`);
 
-  // Serve the file
+  // Only increment if the file name is name.mp3 or name_1.mp3 (first sound of a group)
+  if (/^.*(?:_1)?\.mp3$/.test(filename)) {
+    user.number_of_downloaded_sounds += 1;
+  }
+
+  // Serve the file if the user's limit is not reached
+  if (
+    user.status === "unsigned" &&
+    user.number_of_downloaded_sounds > MAX_UNSIGNED_DOWNLOADS
+  ) {
+    return new NextResponse("You have reached your download limit", {
+      status: 403,
+    });
+  } else if (
+    user.status === "signed" &&
+    user.number_of_downloaded_sounds > MAX_SIGNED_DOWNLOADS
+  ) {
+    return new NextResponse("You have reached your download limit", {
+      status: 403,
+    });
+  } else if (
+    user.status === "premium" &&
+    user.number_of_downloaded_sounds > MAX_PREMIUM_DOWNLOADS
+  ) {
+    return new NextResponse("You have reached your download limit", {
+      status: 403,
+    });
+  }
+
+  // If authorized to download, serve the file
   const filePath = join(process.cwd(), "public", "audio", filename);
   try {
     const fileBuffer = readFileSync(filePath);
@@ -90,6 +128,12 @@ export async function HEAD(
   const ip = getIP(req);
   const user = getOrCreateUser(ip); // Create user if not tracked yet
 
+  // Reset the user's download count if the reset date has passed
+  if (user.reset_date < new Date()) {
+    user.number_of_downloaded_sounds = 0;
+    user.reset_date = new Date(Date.now() + RESET_DELAY);
+  }
+
   // Build path to check if the file exists
   const filePath = join(process.cwd(), "public", "audio", filename);
 
@@ -101,7 +145,7 @@ export async function HEAD(
     return new NextResponse(null, {
       headers: {
         "Content-Type": "audio/mpeg",
-        "X-Download-Count": (1 + user.number_of_downloaded_sounds).toString(),
+        "X-Download-Count": user.number_of_downloaded_sounds.toString(),
       },
     });
   } catch (error) {

@@ -1,3 +1,4 @@
+//src\types.ts
 export interface Ambiance {
   id: number;
   ambiance_name: string;

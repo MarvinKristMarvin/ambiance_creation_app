@@ -84,9 +84,6 @@ export default function SimpleSound({
     (state) => state.setNumberOfSoundsDownloaded
   );
   const { ShowToast } = useShowToast();
-  // const setNumberOfSoundsDownloaded = useGlobalStore(
-  //   (state) => state.setNumberOfSoundsDownloaded
-  // );
 
   const [mute, setMute] = useState(1);
   const [volume, setVolume] = useState(initialVolume);
@@ -101,6 +98,8 @@ export default function SimpleSound({
   const [highGain, setHighGain] = useState(initialHigh);
   const [lowCutFreq, setLowCutFreq] = useState(initialLowCut);
   const [highCutFreq, setHighCutFreq] = useState(initialHighCut);
+
+  const [availableSound, setAvailableSound] = useState(true);
 
   // Tone.js Refs
   const playerRef = useRef<Tone.Player | null>(null);
@@ -252,6 +251,7 @@ export default function SimpleSound({
           // Fetch the audio blob
           const response = await fetch(apiUrl);
           if (!response.ok) {
+            setAvailableSound(false);
             throw new Error(`Failed to fetch audio: ${response.statusText}`);
           }
 
@@ -520,6 +520,7 @@ export default function SimpleSound({
             // Fetch the audio blob
             const response = await fetch(apiUrl);
             if (!response.ok) {
+              setAvailableSound(false);
               throw new Error(`Failed to fetch audio: ${response.statusText}`);
             }
             audioBlob = await response.blob();
@@ -849,6 +850,9 @@ export default function SimpleSound({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [expanded, setExpanded]);
+
+  // If sound is not available, don't show the component
+  if (availableSound === false) return null;
 
   return (
     <div

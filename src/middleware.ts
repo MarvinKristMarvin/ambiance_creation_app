@@ -68,8 +68,6 @@ export function middleware(request: NextRequest) {
   const now = Date.now();
   const pathname = request.nextUrl.pathname;
 
-  console.log(`\n🚀 Middleware called: ${pathname} from IP: ${ip}`);
-
   // ---- GLOBAL LIMIT ----
   const globalEntry = ipMap.get(ip);
   if (!globalEntry || now - globalEntry.startTime > RATE_LIMIT_WINDOW) {
@@ -82,10 +80,6 @@ export function middleware(request: NextRequest) {
     }
     globalEntry.count += 1;
   }
-
-  console.log(
-    `🌍 Global count for IP ${ip}: ${ipMap.get(ip)?.count}/${GLOBAL_LIMIT}`
-  );
 
   // ---- PER-ROUTE LIMIT ----
   const routeConfig = getRouteLimit(pathname);
@@ -106,19 +100,7 @@ export function middleware(request: NextRequest) {
       }
       routeEntry.count += 1;
     }
-
-    console.log(
-      `🎯 Route "${routeKey}" count for IP ${ip}: ${
-        routeIPMap.get(ip)?.count
-      }/${routeLimit}`
-    );
-  } else {
-    console.log(`❓ No specific route limit found for: ${pathname}`);
   }
-
-  console.log(
-    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
-  );
 
   return NextResponse.next();
 }

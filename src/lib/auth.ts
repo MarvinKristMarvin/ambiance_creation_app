@@ -9,6 +9,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: true,
+        defaultValue: "free",
+        input: false,
+      },
+    },
+  },
   plugins: [nextCookies()],
   // schema: {
   //   user: "user",
