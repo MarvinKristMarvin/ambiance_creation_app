@@ -80,6 +80,9 @@ export default function SimpleSound({
   const setCurrentAmbiance = useGlobalStore(
     (state) => state.setCurrentAmbiance
   );
+  const setNumberOfSoundsDownloaded = useGlobalStore(
+    (state) => state.setNumberOfSoundsDownloaded
+  );
   const { ShowToast } = useShowToast();
   // const setNumberOfSoundsDownloaded = useGlobalStore(
   //   (state) => state.setNumberOfSoundsDownloaded
@@ -237,6 +240,7 @@ export default function SimpleSound({
           // HEAD request for download count (optional)
           fetchDownloadCountFromHead(apiUrl).then((count) => {
             if (count !== null) {
+              setNumberOfSoundsDownloaded(count);
               ShowToast(
                 "warning",
                 "info",
@@ -501,6 +505,7 @@ export default function SimpleSound({
                 const headRes = await fetch(apiUrl, { method: "HEAD" });
                 const count = headRes.headers.get("X-Download-Count");
                 if (count) {
+                  setNumberOfSoundsDownloaded(parseInt(count, 10));
                   ShowToast(
                     "warning",
                     "info",

@@ -163,13 +163,13 @@ export default function AmbianceMenu() {
     <>
       <div className="flex flex-row flex-1 h-12 gap-4 mx-0">
         <div className="relative flex flex-row items-center flex-1 h-full rounded-full text-md hover:cursor-pointer">
-          <div className="h-12 mr-4 bg-gray-800 rounded-full hover:cursor-pointer hover:bg-gray-700">
+          <div className="h-12 mr-4 border-2 border-gray-800 rounded-full bg-gray-950 hover:cursor-pointer hover:bg-gray-900/30">
             <h1
               aria-label="logo button"
               role="button"
               onClick={() => setCurrentAmbiance(null)}
               className="tracking-[3] font-title font-light text-xl text-gray-50 
-        hover:cursor-pointer  flex items-center transform justify-center px-4 translate-y-[0.65rem] translate-x-[0.1rem] "
+        hover:cursor-pointer  flex items-center transform justify-center px-4 translate-y-[0.55rem] translate-x-[0.15rem] "
             >
               {/* <MenuIcon className="w-8 h-8 fill-current text-emerald-300" /> */}
               FOG

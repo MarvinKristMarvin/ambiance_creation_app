@@ -22,6 +22,7 @@ import {
   type Theme,
 } from "@/lib/iconMappings";
 import { buildQueryString } from "@/lib/buildQueryString";
+import SoundLimitCounter from "./SoundLimitCounter";
 export default function SearchSoundsMenu() {
   // Existing Zustand state
   const setSearchedSoundsBasicInformations = useGlobalStore(
@@ -494,13 +495,13 @@ export default function SearchSoundsMenu() {
             </button>
 
             {showThemeDropdown && (
-              <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-auto custom-scrollbar">
+              <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-x-2 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-auto custom-scrollbar">
                 <button
                   onClick={() => {
                     setSelectedThemes([]);
                     setShowThemeDropdown(false);
                   }}
-                  className=" w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
+                  className="border-x-1 w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
                   <X className="w-4 h-4 text-gray-400" />
                   <span>All Themes</span>
@@ -509,7 +510,7 @@ export default function SearchSoundsMenu() {
                   <button
                     key={theme}
                     onClick={() => handleThemeToggle(theme)}
-                    className={` w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                    className={` w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 border-x-1 ${
                       selectedThemes.includes(theme)
                         ? "text-emerald-400 bg-gray-700"
                         : "text-gray-300"
@@ -573,7 +574,8 @@ export default function SearchSoundsMenu() {
             <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
           </div>
         )}
-        <div className="flex flex-col flex-1 gap-2 overflow-y-auto custom-scrollbar rounded-sm border-gray-950  max-h-[calc(100dvh-14.5rem)]">
+        <div className="flex flex-col flex-1 gap-2 overflow-y-auto custom-scrollbar rounded-sm border-y-2  border-gray-950  max-h-[calc(100dvh-14.5rem)]">
+          <SoundLimitCounter />
           {searchedSoundsBasicInformations.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
               {searchString.trim() ||

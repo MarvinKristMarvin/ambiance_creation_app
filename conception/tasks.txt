@@ -277,7 +277,6 @@ WORKING ON
 - sounds downloads limitations system (user, signed user, premiumm user) verifying + blocking in the server and showing toasts in UI
 
 TO DO
-- reduce audio fetches when laoding ambiances and store in indexed db
 - back office to add sounds
 - remake conception docs
 - rgpd / contact

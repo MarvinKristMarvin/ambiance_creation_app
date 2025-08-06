@@ -12,6 +12,7 @@ import {
   type Category,
   type Theme,
 } from "@/lib/iconMappings";
+import SoundLimitCounter from "./SoundLimitCounter";
 
 // Utility function to parse Postgres ENUM array like categories or themes to be able to map on them
 function parsePostgresEnumArray(str: string | string[]): string[] {
@@ -375,13 +376,13 @@ export default function SearchAmbianceMenu() {
           </button>
 
           {showThemeDropdown && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-auto custom-scrollbar">
+            <div className="absolute z-10 w-full mt-1 bg-gray-800 border-3 border-x-2 border-gray-700 rounded-sm shadow-lg max-h-65.5 overflow-y-auto custom-scrollbar">
               <button
                 onClick={() => {
                   setSelectedThemes([]);
                   setShowThemeDropdown(false);
                 }}
-                className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
+                className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2 border-x-1"
               >
                 <X className="w-4 h-4 text-gray-400" />
                 <span>All Themes</span>
@@ -390,7 +391,7 @@ export default function SearchAmbianceMenu() {
                 <button
                   key={theme}
                   onClick={() => handleThemeToggle(theme)}
-                  className={`w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-gray-700 justify-between last:border-b-0 ${
+                  className={`w-full px-2 py-1.75 text-sm text-left font-bold hover:bg-gray-700 flex items-center hover:cursor-pointer border-b-1 border-x-1 border-gray-700 justify-between last:border-b-0 ${
                     selectedThemes.includes(theme)
                       ? "text-emerald-400 bg-gray-700"
                       : "text-gray-300"
@@ -450,7 +451,9 @@ export default function SearchAmbianceMenu() {
             <div className="w-8 h-8 border-4 rounded-full border-t-transparent border-emerald-400 animate-spin"></div>
           </div>
         )}
-        <div className="flex flex-col flex-1 gap-2 overflow-y-scroll rounded-sm border-gray-950 border-y-2 max-h-[calc(100dvh-14.5rem)]">
+
+        <div className="flex flex-col flex-1 gap-2 overflow-y-auto custom-scrollbar  rounded-sm border-gray-950 border-y-2 max-h-[calc(100dvh-14.5rem)]">
+          <SoundLimitCounter />
           {searchedAmbiancesBasicInformations.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
               {searchString.trim() ||
@@ -462,94 +465,103 @@ export default function SearchAmbianceMenu() {
               )}
             </div>
           ) : (
-            searchedAmbiancesBasicInformations.map((ambiance) => (
-              <article
-                aria-label="ambiance found"
-                key={ambiance.id}
-                onClick={() => handleLoadAmbiance(ambiance.id)}
-                className="flex flex-col items-center px-0.5 py-0.5 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm group hover:bg-gray-400 hover:cursor-pointer"
-              >
-                <div className="flex items-center justify-between w-full px-2.5 py-1.5 pb-0 rounded-t-sm border-0 border-b-0 bg-gray-900 border-gray-700 group-hover:bg-gray-800 group-hover:border-gray-800">
-                  <p className="text-sm text-gray-300 group-hover:text-gray-200 break-words [&>*]:break-all">
-                    {ambiance.ambiance_name.split(" ").map((word, index) => (
-                      <span key={index}>
-                        {word}
-                        {word.length <= 25 && " "}
-                      </span>
-                    ))}
-                  </p>
-                  <div className="flex items-center"></div>
-                </div>
-                <div className="flex items-center justify-between w-full bg-gray-900 rounded-b-sm group-hover:bg-gray-800">
-                  <div className="flex items-center flex-1 ">
-                    <div className="flex flex-1 items-center gap-1 px-2.5 py-2 pt-1.5 bg-gray-900 rounded-bl-sm group-hover:bg-gray-800">
-                      {/* If more icons than 9, show +X */}
-                      {(() => {
-                        const categories = parsePostgresEnumArray(
-                          ambiance.categories
-                        );
-                        const themes = parsePostgresEnumArray(ambiance.themes);
-
-                        const allIcons = [
-                          ...categories.map((c) => ({
-                            key: `category-${c}`,
-                            icon: getCategoryIcon(c as Category),
-                          })),
-                          ...themes.map((t) => ({
-                            key: `theme-${t}`,
-                            icon: getThemeIcon(t as Theme),
-                          })),
-                        ];
-
-                        const maxIconsToShow = 9;
-                        const shownIcons = allIcons.slice(0, maxIconsToShow);
-                        const hiddenCount = allIcons.length - shownIcons.length;
-
-                        return (
-                          <>
-                            {shownIcons.map(({ key, icon }) => (
-                              <React.Fragment key={key}>{icon}</React.Fragment>
-                            ))}
-                            {hiddenCount > 0 && (
-                              <span className="-ml-0.25 translate-y-0.25 text-xs text-gray-500">
-                                +{hiddenCount}
-                              </span>
-                            )}
-                          </>
-                        );
-                      })()}
-                    </div>
+            // ✅ Wrapped all ambiance cards in a div
+            <div className="flex flex-col gap-2">
+              {searchedAmbiancesBasicInformations.map((ambiance) => (
+                <article
+                  aria-label="ambiance found"
+                  key={ambiance.id}
+                  onClick={() => handleLoadAmbiance(ambiance.id)}
+                  className="flex flex-col items-center px-0.5 py-0.5 text-sm font-bold text-left text-gray-300 bg-gray-700 rounded-sm group hover:bg-gray-400 hover:cursor-pointer"
+                >
+                  <div className="flex items-center justify-between w-full px-2.5 py-1.5 pb-0 rounded-t-sm border-0 border-b-0 bg-gray-900 border-gray-700 group-hover:bg-gray-800 group-hover:border-gray-800">
+                    <p className="text-sm text-gray-300 group-hover:text-gray-200 break-words [&>*]:break-all">
+                      {ambiance.ambiance_name.split(" ").map((word, index) => (
+                        <span key={index}>
+                          {word}
+                          {word.length <= 25 && " "}
+                        </span>
+                      ))}
+                    </p>
+                    <div className="flex items-center"></div>
                   </div>
 
-                  <div className="flex items-center gap-1"></div>
-                  <button
-                    aria-label="save ambiance to favorite button"
-                    onClick={(e) => {
-                      e.stopPropagation(); // prevent loading the ambiance
-                      toggleFavorite(ambiance.id, ambiance.is_favorite);
-                    }}
-                    className="flex justify-end px-1.25 mr-1 items-center  py-0.75 mb-0.5 bg-gray-900  group-hover:bg-gray-800 hover:bg-yellow-200/20 rounded-sm hover:cursor-pointer"
-                  >
-                    <span
-                      className={`text-sm ${
-                        ambiance.is_favorite
-                          ? "text-yellow-200/70"
-                          : "text-yellow-200/50"
-                      }`}
+                  <div className="flex items-center justify-between w-full bg-gray-900 rounded-b-sm group-hover:bg-gray-800">
+                    <div className="flex items-center flex-1 ">
+                      <div className="flex flex-1 items-center gap-1 px-2.5 py-2 pt-1.5 bg-gray-900 rounded-bl-sm group-hover:bg-gray-800">
+                        {/* Icons */}
+                        {(() => {
+                          const categories = parsePostgresEnumArray(
+                            ambiance.categories
+                          );
+                          const themes = parsePostgresEnumArray(
+                            ambiance.themes
+                          );
+
+                          const allIcons = [
+                            ...categories.map((c) => ({
+                              key: `category-${c}`,
+                              icon: getCategoryIcon(c as Category),
+                            })),
+                            ...themes.map((t) => ({
+                              key: `theme-${t}`,
+                              icon: getThemeIcon(t as Theme),
+                            })),
+                          ];
+
+                          const maxIconsToShow = 9;
+                          const shownIcons = allIcons.slice(0, maxIconsToShow);
+                          const hiddenCount =
+                            allIcons.length - shownIcons.length;
+
+                          return (
+                            <>
+                              {shownIcons.map(({ key, icon }) => (
+                                <React.Fragment key={key}>
+                                  {icon}
+                                </React.Fragment>
+                              ))}
+                              {hiddenCount > 0 && (
+                                <span className="-ml-0.25 translate-y-0.25 text-xs text-gray-500">
+                                  +{hiddenCount}
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1"></div>
+                    <button
+                      aria-label="save ambiance to favorite button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(ambiance.id, ambiance.is_favorite);
+                      }}
+                      className="flex justify-end px-1.25 mr-1 items-center py-0.75 mb-0.5 bg-gray-900 group-hover:bg-gray-800 hover:bg-yellow-200/20 rounded-sm hover:cursor-pointer"
                     >
-                      {ambiance.number_of_favorites}
-                    </span>
-                    <Star
-                      className={`ml-1 w-4 h-4 transition ${
-                        ambiance.is_favorite
-                          ? "text-yellow-200/70 fill-yellow-200/80"
-                          : "text-yellow-200/50"
-                      }`}
-                    />
-                  </button>
-                </div>
-              </article>
-            ))
+                      <span
+                        className={`text-sm ${
+                          ambiance.is_favorite
+                            ? "text-yellow-200/70"
+                            : "text-yellow-200/50"
+                        }`}
+                      >
+                        {ambiance.number_of_favorites}
+                      </span>
+                      <Star
+                        className={`ml-1 w-4 h-4 transition ${
+                          ambiance.is_favorite
+                            ? "text-yellow-200/70 fill-yellow-200/80"
+                            : "text-yellow-200/50"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
           )}
         </div>
       </div>

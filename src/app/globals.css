@@ -71,4 +71,5 @@ body {
   /* These two lines control Firefox scrollbars */
   scrollbar-width: auto; /* Options: auto | thin | none */
   scrollbar-color: oklch(37.2% 0.044 257.287) transparent;
+  overflow-y: overlay;
 }
