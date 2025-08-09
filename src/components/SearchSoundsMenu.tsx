@@ -38,6 +38,9 @@ export default function SearchSoundsMenu() {
   const globalVolume = useGlobalStore((state) => state.globalVolume);
   const setGlobalVolume = useGlobalStore((state) => state.setGlobalVolume);
   const setSoundsUsed = useGlobalStore((state) => state.setSoundsUsed);
+  const numberOfSoundsDownloaded = useGlobalStore(
+    (state) => state.numberOfSoundsDownloaded
+  );
 
   // Toasts
   const { ShowToast } = useShowToast();
@@ -268,7 +271,9 @@ export default function SearchSoundsMenu() {
         setSoundsUsed([...existingSounds, newSound]);
       }
       console.log("soundsUsed:", useGlobalStore.getState().soundsUsed);
-      ShowToast("success", "addsound", "Sound added to the ambiance");
+      if (numberOfSoundsDownloaded < 5) {
+        ShowToast("success", "addsound", "Sound added to the ambiance");
+      }
     } catch (error) {
       console.error("Error adding sound to ambiance:", error);
     }

@@ -70,52 +70,49 @@ export default function Sounds() {
       if (currentAmbiance === null) return;
 
       const soundIds = currentAmbiance.ambiance_sounds.map((s) => s.sound_id);
-      const newMap = new Map(indexedDbSoundsMap); // Clone existing map
+      const currentMap = indexedDbSoundsMap;
+      const newMap = new Map(currentMap); // Clone existing map
 
-      // Track which sounds we need to fetch
       const soundsToFetch = soundIds.filter(
         (id) => !newMap.has(id) && !loadingSounds.has(id)
       );
 
-      if (soundsToFetch.length === 0) {
-        return; // Nothing to fetch
-      }
+      if (soundsToFetch.length === 0) return;
 
       console.log(
         `Fetching blobs for ${soundsToFetch.length} sounds:`,
         soundsToFetch
       );
 
-      // Fetch sounds in parallel with concurrency limit
       const concurrentLimit = 3;
       const fetchPromises = soundsToFetch.map(async (id) => {
         const stored = await fetchSoundBlob(id);
         return { id, stored };
       });
 
-      // Process in batches
       for (let i = 0; i < fetchPromises.length; i += concurrentLimit) {
         const batch = fetchPromises.slice(i, i + concurrentLimit);
         const results = await Promise.allSettled(batch);
 
+        let mapUpdated = false;
         results.forEach((result) => {
           if (result.status === "fulfilled" && result.value.stored) {
-            newMap.set(result.value.id, result.value.stored);
+            if (!newMap.has(result.value.id)) {
+              newMap.set(result.value.id, result.value.stored);
+              mapUpdated = true;
+            }
           }
         });
-      }
 
-      // Only update state if we have new data
-      if (newMap.size !== indexedDbSoundsMap.size) {
-        setIndexedDbSoundsMap(newMap);
-        console.log("IndexedDbSoundsMap updated:", newMap);
+        if (mapUpdated) {
+          setIndexedDbSoundsMap(new Map(newMap));
+          console.log("IndexedDbSoundsMap updated:", newMap);
+        }
       }
     };
 
-    if (currentAmbiance) {
-      fetchBlobs();
-    }
-  }, [currentAmbiance, fetchSoundBlob, indexedDbSoundsMap.size]);
+    fetchBlobs();
+  }, [currentAmbiance, fetchSoundBlob]); // <-- No indexedDbSoundsMap.size
 
   // Add a function to handle when a sound stores its blob
   const handleSoundBlobStored = useCallback(

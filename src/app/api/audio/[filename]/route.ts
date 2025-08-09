@@ -20,7 +20,7 @@ const users: User[] = [];
 const MAX_UNSIGNED_DOWNLOADS = 5;
 const MAX_SIGNED_DOWNLOADS = 10;
 const MAX_PREMIUM_DOWNLOADS = 200;
-const RESET_DELAY = 12 * 60 * 60 * 1000; // 12 hours
+const RESET_DELAY = 1 * 60 * 1000; // 12 hours
 
 // Helper function to get or create a user (used in both GET and HEAD)
 function getOrCreateUser(ip: string): User {
@@ -85,6 +85,7 @@ export async function GET(
     user.status === "unsigned" &&
     user.number_of_downloaded_sounds > MAX_UNSIGNED_DOWNLOADS
   ) {
+    user.number_of_downloaded_sounds = MAX_UNSIGNED_DOWNLOADS;
     return new NextResponse("You have reached your download limit", {
       status: 403,
     });
@@ -92,6 +93,7 @@ export async function GET(
     user.status === "signed" &&
     user.number_of_downloaded_sounds > MAX_SIGNED_DOWNLOADS
   ) {
+    user.number_of_downloaded_sounds = MAX_SIGNED_DOWNLOADS;
     return new NextResponse("You have reached your download limit", {
       status: 403,
     });
@@ -99,6 +101,7 @@ export async function GET(
     user.status === "premium" &&
     user.number_of_downloaded_sounds > MAX_PREMIUM_DOWNLOADS
   ) {
+    user.number_of_downloaded_sounds = MAX_PREMIUM_DOWNLOADS;
     return new NextResponse("You have reached your download limit", {
       status: 403,
     });
@@ -133,7 +136,6 @@ export async function HEAD(
     user.number_of_downloaded_sounds = 0;
     user.reset_date = new Date(Date.now() + RESET_DELAY);
   }
-
   // Build path to check if the file exists
   const filePath = join(process.cwd(), "public", "audio", filename);
 

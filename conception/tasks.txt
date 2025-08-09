@@ -277,6 +277,12 @@ TASKS
 - add a reset delay for the sounds downloaded limit
 - limit the sounds downloads depending on unsigned/signed and premium users
 
+07/08/2025
+- bugfixes
+- added loading UI when waiting to download a sound
+
+09/08/2025
+- bugfixes (indexed db loop when fetching audio not allowed)
 
 WAITING TO BE PUSHED
 

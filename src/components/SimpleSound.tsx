@@ -99,7 +99,8 @@ export default function SimpleSound({
   const [lowCutFreq, setLowCutFreq] = useState(initialLowCut);
   const [highCutFreq, setHighCutFreq] = useState(initialHighCut);
 
-  const [availableSound, setAvailableSound] = useState(true);
+  const [audioLoading, setAudioLoading] = useState(true);
+  const [audioLoaded, setAudioLoaded] = useState(false);
 
   // Tone.js Refs
   const playerRef = useRef<Tone.Player | null>(null);
@@ -230,6 +231,8 @@ export default function SimpleSound({
         if (audioBlobs?.[0]) {
           // Use existing blob
           audioBlob = audioBlobs[0];
+          setAudioLoaded(true);
+
           console.log(`🟢 Using cached blob for sound ${dbSoundId}`);
         } else {
           // Fetch audio once
@@ -251,8 +254,14 @@ export default function SimpleSound({
           // Fetch the audio blob
           const response = await fetch(apiUrl);
           if (!response.ok) {
-            setAvailableSound(false);
+            setAudioLoading(false);
+            setAudioLoaded(false);
+            handleRemove(false);
             throw new Error(`Failed to fetch audio: ${response.statusText}`);
+          }
+          if (response.ok) {
+            setAudioLoaded(true);
+            setAudioLoading(false);
           }
 
           audioBlob = await response.blob();
@@ -424,7 +433,7 @@ export default function SimpleSound({
     mute,
   ]);
 
-  const handleRemove = () => {
+  const handleRemove = (showToast: boolean) => {
     if (!currentAmbiance) return;
 
     const updatedSounds = currentAmbiance.ambiance_sounds.filter(
@@ -436,7 +445,11 @@ export default function SimpleSound({
       ambiance_sounds: updatedSounds,
     });
 
-    ShowToast("neutral", "delete", "Sound removed");
+    if (showToast) {
+      ShowToast("neutral", "delete", "Sound removed", 2000);
+    } else {
+      ShowToast("warning", "info", "Sound downloads limit reached", 8000);
+    }
   };
 
   const handleMute = () => {
@@ -491,6 +504,8 @@ export default function SimpleSound({
           if (audioBlobs?.[index]) {
             // Use existing blob
             audioBlob = audioBlobs[index];
+            setAudioLoaded(true);
+
             console.log(
               `🟢 Using cached blob for punctual sound ${dbSoundId} path ${index}`
             );
@@ -520,9 +535,18 @@ export default function SimpleSound({
             // Fetch the audio blob
             const response = await fetch(apiUrl);
             if (!response.ok) {
-              setAvailableSound(false);
+              setAudioLoading(false);
+              setAudioLoaded(false);
+              handleRemove(false);
+
               throw new Error(`Failed to fetch audio: ${response.statusText}`);
             }
+
+            if (response.ok) {
+              setAudioLoaded(true);
+              setAudioLoading(false);
+            }
+
             audioBlob = await response.blob();
 
             // Store in IndexedDB in background (for punctual sounds, store all paths)
@@ -851,167 +875,114 @@ export default function SimpleSound({
     };
   }, [expanded, setExpanded]);
 
-  // If sound is not available, don't show the component
-  if (availableSound === false) return null;
-
   return (
-    <div
-      aria-label={soundName + " sound"}
-      className={`sm:w-40 w-full text-lg font-bold text-center bg-gray-950 text-gray-400 group flex flex-col flex-shrink-0  ${
-        expanded ? "sm:h-full" : ""
-      }`}
-    >
-      <div className="relative bg-black min-h-24 sm:min-h-38 group/image">
-        <Image
-          aria-label="toggle sound options on click"
-          src={imagePath}
-          alt={soundName}
-          fill
-          className={`relative object-cover hover:cursor-pointer ${
-            mute === 0 ? "opacity-40" : ""
-          }`}
-          onClick={() => setExpanded(!expanded)}
-        />
-        {mute === 0 && (
-          <div
-            className="absolute inset-0 flex items-center justify-center hover:cursor-pointer"
-            onClick={() => setExpanded(!expanded)}
-          >
-            <span className="text-gray-100 text-md">MUTED</span>
-          </div>
-        )}
-
-        {/* Show "more options" or "less options" when image is hovered */}
+    <>
+      {!audioLoaded && audioLoading && (
+        <div className="flex flex-col items-center justify-center w-full h-40 mx-0 text-lg font-bold text-center text-gray-400 border-gray-500 sm:w-40 min-w-40 border-1 bg-gray-950 group">
+          LOADING
+        </div>
+      )}
+      {audioLoaded && (
         <div
-          aria-label="toggle sound options on click"
-          onClick={() => setExpanded(!expanded)}
-          className={`absolute bottom-0 left-0 right-0 flex items-center ${
-            hoverButton ? "justify-between" : "justify-center"
-          } px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity hover:cursor-pointer`}
+          aria-label={soundName + " sound"}
+          className={`sm:w-40 w-full text-lg font-bold text-center bg-gray-950 text-gray-400 group flex flex-col flex-shrink-0  ${
+            expanded ? "sm:h-full" : ""
+          }`}
         >
-          {expanded && !hoverButton && <span>close</span>}
-          {!expanded && !hoverButton && <span>more options</span>}
-          {hoverButton && (
-            <>
+          <div className="relative bg-black min-h-24 sm:min-h-38 group/image">
+            <Image
+              aria-label="toggle sound options on click"
+              src={imagePath}
+              alt={soundName}
+              fill
+              className={`relative object-cover hover:cursor-pointer ${
+                mute === 0 ? "opacity-40" : ""
+              }`}
+              onClick={() => setExpanded(!expanded)}
+            />
+            {mute === 0 && (
+              <div
+                className="absolute inset-0 flex items-center justify-center hover:cursor-pointer"
+                onClick={() => setExpanded(!expanded)}
+              >
+                <span className="text-gray-100 text-md">MUTED</span>
+              </div>
+            )}
+
+            {/* Show "more options" or "less options" when image is hovered */}
+            <div
+              aria-label="toggle sound options on click"
+              onClick={() => setExpanded(!expanded)}
+              className={`absolute bottom-0 left-0 right-0 flex items-center ${
+                hoverButton ? "justify-between" : "justify-center"
+              } px-2.5 py-1.5 text-xs text-gray-200 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity hover:cursor-pointer`}
+            >
+              {expanded && !hoverButton && <span>close</span>}
+              {!expanded && !hoverButton && <span>more options</span>}
+              {hoverButton && (
+                <>
+                  <span>{soundName}</span>
+                  <span>{number}</span>
+                </>
+              )}
+            </div>
+
+            {/* Hide original label when image is hovered */}
+            <div
+              onClick={() => setExpanded(!expanded)}
+              className="absolute bottom-0 left-0 right-0 flex items-center justify-between  px-2 py-1.5 text-xs text-gray-200 bg-black/40 group-hover/image:opacity-0 transition-opacity hover:cursor-pointer"
+            >
               <span>{soundName}</span>
               <span>{number}</span>
-            </>
-          )}
-        </div>
+            </div>
 
-        {/* Hide original label when image is hovered */}
-        <div
-          onClick={() => setExpanded(!expanded)}
-          className="absolute bottom-0 left-0 right-0 flex items-center justify-between  px-2 py-1.5 text-xs text-gray-200 bg-black/40 group-hover/image:opacity-0 transition-opacity hover:cursor-pointer"
-        >
-          <span>{soundName}</span>
-          <span>{number}</span>
-        </div>
-
-        {/* Buttons visible only when image is hovered on pc*/}
-        <div
-          onMouseEnter={() => setHoverButton(true)}
-          onMouseLeave={() => setHoverButton(false)}
-          className={`absolute flex space-x-1 transition-opacity top-1 right-1 duration-100
+            {/* Buttons visible only when image is hovered on pc*/}
+            <div
+              onMouseEnter={() => setHoverButton(true)}
+              onMouseLeave={() => setHoverButton(false)}
+              className={`absolute flex space-x-1 transition-opacity top-1 right-1 duration-100
     ${
       expanded
         ? "opacity-100"
         : "opacity-0 sm:opacity-0 hidden sm:flex group-hover/image:opacity-100"
     }
   `}
-        >
-          <button
-            aria-label="mute sound button"
-            onClick={handleMute}
-            className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
-            title="Mute sound"
-          >
-            <VolumeX size={17} />
-          </button>
-          <button
-            aria-label="copy sound button"
-            onClick={handleCopy}
-            className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
-            title="Copy sound"
-          >
-            <Copy size={14} />
-          </button>
-          <button
-            aria-label="remove sound button"
-            onClick={handleRemove}
-            className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-red-800/50 sm:bg-black/50 text-md hover:bg-red-700/60 hover:cursor-pointer"
-            title="Remove sound"
-          >
-            <X size={20} />
-          </button>
-        </div>
-      </div>
-
-      {!expanded && (
-        <div className="relative px-0 mt-0 group/slider">
-          <div aria-label="volume slider" className="relative h-5 sm:h-2.5">
-            {/* Track background */}
-            <div className="absolute inset-0 bg-emerald-800"></div>
-            {/* Filled portion */}
-            <div
-              className="absolute inset-y-0 bg-emerald-400"
-              style={{ width: `${volume}%` }}
-            ></div>
-            {/* Invisible but functional input */}
-            <input
-              aria-label="volume slider input"
-              type="range"
-              min="0"
-              max="100"
-              value={volume}
-              onChange={(e) => {
-                setVolume(Number(e.target.value));
-                if (!currentAmbiance) return;
-                const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                  (sound) =>
-                    sound.id === id
-                      ? {
-                          ...sound,
-                          volume: Number(e.target.value),
-                        }
-                      : sound
-                );
-
-                setCurrentAmbiance({
-                  ...currentAmbiance,
-                  ambiance_sounds: updatedSounds,
-                });
-              }}
-              className="w-full opacity-0 cursor-pointer"
-            />
-          </div>
-          {/* Triangle indicator - only shows on hover*/}
-          <div
-            className="absolute hidden mt-2 transition-opacity opacity-0 pointer-events-none sm:block duration-0 top-full group-hover/slider:opacity-100"
-            style={{ left: `calc(${volume}% - 4px)` }}
-          >
-            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-emerald-300"></div>
-          </div>
-        </div>
-      )}
-
-      {expanded && (
-        <div
-          aria-label="expanded options"
-          className="flex flex-col justify-start flex-1 gap-0 px-3 pb-3 overflow-y-auto border-t-0 border-gray-800 border-1 rounded-b-xs bg-gray-950"
-        >
-          <div aria-label="volume" className="">
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5 font-bold">
-              <span className="text-xs text-gray-300">Volume</span>
-              <span className="text-xs text-gray-300">{volume}%</span>
+            >
+              <button
+                aria-label="mute sound button"
+                onClick={handleMute}
+                className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
+                title="Mute sound"
+              >
+                <VolumeX size={17} />
+              </button>
+              <button
+                aria-label="copy sound button"
+                onClick={handleCopy}
+                className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-black/50 text-md hover:bg-black/75 hover:cursor-pointer"
+                title="Copy sound"
+              >
+                <Copy size={14} />
+              </button>
+              <button
+                aria-label="remove sound button"
+                onClick={() => handleRemove(true)}
+                className="flex items-center justify-center w-8 h-8 text-gray-200 sm:w-6 sm:h-6 bg-red-800/50 sm:bg-black/50 text-md hover:bg-red-700/60 hover:cursor-pointer"
+                title="Remove sound"
+              >
+                <X size={20} />
+              </button>
             </div>
-            <div className="">
-              <div aria-label="volume slider" className="relative h-2">
+          </div>
+
+          {!expanded && (
+            <div className="relative px-0 mt-0 group/slider">
+              <div aria-label="volume slider" className="relative h-5 sm:h-2.5">
                 {/* Track background */}
-                <div className="absolute inset-0 rounded-full bg-emerald-900"></div>
+                <div className="absolute inset-0 bg-emerald-800"></div>
                 {/* Filled portion */}
                 <div
-                  className="absolute inset-y-0 rounded-full bg-emerald-500"
+                  className="absolute inset-y-0 bg-emerald-400"
                   style={{ width: `${volume}%` }}
                 ></div>
                 {/* Invisible but functional input */}
@@ -1042,495 +1013,569 @@ export default function SimpleSound({
                   className="w-full opacity-0 cursor-pointer"
                 />
               </div>
-            </div>
-          </div>
-
-          <div aria-label="direction" className="">
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
-              <span className="text-xs text-gray-300">Left / Right</span>
-              <span className="text-xs text-gray-300">{direction}</span>
-            </div>
-            <div className="">
-              <div aria-label="direction slider" className="relative h-2">
-                {/* Track background */}
-                <div className="absolute inset-0 rounded-full bg-stone-900"></div>
-
-                {/* Filled portion */}
-                <div
-                  className="absolute inset-y-0 rounded-full bg-stone-900"
-                  style={{ width: `${((direction + 1) / 2) * 100}%` }}
-                ></div>
-
-                {/* Fake slider handle */}
-                <div
-                  className="absolute w-4 h-2 -translate-y-1/2 rounded-full bg-stone-400 top-1/2"
-                  style={{
-                    left: `calc(${((direction + 1) / 2) * 100}% - (${
-                      ((direction + 1) / 2) * 100
-                    }/100 * 16px))`,
-                  }}
-                ></div>
-
-                {/* Transparent range slider with styled thumb */}
-                <input
-                  aria-label="direction slider input"
-                  type="range"
-                  min="-1"
-                  max="1"
-                  step="0.1"
-                  value={direction}
-                  onChange={(e) => {
-                    setDirection(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              direction: Number(e.target.value),
-                            }
-                          : sound
-                    );
-
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div aria-label="speed" className="">
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
-              <span className="text-xs text-gray-300">Speed</span>
-              <span className="text-xs text-gray-300">x{playbackRate}</span>
-            </div>
-            <div className="">
-              <div aria-label="playbackRate slider" className="relative h-2">
-                <div className="absolute inset-0 rounded-full bg-blue-950"></div>
-                <div
-                  className="absolute inset-y-0 bg-blue-400 rounded-full"
-                  style={{ width: `${((playbackRate - 0.1) / 2.9) * 100}%` }}
-                ></div>
-                <input
-                  aria-label="speed slider input"
-                  type="range"
-                  min="0.1"
-                  max="3"
-                  step="0.1"
-                  value={playbackRate}
-                  onChange={(e) => {
-                    setPlaybackRate(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              speed: Number(e.target.value),
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div aria-label="reverb" className="">
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
-              <span className="text-xs text-gray-300">Echo</span>
-              <span className="text-xs text-gray-300">{reverbWet}%</span>
-            </div>
-            <div className="">
-              <div aria-label="echo slider" className="relative h-2">
-                {/* Track background */}
-                <div className="absolute inset-0 rounded-full bg-orange-950"></div>
-                {/* Filled portion */}
-                <div
-                  className="absolute inset-y-0 bg-orange-400 rounded-full"
-                  style={{ width: `${reverbWet}%` }}
-                ></div>
-                {/* Invisible but functional input */}
-                <input
-                  aria-label="echo slider input"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={reverbWet}
-                  onChange={(e) => {
-                    setReverbWet(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              reverb: Number(e.target.value),
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
-              <span className="text-xs text-gray-300">Echo duration</span>
-              <span className="text-xs text-gray-300">
-                {reverbDecay.toFixed(1)}s
-              </span>
-            </div>
-            <div className="">
-              <div aria-label="echo duration slider" className="relative h-2">
-                {/* Track background */}
-                <div className="absolute inset-0 rounded-full bg-orange-950"></div>
-                {/* Filled portion */}
-                <div
-                  className="absolute inset-y-0 bg-orange-400 rounded-full"
-                  style={{ width: `${(reverbDecay / 10) * 100}%` }}
-                ></div>
-                {/* Invisible but functional input */}
-                <input
-                  aria-label="echo duration slider input"
-                  type="range"
-                  min="0"
-                  max="10"
-                  step="0.1"
-                  value={reverbDecay}
-                  onChange={(e) => {
-                    setReverbDecay(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              reverb_duration: Number(e.target.value),
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-          {/* Equalizer */}
-          <div className="">
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
-              <span className="text-xs text-gray-300">Low</span>
-              <span className="text-xs text-gray-300">
-                {" "}
-                {Math.round(((lowGain + 50) / 50) * 100)}%
-              </span>
-            </div>
-            <div className="">
-              <div aria-label="low slider" className="relative h-2">
-                <div className="absolute inset-0 rounded-full bg-rose-950"></div>
-                <div
-                  className="absolute inset-y-0 rounded-full bg-rose-400"
-                  style={{ width: `${((lowGain + 50) / 50) * 100}%` }}
-                ></div>
-                <input
-                  aria-label="low slider input"
-                  type="range"
-                  min={-50}
-                  max={0}
-                  value={lowGain}
-                  onChange={(e) => {
-                    setLowGain(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              low: Number(e.target.value),
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
-              <span className="text-xs text-gray-300">Mid</span>
-              <span className="text-xs text-gray-300">
-                {Math.round(((midGain + 50) / 50) * 100)}%
-              </span>
-            </div>
-            <div className="">
-              <div aria-label="mid slider" className="relative h-2">
-                <div className="absolute inset-0 rounded-full bg-rose-950"></div>
-                <div
-                  className="absolute inset-y-0 rounded-full bg-rose-400"
-                  style={{ width: `${((midGain + 50) / 50) * 100}%` }}
-                ></div>
-                <input
-                  aria-label="mid slider input"
-                  type="range"
-                  min={-50}
-                  max={0}
-                  value={midGain}
-                  onChange={(e) => {
-                    setMidGain(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              mid: Number(e.target.value),
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
-              <span className="text-xs text-gray-300">High</span>
-              <span className="text-xs text-gray-300">
-                {Math.round(((highGain + 50) / 50) * 100)}%
-              </span>
-            </div>
-            <div className="">
-              <div aria-label="high slider" className="relative h-2">
-                <div className="absolute inset-0 rounded-full bg-rose-950"></div>
-                <div
-                  className="absolute inset-y-0 rounded-full bg-rose-400"
-                  style={{ width: `${((highGain + 50) / 50) * 100}%` }}
-                ></div>
-                <input
-                  aria-label="high slider input"
-                  type="range"
-                  min={-50}
-                  max={0}
-                  value={highGain}
-                  onChange={(e) => {
-                    setHighGain(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              high: Number(e.target.value),
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div
-            aria-label="frequency cut"
-            className="hidden mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
-          >
-            <div className="flex items-center justify-between h-5 mt-1">
-              <span className="text-xs text-gray-400">Low Cut</span>
-              <span className="text-xs text-gray-400">
-                {Math.round(((lowCutFreq - 20) / 1980) * 100)}%
-              </span>
-            </div>
-            <div className="px-2 pb-1">
+              {/* Triangle indicator - only shows on hover*/}
               <div
-                aria-label="low cut frequency slider"
-                className="relative h-1.5"
+                className="absolute hidden mt-2 transition-opacity opacity-0 pointer-events-none sm:block duration-0 top-full group-hover/slider:opacity-100"
+                style={{ left: `calc(${volume}% - 4px)` }}
               >
-                <div className="absolute inset-0 rounded-full bg-purple-950"></div>
-                <div
-                  className="absolute inset-y-0 bg-purple-400 rounded-full"
-                  style={{ width: `${((lowCutFreq - 20) / 2000) * 100}%` }}
-                ></div>
-                <input
-                  aria-label="low cut slider input"
-                  type="range"
-                  min="20"
-                  max="2000"
-                  step="10"
-                  value={lowCutFreq}
-                  onChange={(e) => {
-                    setLowCutFreq(Number(e.target.value));
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              low_cut: Number(e.target.value),
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between h-5 mt-1">
-              <span className="text-xs text-gray-400">High Cut</span>
-              <span className="text-xs text-gray-400">
-                {Math.round(((20000 - highCutFreq) / 19500) * 100)}%
-              </span>
-            </div>
-            <div className="px-2 pb-2">
-              <div
-                aria-label="high cut frequency slider"
-                className="relative h-1.5"
-              >
-                <div className="absolute inset-0 rounded-full bg-purple-950"></div>
-                <div
-                  className="absolute inset-y-0 bg-purple-400 rounded-full"
-                  style={{ width: `${((20000 - highCutFreq) / 19500) * 100}%` }}
-                ></div>
-                <input
-                  aria-label="high cut slider input"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={Math.round(((20000 - highCutFreq) / 19500) * 100)}
-                  onChange={(e) => {
-                    setHighCutFreq(
-                      20000 - (Number(e.target.value) / 100) * 19500
-                    );
-                    if (!currentAmbiance) return;
-                    const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                      (sound) =>
-                        sound.id === id
-                          ? {
-                              ...sound,
-                              high_cut:
-                                20000 - (Number(e.target.value) / 100) * 19500,
-                            }
-                          : sound
-                    );
-                    setCurrentAmbiance({
-                      ...currentAmbiance,
-                      ambiance_sounds: updatedSounds,
-                    });
-                  }}
-                  className="w-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
-          </div>
-
-          {repeat_delay && (
-            <div aria-label="Repeat delay" className="w-full">
-              <div className="flex items-center justify-between h-5 mt-2 mb-0.75">
-                <span className="text-xs text-gray-300">Plays every</span>
-                <span className="text-xs text-gray-300">
-                  &#177; {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
-                </span>
-              </div>
-              <div className="w-full">
-                <div className="flex items-center justify-center w-full text-xs">
-                  <input
-                    aria-label="repeat delay minimum input"
-                    type="number"
-                    min="0"
-                    className=" px-2 py-1 w-[calc(50%-0.75rem)] bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    value={repeat_delay[0]}
-                    onChange={(e) => {
-                      const newMin = Number(e.target.value);
-                      if (!currentAmbiance) return;
-
-                      const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                        (sound) =>
-                          sound.id === id
-                            ? {
-                                ...sound,
-                                repeat_delay: [newMin, repeat_delay[1]],
-                              }
-                            : sound
-                      );
-
-                      setCurrentAmbiance({
-                        ...currentAmbiance,
-                        ambiance_sounds: updatedSounds,
-                      });
-                    }}
-                  />
-                  <span className="mx-2 text-xs text-gray-600">to</span>
-                  <input
-                    aria-label="repeat delay maximum input"
-                    type="number"
-                    min="0"
-                    className="w-[calc(50%-0.75rem)] px-2 py-1 bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    value={repeat_delay[1]}
-                    onChange={(e) => {
-                      const newMax = Number(e.target.value);
-                      if (!currentAmbiance) return;
-
-                      const updatedSounds = currentAmbiance.ambiance_sounds.map(
-                        (sound) =>
-                          sound.id === id
-                            ? {
-                                ...sound,
-                                repeat_delay: [repeat_delay[0], newMax],
-                              }
-                            : sound
-                      );
-
-                      setCurrentAmbiance({
-                        ...currentAmbiance,
-                        ambiance_sounds: updatedSounds,
-                      });
-                    }}
-                  />
-                </div>
+                <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-emerald-300"></div>
               </div>
             </div>
           )}
-          <button
-            aria-label="close options button"
-            onClick={() => setExpanded(!expanded)}
-            className="flex flex-col items-center justify-center py-0.5 pt-3.5 mt-3 text-gray-500 border-gray-800 border-t-1 bg-gray-950 sm:mt-auto justify-self-end-safe hover:cursor-pointer hover:text-gray-50 "
-          >
-            <ChevronUp className="w-4 h-4 mb-0.5" strokeWidth={4}></ChevronUp>
-            {/* <span className="text-xs">Close</span> */}
-          </button>
+
+          {expanded && (
+            <div
+              aria-label="expanded options"
+              className="flex flex-col justify-start flex-1 gap-0 px-3 pb-3 overflow-y-auto border-t-0 border-gray-800 border-1 rounded-b-xs bg-gray-950"
+            >
+              <div aria-label="volume" className="">
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5 font-bold">
+                  <span className="text-xs text-gray-300">Volume</span>
+                  <span className="text-xs text-gray-300">{volume}%</span>
+                </div>
+                <div className="">
+                  <div aria-label="volume slider" className="relative h-2">
+                    {/* Track background */}
+                    <div className="absolute inset-0 rounded-full bg-emerald-900"></div>
+                    {/* Filled portion */}
+                    <div
+                      className="absolute inset-y-0 rounded-full bg-emerald-500"
+                      style={{ width: `${volume}%` }}
+                    ></div>
+                    {/* Invisible but functional input */}
+                    <input
+                      aria-label="volume slider input"
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={volume}
+                      onChange={(e) => {
+                        setVolume(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  volume: Number(e.target.value),
+                                }
+                              : sound
+                          );
+
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div aria-label="direction" className="">
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                  <span className="text-xs text-gray-300">Left / Right</span>
+                  <span className="text-xs text-gray-300">{direction}</span>
+                </div>
+                <div className="">
+                  <div aria-label="direction slider" className="relative h-2">
+                    {/* Track background */}
+                    <div className="absolute inset-0 rounded-full bg-stone-900"></div>
+
+                    {/* Filled portion */}
+                    <div
+                      className="absolute inset-y-0 rounded-full bg-stone-900"
+                      style={{ width: `${((direction + 1) / 2) * 100}%` }}
+                    ></div>
+
+                    {/* Fake slider handle */}
+                    <div
+                      className="absolute w-4 h-2 -translate-y-1/2 rounded-full bg-stone-400 top-1/2"
+                      style={{
+                        left: `calc(${((direction + 1) / 2) * 100}% - (${
+                          ((direction + 1) / 2) * 100
+                        }/100 * 16px))`,
+                      }}
+                    ></div>
+
+                    {/* Transparent range slider with styled thumb */}
+                    <input
+                      aria-label="direction slider input"
+                      type="range"
+                      min="-1"
+                      max="1"
+                      step="0.1"
+                      value={direction}
+                      onChange={(e) => {
+                        setDirection(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  direction: Number(e.target.value),
+                                }
+                              : sound
+                          );
+
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div aria-label="speed" className="">
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                  <span className="text-xs text-gray-300">Speed</span>
+                  <span className="text-xs text-gray-300">x{playbackRate}</span>
+                </div>
+                <div className="">
+                  <div
+                    aria-label="playbackRate slider"
+                    className="relative h-2"
+                  >
+                    <div className="absolute inset-0 rounded-full bg-blue-950"></div>
+                    <div
+                      className="absolute inset-y-0 bg-blue-400 rounded-full"
+                      style={{
+                        width: `${((playbackRate - 0.1) / 2.9) * 100}%`,
+                      }}
+                    ></div>
+                    <input
+                      aria-label="speed slider input"
+                      type="range"
+                      min="0.1"
+                      max="3"
+                      step="0.1"
+                      value={playbackRate}
+                      onChange={(e) => {
+                        setPlaybackRate(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  speed: Number(e.target.value),
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div aria-label="reverb" className="">
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                  <span className="text-xs text-gray-300">Echo</span>
+                  <span className="text-xs text-gray-300">{reverbWet}%</span>
+                </div>
+                <div className="">
+                  <div aria-label="echo slider" className="relative h-2">
+                    {/* Track background */}
+                    <div className="absolute inset-0 rounded-full bg-orange-950"></div>
+                    {/* Filled portion */}
+                    <div
+                      className="absolute inset-y-0 bg-orange-400 rounded-full"
+                      style={{ width: `${reverbWet}%` }}
+                    ></div>
+                    {/* Invisible but functional input */}
+                    <input
+                      aria-label="echo slider input"
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={reverbWet}
+                      onChange={(e) => {
+                        setReverbWet(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  reverb: Number(e.target.value),
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                  <span className="text-xs text-gray-300">Echo duration</span>
+                  <span className="text-xs text-gray-300">
+                    {reverbDecay.toFixed(1)}s
+                  </span>
+                </div>
+                <div className="">
+                  <div
+                    aria-label="echo duration slider"
+                    className="relative h-2"
+                  >
+                    {/* Track background */}
+                    <div className="absolute inset-0 rounded-full bg-orange-950"></div>
+                    {/* Filled portion */}
+                    <div
+                      className="absolute inset-y-0 bg-orange-400 rounded-full"
+                      style={{ width: `${(reverbDecay / 10) * 100}%` }}
+                    ></div>
+                    {/* Invisible but functional input */}
+                    <input
+                      aria-label="echo duration slider input"
+                      type="range"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={reverbDecay}
+                      onChange={(e) => {
+                        setReverbDecay(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  reverb_duration: Number(e.target.value),
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* Equalizer */}
+              <div className="">
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                  <span className="text-xs text-gray-300">Low</span>
+                  <span className="text-xs text-gray-300">
+                    {" "}
+                    {Math.round(((lowGain + 50) / 50) * 100)}%
+                  </span>
+                </div>
+                <div className="">
+                  <div aria-label="low slider" className="relative h-2">
+                    <div className="absolute inset-0 rounded-full bg-rose-950"></div>
+                    <div
+                      className="absolute inset-y-0 rounded-full bg-rose-400"
+                      style={{ width: `${((lowGain + 50) / 50) * 100}%` }}
+                    ></div>
+                    <input
+                      aria-label="low slider input"
+                      type="range"
+                      min={-50}
+                      max={0}
+                      value={lowGain}
+                      onChange={(e) => {
+                        setLowGain(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  low: Number(e.target.value),
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                  <span className="text-xs text-gray-300">Mid</span>
+                  <span className="text-xs text-gray-300">
+                    {Math.round(((midGain + 50) / 50) * 100)}%
+                  </span>
+                </div>
+                <div className="">
+                  <div aria-label="mid slider" className="relative h-2">
+                    <div className="absolute inset-0 rounded-full bg-rose-950"></div>
+                    <div
+                      className="absolute inset-y-0 rounded-full bg-rose-400"
+                      style={{ width: `${((midGain + 50) / 50) * 100}%` }}
+                    ></div>
+                    <input
+                      aria-label="mid slider input"
+                      type="range"
+                      min={-50}
+                      max={0}
+                      value={midGain}
+                      onChange={(e) => {
+                        setMidGain(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  mid: Number(e.target.value),
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between h-5 mt-2 mb-0.5">
+                  <span className="text-xs text-gray-300">High</span>
+                  <span className="text-xs text-gray-300">
+                    {Math.round(((highGain + 50) / 50) * 100)}%
+                  </span>
+                </div>
+                <div className="">
+                  <div aria-label="high slider" className="relative h-2">
+                    <div className="absolute inset-0 rounded-full bg-rose-950"></div>
+                    <div
+                      className="absolute inset-y-0 rounded-full bg-rose-400"
+                      style={{ width: `${((highGain + 50) / 50) * 100}%` }}
+                    ></div>
+                    <input
+                      aria-label="high slider input"
+                      type="range"
+                      min={-50}
+                      max={0}
+                      value={highGain}
+                      onChange={(e) => {
+                        setHighGain(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  high: Number(e.target.value),
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                aria-label="frequency cut"
+                className="hidden mx-2 mt-0 border-2 rounded-xs border-gray-950 bg-gray-950"
+              >
+                <div className="flex items-center justify-between h-5 mt-1">
+                  <span className="text-xs text-gray-400">Low Cut</span>
+                  <span className="text-xs text-gray-400">
+                    {Math.round(((lowCutFreq - 20) / 1980) * 100)}%
+                  </span>
+                </div>
+                <div className="px-2 pb-1">
+                  <div
+                    aria-label="low cut frequency slider"
+                    className="relative h-1.5"
+                  >
+                    <div className="absolute inset-0 rounded-full bg-purple-950"></div>
+                    <div
+                      className="absolute inset-y-0 bg-purple-400 rounded-full"
+                      style={{ width: `${((lowCutFreq - 20) / 2000) * 100}%` }}
+                    ></div>
+                    <input
+                      aria-label="low cut slider input"
+                      type="range"
+                      min="20"
+                      max="2000"
+                      step="10"
+                      value={lowCutFreq}
+                      onChange={(e) => {
+                        setLowCutFreq(Number(e.target.value));
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  low_cut: Number(e.target.value),
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between h-5 mt-1">
+                  <span className="text-xs text-gray-400">High Cut</span>
+                  <span className="text-xs text-gray-400">
+                    {Math.round(((20000 - highCutFreq) / 19500) * 100)}%
+                  </span>
+                </div>
+                <div className="px-2 pb-2">
+                  <div
+                    aria-label="high cut frequency slider"
+                    className="relative h-1.5"
+                  >
+                    <div className="absolute inset-0 rounded-full bg-purple-950"></div>
+                    <div
+                      className="absolute inset-y-0 bg-purple-400 rounded-full"
+                      style={{
+                        width: `${((20000 - highCutFreq) / 19500) * 100}%`,
+                      }}
+                    ></div>
+                    <input
+                      aria-label="high cut slider input"
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={Math.round(((20000 - highCutFreq) / 19500) * 100)}
+                      onChange={(e) => {
+                        setHighCutFreq(
+                          20000 - (Number(e.target.value) / 100) * 19500
+                        );
+                        if (!currentAmbiance) return;
+                        const updatedSounds =
+                          currentAmbiance.ambiance_sounds.map((sound) =>
+                            sound.id === id
+                              ? {
+                                  ...sound,
+                                  high_cut:
+                                    20000 -
+                                    (Number(e.target.value) / 100) * 19500,
+                                }
+                              : sound
+                          );
+                        setCurrentAmbiance({
+                          ...currentAmbiance,
+                          ambiance_sounds: updatedSounds,
+                        });
+                      }}
+                      className="w-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {repeat_delay && (
+                <div aria-label="Repeat delay" className="w-full">
+                  <div className="flex items-center justify-between h-5 mt-2 mb-0.75">
+                    <span className="text-xs text-gray-300">Plays every</span>
+                    <span className="text-xs text-gray-300">
+                      &#177;{" "}
+                      {((repeat_delay[0] + repeat_delay[1]) / 2).toFixed(1)}s
+                    </span>
+                  </div>
+                  <div className="w-full">
+                    <div className="flex items-center justify-center w-full text-xs">
+                      <input
+                        aria-label="repeat delay minimum input"
+                        type="number"
+                        min="0"
+                        className=" px-2 py-1 w-[calc(50%-0.75rem)] bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        value={repeat_delay[0]}
+                        onChange={(e) => {
+                          const newMin = Number(e.target.value);
+                          if (!currentAmbiance) return;
+
+                          const updatedSounds =
+                            currentAmbiance.ambiance_sounds.map((sound) =>
+                              sound.id === id
+                                ? {
+                                    ...sound,
+                                    repeat_delay: [newMin, repeat_delay[1]],
+                                  }
+                                : sound
+                            );
+
+                          setCurrentAmbiance({
+                            ...currentAmbiance,
+                            ambiance_sounds: updatedSounds,
+                          });
+                        }}
+                      />
+                      <span className="mx-2 text-xs text-gray-600">to</span>
+                      <input
+                        aria-label="repeat delay maximum input"
+                        type="number"
+                        min="0"
+                        className="w-[calc(50%-0.75rem)] px-2 py-1 bg-gray-800 rounded-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        value={repeat_delay[1]}
+                        onChange={(e) => {
+                          const newMax = Number(e.target.value);
+                          if (!currentAmbiance) return;
+
+                          const updatedSounds =
+                            currentAmbiance.ambiance_sounds.map((sound) =>
+                              sound.id === id
+                                ? {
+                                    ...sound,
+                                    repeat_delay: [repeat_delay[0], newMax],
+                                  }
+                                : sound
+                            );
+
+                          setCurrentAmbiance({
+                            ...currentAmbiance,
+                            ambiance_sounds: updatedSounds,
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <button
+                aria-label="close options button"
+                onClick={() => setExpanded(!expanded)}
+                className="flex flex-col items-center justify-center py-0.5 pt-3.5 mt-3 text-gray-500 border-gray-800 border-t-1 bg-gray-950 sm:mt-auto justify-self-end-safe hover:cursor-pointer hover:text-gray-50 "
+              >
+                <ChevronUp
+                  className="w-4 h-4 mb-0.5"
+                  strokeWidth={4}
+                ></ChevronUp>
+                {/* <span className="text-xs">Close</span> */}
+              </button>
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </>
   );
 }
