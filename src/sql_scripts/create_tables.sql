@@ -77,3 +77,10 @@ CREATE TABLE user_has_favorite_ambiances (
   ambiance_id INT NOT NULL REFERENCES ambiances(id) ON DELETE CASCADE,
   CONSTRAINT unique_user_ambiance UNIQUE (user_id, ambiance_id)
 );
+
+CREATE TABLE ips_download_limits (
+  id SERIAL PRIMARY KEY,
+  ip_address TEXT NOT NULL UNIQUE,
+  number_of_sounds_downloaded INT NOT NULL DEFAULT 0,
+  reset_date TIMESTAMP WITH TIME ZONE NOT NULL
+);

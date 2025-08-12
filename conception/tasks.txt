@@ -284,6 +284,9 @@ TASKS
 09/08/2025
 - bugfixes (indexed db loop when fetching audio not allowed)
 
+12/08/2025
+- problems for download limits in prod, try a different approach instead of in memory limits, use psql for persistant and safer incrementation
+
 WAITING TO BE PUSHED
 
 
