@@ -38,20 +38,20 @@ interface Props {
 }
 
 // Helper to fetch download count via HEAD request
-async function fetchDownloadCountFromHead(url: string): Promise<number | null> {
-  try {
-    const response = await fetch(url, { method: "HEAD" });
-    if (!response.ok) {
-      console.error("HEAD request failed");
-      return null;
-    }
-    const count = response.headers.get("X-Download-Count");
-    return count ? parseInt(count, 10) : null;
-  } catch (err) {
-    console.error("HEAD request error:", err);
-    return null;
-  }
-}
+// async function fetchDownloadCountFromHead(url: string): Promise<number | null> {
+//   try {
+//     const response = await fetch(url, { method: "HEAD" });
+//     if (!response.ok) {
+//       console.error("HEAD request failed");
+//       return null;
+//     }
+//     const count = response.headers.get("X-Download-Count");
+//     return count ? parseInt(count, 10) : null;
+//   } catch (err) {
+//     console.error("HEAD request error:", err);
+//     return null;
+//   }
+// }
 
 export default function SimpleSound({
   imagePath,
@@ -240,19 +240,28 @@ export default function SimpleSound({
           console.log(`🟡 Fetching audio once from: ${apiUrl}`);
 
           // HEAD request for download count (optional)
-          fetchDownloadCountFromHead(apiUrl).then((count) => {
-            if (count !== null) {
-              setNumberOfSoundsDownloaded(count);
-              ShowToast(
-                "warning",
-                "info",
-                `Number of sounds downloaded: ${count}`
-              );
-            }
-          });
+          // fetchDownloadCountFromHead(apiUrl).then((count) => {
+          //   if (count !== null) {
+          //     setNumberOfSoundsDownloaded(count);
+          //     ShowToast(
+          //       "warning",
+          //       "info",
+          //       `Number of sounds downloaded: ${count}`
+          //     );
+          //   }
+          // });
 
           // Fetch the audio blob
           const response = await fetch(apiUrl);
+          const count = response.headers.get("X-Download-Count");
+          if (count) {
+            setNumberOfSoundsDownloaded(parseInt(count, 10));
+            ShowToast(
+              "warning",
+              "info",
+              `Number of sounds downloaded: ${count}`
+            );
+          }
           if (!response.ok) {
             setAudioLoading(false);
             setAudioLoaded(false);
@@ -515,25 +524,34 @@ export default function SimpleSound({
             console.log(`🟡 Fetching punctual audio from: ${apiUrl}`);
 
             // HEAD request for download count (only for first path to avoid spam)
-            if (index === 0) {
-              try {
-                const headRes = await fetch(apiUrl, { method: "HEAD" });
-                const count = headRes.headers.get("X-Download-Count");
-                if (count) {
-                  setNumberOfSoundsDownloaded(parseInt(count, 10));
-                  ShowToast(
-                    "warning",
-                    "info",
-                    `Number of sounds downloaded: ${count}`
-                  );
-                }
-              } catch (err) {
-                console.warn("HEAD request failed for:", apiUrl, err);
-              }
-            }
+            // if (index === 0) {
+            //   try {
+            //     const headRes = await fetch(apiUrl, { method: "HEAD" });
+            //     const count = headRes.headers.get("X-Download-Count");
+            //     if (count) {
+            //       setNumberOfSoundsDownloaded(parseInt(count, 10));
+            //       ShowToast(
+            //         "warning",
+            //         "info",
+            //         `Number of sounds downloaded: ${count}`
+            //       );
+            //     }
+            //   } catch (err) {
+            //     console.warn("HEAD request failed for:", apiUrl, err);
+            //   }
+            // }
 
             // Fetch the audio blob
             const response = await fetch(apiUrl);
+            const count = response.headers.get("X-Download-Count");
+            if (count && index === 0) {
+              setNumberOfSoundsDownloaded(parseInt(count, 10));
+              ShowToast(
+                "warning",
+                "info",
+                `Number of sounds downloaded: ${count}`
+              );
+            }
             if (!response.ok) {
               setAudioLoading(false);
               setAudioLoaded(false);
