@@ -256,11 +256,6 @@ export default function SimpleSound({
           const count = response.headers.get("X-Download-Count");
           if (count) {
             setNumberOfSoundsDownloaded(parseInt(count, 10));
-            ShowToast(
-              "warning",
-              "info",
-              `Number of sounds downloaded: ${count}`
-            );
           }
           if (!response.ok) {
             setAudioLoading(false);
@@ -546,11 +541,6 @@ export default function SimpleSound({
             const count = response.headers.get("X-Download-Count");
             if (count && index === 0) {
               setNumberOfSoundsDownloaded(parseInt(count, 10));
-              ShowToast(
-                "warning",
-                "info",
-                `Number of sounds downloaded: ${count}`
-              );
             }
             if (!response.ok) {
               setAudioLoading(false);

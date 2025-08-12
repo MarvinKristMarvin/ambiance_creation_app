@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn, signUp, signOut } from "@/server/users"; // async code outside of client component
 import { authClient } from "@/lib/auth-client";
 import { useShowToast } from "@/hooks/useShowToast";
+import { CircleCheckBig } from "lucide-react";
 
 export default function SettingsMenu() {
   const { data: session, refetch } = authClient.useSession();
@@ -227,6 +228,37 @@ export default function SettingsMenu() {
           </button>
         ))}
       </div> */}
+
+      <p className="pl-0 mt-0 mb-1.5 font-bold text-left text-gray-300 text-md">
+        Premium
+      </p>
+      <div className="mb-3">
+        <div
+          aria-label="premium list"
+          className="flex flex-col gap-1.5 mb-2.5 text-sm font-bold"
+        >
+          <div className="flex items-center gap-1.5">
+            <CircleCheckBig className="w-5 h-5 text-fuchsia-300 " />{" "}
+            <span className="text-gray-300">Unlimited sound downloads</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CircleCheckBig className="w-5 h-5 text-fuchsia-300 " />
+            <span className="text-gray-300">High quality sounds</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CircleCheckBig className="w-5 h-5 text-fuchsia-300 " />{" "}
+            <span className="text-gray-300">Add your own sounds</span>
+          </div>
+        </div>
+        <button
+          aria-label="login button"
+          type="button"
+          onClick={() => setSigningUp(false)}
+          className="flex-1 w-full px-8 py-2 text-sm font-bold border-2 rounded-sm border-fuchsia-300 text-fuchsia-300 mb0 hover:cursor-pointer hover:bg-fuchsia-950/40"
+        >
+          Go premium
+        </button>
+      </div>
 
       <p className="pl-0 mt-0 mb-1.5 font-bold text-left text-gray-300 text-md">
         Shortcuts

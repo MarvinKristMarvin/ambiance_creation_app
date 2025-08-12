@@ -101,9 +101,5 @@ export default function SoundLimitCounter() {
   }
 
   // FOR PREMIUM USER SHOW NOTHING
-  return (
-    <>
-      <div>{userStatus}</div>
-    </>
-  );
+  return <></>;
 }

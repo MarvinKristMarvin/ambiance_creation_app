@@ -161,9 +161,8 @@ export async function GET(
     return new NextResponse("File not found", { status: 404 });
   }
 
-  // Decide whether this filename triggers counting (if file name != _2.mp3, _3.mp3, etc.)
-  const shouldCount = /^.*(?:_1)?\.mp3$/.test(filename);
-
+  // Decide whether this filename triggers counting (if file name != xxx_2.mp3, xxx_3.mp3, etc.)
+  const shouldCount = /^(.*_1\.mp3|.*(?<!_\d)\.mp3)$/.test(filename);
   try {
     if (shouldCount) {
       // atomic check + increment
