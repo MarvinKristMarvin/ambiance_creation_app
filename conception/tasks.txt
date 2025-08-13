@@ -289,11 +289,12 @@ TASKS
 - bugfixes (regex for sound download limits)
 - premium basic ui in settings menu
 
+13/08/2025
+
+
 WAITING TO BE PUSHED
 
-
 WORKING ON
-- sounds downloads limitations system (user, signed user, premiumm user) verifying + blocking in the server and showing toasts in UI
 
 TO DO
 - back office to add sounds

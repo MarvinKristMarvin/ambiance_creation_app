@@ -209,22 +209,8 @@ export async function GET(
 }
 
 // HEAD handler: only return headers and current count. DO NOT increment.
-export async function HEAD(
-  req: NextRequest,
-  { params }: { params: Promise<{ filename: string }> }
-) {
-  const { filename } = await params;
+export async function HEAD(req: NextRequest) {
   const ip = getIP(req);
-
-  // Build path to file and check existence
-  const filePath = join(process.cwd(), "public", "audio", filename);
-
-  try {
-    readFileSync(filePath); // existence check only
-  } catch (err) {
-    console.error("HEAD request: File not found:", err);
-    return new NextResponse("File not found", { status: 404 });
-  }
 
   // Determine session status so we can compute the correct limit and show counts
   const session = await auth.api.getSession({
@@ -246,7 +232,6 @@ export async function HEAD(
 
     return new NextResponse(null, {
       headers: {
-        "Content-Type": "audio/mpeg",
         "X-Download-Count": String(number_of_sounds_downloaded),
       },
     });

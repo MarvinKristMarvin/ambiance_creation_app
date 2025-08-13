@@ -24,6 +24,9 @@ export default function Home() {
   const ambianceSettingsMenu = useGlobalStore(
     (state) => state.ambianceSettingsMenu
   );
+  const setNumberOfSoundsDownloaded = useGlobalStore(
+    (state) => state.setNumberOfSoundsDownloaded
+  );
 
   // Modal management functions from store
   const closeAllModals = useGlobalStore((state) => state.closeAllModals);
@@ -39,6 +42,21 @@ export default function Home() {
 
     return null;
   };
+
+  // Get the number fo sounds downloaded
+  useEffect(() => {
+    const response = fetch("/api/audio/getsounddownloadcount", {
+      method: "HEAD",
+    });
+    if (response) {
+      response.then((res) => {
+        const count = res.headers.get("X-Download-Count");
+        if (count) {
+          setNumberOfSoundsDownloaded(parseInt(count, 10));
+        }
+      });
+    }
+  }, []);
 
   // Start Tone.js on first interaction
   useEffect(() => {

@@ -99,6 +99,8 @@ export default function SettingsMenu() {
     }
   };
 
+  const lemonSqueezyPayment = async () => {};
+
   return (
     <div aria-label="user settings menu" className="text-gray-300 ">
       <p className="mb-2 font-bold text-left text-gray-300 text-md">
@@ -235,7 +237,7 @@ export default function SettingsMenu() {
       <div className="mb-3">
         <div
           aria-label="premium list"
-          className="flex flex-col gap-1.5 mb-2.5 text-sm font-bold"
+          className="flex flex-col gap-1.5 mb-3 text-sm font-bold"
         >
           <div className="flex items-center gap-1.5">
             <CircleCheckBig className="w-5 h-5 text-fuchsia-300 " />{" "}
@@ -251,12 +253,12 @@ export default function SettingsMenu() {
           </div>
         </div>
         <button
-          aria-label="login button"
+          aria-label="subscribe button"
           type="button"
-          onClick={() => setSigningUp(false)}
+          onClick={() => lemonSqueezyPayment()}
           className="flex-1 w-full px-8 py-2 text-sm font-bold border-2 rounded-sm border-fuchsia-300 text-fuchsia-300 mb0 hover:cursor-pointer hover:bg-fuchsia-950/40"
         >
-          Go premium
+          Subscribe for $&thinsp;6.00 / month
         </button>
       </div>
 
