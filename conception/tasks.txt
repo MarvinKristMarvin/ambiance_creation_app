@@ -290,16 +290,19 @@ TASKS
 - premium basic ui in settings menu
 
 13/08/2025
-
+- UI changes
+- add price for subscription
+- head request to set the number of downloaded sounds directly on page opening
 
 WAITING TO BE PUSHED
 
 WORKING ON
+- rgpd / contact
+
 
 TO DO
 - back office to add sounds
 - remake conception docs
-- rgpd / contact
 - instead of showing nothing in the beginning when searching sounds/ambiances, explain better and add a button to beign search with a random theme
 
 - better looping for sounds (dont cut between loop)

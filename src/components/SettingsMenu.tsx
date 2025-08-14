@@ -4,7 +4,8 @@ import { useState } from "react";
 import { signIn, signUp, signOut } from "@/server/users"; // async code outside of client component
 import { authClient } from "@/lib/auth-client";
 import { useShowToast } from "@/hooks/useShowToast";
-import { CircleCheckBig } from "lucide-react";
+import { CircleCheckBig, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 export default function SettingsMenu() {
   const { data: session, refetch } = authClient.useSession();
@@ -232,7 +233,7 @@ export default function SettingsMenu() {
       </div> */}
 
       <p className="pl-0 mt-0 mb-1.5 font-bold text-left text-gray-300 text-md">
-        Premium
+        Premium <span className="text-gray-500">(coming soon)</span>
       </p>
       <div className="mb-3">
         <div
@@ -276,6 +277,83 @@ export default function SettingsMenu() {
         <div className="flex justify-between">
           <span className="text-gray-400">Collapse all sounds</span>
           <span className="text-gray-600">Ctrl + C</span>
+        </div>
+      </div>
+
+      <p className="pl-0 mt-2 mb-1.5 font-bold text-left text-gray-300 text-md">
+        Legality and contact
+      </p>
+      <div className="mb-3">
+        <div
+          aria-label="informations list"
+          className="flex flex-col gap-0.75 mb-3 text-xs font-bold"
+        >
+          <div className="flex items-center gap-1">
+            <Link
+              href="/contact"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 underline hover:cursor-pointer"
+            >
+              Contact
+            </Link>
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 underline hover:cursor-pointer"
+            >
+              Privacy policy
+            </Link>
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/termsofservice"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 underline hover:cursor-pointer"
+            >
+              Terms of service
+            </Link>
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/termsofsale"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 underline hover:cursor-pointer"
+            >
+              Terms of sale
+            </Link>
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/cookiepolicy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 underline hover:cursor-pointer"
+            >
+              Cookie policy
+            </Link>
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/copyright"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 underline hover:cursor-pointer"
+            >
+              Copyright
+            </Link>
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+          </div>
         </div>
       </div>
     </div>
