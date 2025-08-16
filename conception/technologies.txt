@@ -1,15 +1,20 @@
 
 TECHNOLOGIES
 
-React - Simplifies the creation and management of components, encourages reusability, and ensures scalability if the application grows.
-Vite - A bundler and transpiler + front development server.
-Express - Lightweight and easy to configure, enables straightforward handling of routes and requests.
-Node - Lightweight, allows server-side JavaScript, simplifying development with a single language.
-Nodemon - Speeds up backend development with a dynamic refresh on save.
-PostgreSQL - Needed to store and manage user data. It's reliable, powerful, open-source, and offers advanced features while being suitable for small projects.
-TypeScript - Improves reliability with typing, simplifies code maintenance, and reduces errors during development.
-Tone.js - Audio library that simplifies audio gestion
-Bcrypt - Crypts passwords
-CORS - Authorizes specific URLs to access the backend.
-Jest - Library to make unit tests and integration tests
-Babel - Helps Jest to understand Nextjs and Typescript
+Nextjs - A full-stack React framework that provides routing, API routes, server-side rendering, and static site generation. It allows building a fast, scalable, and SEO-friendly web application where both the frontend and backend logic can live together.
+
+Pg - PostgreSQL, a powerful relational database, is used to store structured data such as users, sounds, ambiances, and favorites. It ensures reliability, supports complex queries, and scales well with growing data.
+
+Typescript - A superset of JavaScript that adds static typing. It helps prevent runtime errors, makes the code more predictable, improves developer productivity with autocompletion, and makes the project easier to maintain as it grows.
+
+Tailwind - A utility-first CSS framework that provides low-level styling classes. It allows developers to build responsive, modern, and consistent UIs quickly without writing custom CSS from scratch.
+
+Tonejs - A web audio framework that simplifies working with sounds in the browser. It supports scheduling, looping, effects, and real-time sound manipulation, making it ideal for building complex ambiance and sound systems.
+
+Lucide React - An icon library built for React with clean, customizable SVG icons. It provides a wide range of modern icons that improve the user interface without needing to design custom icons manually.
+
+Zod - A TypeScript-first schema validation library. It validates data from user inputs, APIs, and forms to ensure correctness and security before being processed or stored in the database.
+
+Zustand - A small but powerful state management library for React. It manages global application state (like current ambiance, sound settings, or user preferences) in a simple and efficient way without heavy boilerplate.
+
+Jest - A testing framework for JavaScript and TypeScript. It allows writing unit tests and integration tests to verify that the application works as expected, helping to catch bugs early and ensure long-term stability.

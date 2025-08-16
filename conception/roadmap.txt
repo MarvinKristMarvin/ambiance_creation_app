@@ -11,25 +11,25 @@ ROADMAP
    [x] MCD (Conceptual Data Model) 
    [x] project presentation (description, objectives, target audience)  
    [x] minimum viable product  
-   [-] potential future improvements  
-   [-] used technologies  
+   [x] potential future improvements  
+   [x] used technologies  
    [x] routes
    [x] API routes  
-   [-] style guide  
+   [x] style guide  
    [x] data dictionary  
    [x] other specifications  
-[ ] create the basic front
-[ ] prepare the working environment   
-[ ] create the database and testing scripts (create, insert, drop)  
-[ ] develop the MVP
-[ ] secure authentication and common vulnerabilities  
-[ ] cost reduction: image optimization, file minification, query optimization  
-[ ] test the main features of the project  
-[ ] ensure accessibility according to WCAG standards  
-[ ] SEO: maximize project search engine optimization  
-[ ] GDPR compliance and legal notices  
+[x] create the basic front
+[x] prepare the working environment   
+[x] create the database and testing scripts (create, insert, drop)  
+[x] develop the MVP
+[x] secure authentication and common vulnerabilities  
+[x] cost reduction: image optimization, file minification, query optimization  
+[x] test the main features of the project  
+[-] ensure accessibility according to WCAG standards  
+[-] SEO: maximize project search engine optimization  
+[x] GDPR compliance and legal notices  
 [ ] dockerize  
-[ ] deploy  
+[x] deploy  
 [ ] write the deployment procedure (CICD as a bonus)  
 [ ] add new features  
-[ ] improve the site's design  
+[x] improve the site's design  

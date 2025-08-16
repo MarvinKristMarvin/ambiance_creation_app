@@ -2,13 +2,13 @@
 import { useState } from "react";
 
 export default function CopyrightNoticePage() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState<"en" | "fr">("en");
 
   return (
     <main className="flex flex-row justify-center min-h-screen text-gray-100 bg-gray-950">
-      <div className="w-3 sm:w-0 bg-emerald-500"></div>
+      <div className="w-2 bg-emerald-500"></div>
 
-      <div className="w-[calc(100%-1.5rem)] p-8 sm:w-1/2">
+      <div className="w-[calc(100%-1rem)] p-8 sm:w-1/2">
         <h1 className="mb-6 text-6xl font-bold font-title">FOG</h1>
 
         <div className="flex gap-4 font-bold">
@@ -34,15 +34,24 @@ export default function CopyrightNoticePage() {
           <>
             <h2 className="mt-4 mb-3 text-2xl font-bold">Copyright Notice</h2>
             <p className="mb-4">
-              All content on this website, including but not limited to text,
-              images, logos, and software, is the property of 🟩
-              <span className="text-green-400">Krist Marvin</span> unless
-              otherwise stated.
+              All custom code, design, and branding on this website are the
+              property of Krist Marvin unless otherwise stated.
+            </p>
+
+            <p className="mb-4">
+              The sounds and images used in this application are sourced from
+              libraries that are{" "}
+              <strong>
+                free for commercial use and do not require attribution
+              </strong>
+              . While they are free to use, they remain the property of their
+              respective creators.
             </p>
 
             <p className="text-sm">
               Unauthorized reproduction, distribution, or modification of the
-              content is prohibited without prior written consent.
+              proprietary code, design, or branding elements is prohibited
+              without prior written consent.
             </p>
           </>
         )}
@@ -53,21 +62,32 @@ export default function CopyrightNoticePage() {
               Mentions de Copyright
             </h2>
             <p className="mb-4">
-              Tout le contenu de ce site, y compris mais sans s&apos;y limiter
-              aux textes, images, logos et logiciels, est la propriété de 🟩
-              <span className="text-green-400">Krist Marvin</span>, sauf mention
-              contraire.
+              L’ensemble du code personnalisé, du design et de l’identité
+              visuelle de ce site est la propriété de Krist Marvin, sauf
+              indication contraire.
+            </p>
+
+            <p className="mb-4">
+              Les sons et images utilisés dans cette application proviennent de
+              bibliothèques{" "}
+              <strong>
+                libres de droits pour un usage commercial et ne nécessitant
+                aucune attribution
+              </strong>
+              . Bien qu’ils soient libres d’utilisation, ils restent la
+              propriété de leurs créateurs respectifs.
             </p>
 
             <p className="text-sm">
               Toute reproduction, distribution ou modification non autorisée du
-              contenu est interdite sans l&apos;accord écrit préalable.
+              code, du design ou des éléments visuels propriétaires est
+              interdite sans l’accord écrit préalable.
             </p>
           </>
         )}
       </div>
 
-      <div className="w-3 sm:w-1/2 bg-emerald-500"></div>
+      <div className="w-2 sm:w-1/2 bg-emerald-500"></div>
     </main>
   );
 }

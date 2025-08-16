@@ -1,12 +1,11 @@
 
 SPECIFICATIONS AND REQUIREMENTS
 
-Security - Secure authentication, protection against vulnerabilities (XSS, SQL injection, etc.), CORS.
+Security - Secure authentication, protection against vulnerabilities (XSS, SQL injection, CSRF, limitations).
 Accessibility - Compliance with WCAG web accessibility standards.
 SEO - Apply best practices to maximize project search engine optimization.
-Eco-design - Optimize images, minify files, etc.
-Tests - Create a test plan covering the project's main features.
-GDPR and Legal Notices - Include legal notices related to the General Data Protection Regulation (GDPR).
-Deployment - Write at least a deployment procedure (maybe CI/CD).
+Optimization - Optimize images and other files, reduce requests, server usage and database usage.
+Tests - Test project's main features.
+Legality - Include legal pages.
 Responsive - Mobile app must be easy to use.
-Dockerization - For the development environment or deployment.
+Deployment - Write at least a deployment procedure (maybe CI/CD).

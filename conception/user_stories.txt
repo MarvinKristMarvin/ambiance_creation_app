@@ -1,73 +1,65 @@
 
-USER STORIES (MVP)
+USER STORIES (ACTUAL PRODUCT)
 
-As a visitor, I want to :
-- open search menu
-- search for specific sounds (by search string)
-- see the results of the search (number of sounds found, display sounds components)
-- listen a preview of a searched sound
-- load a searched sound into the current ambiance
-- search for saved ambiance
-- sea the results of the search (number of ambiances found, display ambiances components)
-- load an ambiance
-- modify the settings of each sound of the current ambiance (volume, spatiality)
-- remove a sound from the current ambiance
-- open ambiance menu to modify current ambiance name
-- open hamburger menu to set global volume
-- open the profile menu to log in or sign up to access saving features
-- see the quick starter guide with links to main features
+A VISITOR CAN :
+- create an ambiance from scratch
+- search and open an ambiance using filtered search
+- listen to the ambiance
+- recover the last ambiance which has been closed
+- choose and open a themed ambiance from the hero page
+- search sounds using filters
+- fetch sounds to use them in the current ambiance
+- modify the current ambiance individual sounds settings (volume, reverb, reverb duration, panning, speed, frequencies, replay delay...)
+- change the current ambiance name
+- see ambiances and sounds informations before loading one
+- preview a sound before loading one
+- mute and adjust the global volume of the current ambiance
+- sign in and log in
+- see and use useful shortcuts
+- see premium features
+- open legal pages (contact, privacy policy, terms of service, terms of sale, cookie policy and copyright)
 
-As a connected user, I want to :
-- open search menu
-- search for specific sounds (by search string)
-- sea the results of the search (number of sounds found, display sounds components, always see favorites first)
-- listen a preview of a searched sound
-- add or remove a searched sound to a favorite list
-- load a searched sound into the current ambiance
-- search for saved ambiance
-- sea the results of the search (number of ambiances found, display ambiances components)
-- load an ambiance
-- modify the settings of each sound of the current ambiance (volume, spatiality)
-- remove a sound from the current ambiance
-- open ambiance menu to modify current ambiance name
-- open hamburger menu to set global volume and save current ambiance in database
-- open the profile menu to log out or delete account
+A CONNECTED USER CAN :
+- create an ambiance from scratch
+- search and open an ambiance using filtered search
+- listen to the ambiance
+- recover the last ambiance which has been closed
+- choose and open a themed ambiance from the hero page
+- search sounds using filters
+- fetch sounds to use them in the current ambiance
+- modify the current ambiance individual sounds settings (volume, reverb, reverb duration, panning, speed, frequencies, replay delay...)
+- change the current ambiance name
+- save the current ambiance with sounds settings
+- share a saved ambiance
+- add ambiances and sounds to his favorites
+- remove ambiances and sounds from his favorites
+- see ambiances and sounds informations before loading one
+- preview a sound before loading one
+- mute and adjust the global volume of the current ambiance
+- log out
+- see and use useful shortcuts
+- see premium features
+- subscribe to premium features
+- open legal pages (contact, privacy policy, terms of service, terms of sale, cookie policy and copyright)
 
-
-
-USER STORIES (FINAL PRODUCT)
-
-As a visitor, I want to :
-- open search menu
-- search for specific sounds (by search string, sound type, category, themes)
-- sea the results of the search (number of sounds found, display sounds components)
-- listen a preview of a searched sound
-- load a searched sound into the current ambiance
-- search for saved ambiance
-- sea the results of the search (number of ambiances found, display ambiances components)
-- load an ambiance
-- use a youtube video as a sound
-- modify the settings of each sound of the current ambiance (volume, spatiality, frequency, reverb)
-- remove a sound from the current ambiance
-- open ambiance menu to modify current ambiance name, duration, create a new ambiance section, manage sound transitions between sections, see ambiance section details
-- open hamburger menu to set global volume, theme, and other settings
-- open the profile menu to log in or sign up to access saving features
-- see the quick starter guide with links to main features
-
-As a connected user, I want to :
-- open search menu
-- search for specific sounds (by search string)
-- sea the results of the search (number of sounds found, display sounds components, always see favorites first)
-- listen a preview of a searched sound
-- add or remove a searched sound to a favorite list
-- load a searched sound into the current ambiance
-- search for saved ambiance
-- sea the results of the search (number of ambiances found, display ambiances components)
-- load an ambiance
-- use a youtube video as a sound
-- modify the settings of each sound of the current ambiance (volume, spatiality, frequency, reverb)
-- remove a sound from the current ambiance
-- open ambiance menu to modify current ambiance name, duration, create a new ambiance section, manage sound transitions between sections, see ambiance section details
-- open hamburger menu to set global volume, save current ambiance in database, set theme, and other settings
-- open the profile menu to log out or delete account, see current subscription details, cancel subscription button
-- see the premium subscription prices and advantages and buy button
+A PREMIUM USER CAN :
+- fetch sounds to use them in the current ambiance (without any download limits)
+- create an ambiance from scratch
+- search and open an ambiance using filtered search
+- listen to the ambiance
+- recover the last ambiance which has been closed
+- choose and open a themed ambiance from the hero page
+- search sounds using filters
+- modify the current ambiance individual sounds settings (volume, reverb, reverb duration, panning, speed, frequencies, replay delay...)
+- change the current ambiance name
+- save the current ambiance with sounds settings
+- share a saved ambiance
+- add ambiances and sounds to his favorites
+- remove ambiances and sounds from his favorites
+- see ambiances and sounds informations before loading one
+- preview a sound before loading one
+- mute and adjust the global volume of the current ambiance
+- log out
+- see and use useful shortcuts
+- see premium features
+- open legal pages (contact, privacy policy, terms of service, terms of sale, cookie policy and copyright)

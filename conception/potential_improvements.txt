@@ -1,4 +1,12 @@
 
 POTENTIAL IMPROVEMENTS
 
--> More sound settings
+-> More sound settings (randomness, changes over time)
+-> External sources of audio (youtube etc)
+-> Ambiances smooth transitions
+-> Ambiance playlist
+-> Import your own sounds
+-> Reduce mp3 file size to the strict minimum (without loosing quality)
+-> Better UI
+-> Enterprise plan
+-> ...

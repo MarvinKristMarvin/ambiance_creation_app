@@ -1,17 +1,20 @@
 
 API ROUTES
 
-GET /search?type=x&category=x&themes=x,x&string=x - get filtered sounds or ambiances for search results
-GET /sound/:id - load the full sound in the ambiance
-GET /ambiance/:id - load the ambiance with all sounds associated to it
+HEAD /api/audio/[filename] - get the user's downloaded sounds count
 
-POST /signup - account creation
-POST /login - user connection
-POST /logout - user disconnection
-POST /subscribe - user subscription to premium
-POST /ambiance - save ambiance in database
+GET /api/ambiances/[id] - get detailed informations about a specific ambiance, including its sound options
+GET /api/ambiances/sounds/[id] - get all sounds used in an ambiance
+GET /api/ambiances - get all ambiances without their sounds
+GET /api/audio/[filename] - get an audio file
+GET /api/auth/[...all] - better auth library GET operations
+GET /api/get_search_menu_ambiances - get ambiances basic informations based on filters, if no filters it returns the favorite ambiances
+GET /api/get_search_menu_sounds - get sounds basic informations based on filters, if no filters it returns the favorite sounds
+GET /api/sound/[id] - get sound informations
 
-PATCH /user - update user informations
-PATCH /ambiance - update an existing ambiance
-
-DELETE /user - delete user
+POST /api/get_used_sounds - get sounds complete details
+POST /api/get_themed_ambiance - get the most favorited ambiance for a given theme
+POST /api/auth/[...all] - better auth library POST operations
+POST /api/post_ambiance - create or update an ambiance
+POST /api/toggle_favorite_ambiance - handles both adding and removing ambiances from user favorites
+POST /api/toggle_favorite_sound - handles both adding and removing sounds from user favorites

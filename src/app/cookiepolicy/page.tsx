@@ -6,9 +6,9 @@ export default function CookiePolicyPage() {
 
   return (
     <main className="flex flex-row justify-center min-h-screen text-gray-100 bg-gray-950">
-      <div className="w-3 sm:w-0 bg-emerald-500"></div>
+      <div className="w-2 bg-emerald-500"></div>
 
-      <div className="w-[calc(100%-1.5rem)] p-8 sm:w-1/2">
+      <div className="w-[calc(100%-1rem)] p-8 sm:w-1/2">
         <h1 className="mb-6 text-6xl font-bold font-title">FOG</h1>
 
         <div className="flex gap-4 font-bold">
@@ -34,9 +34,8 @@ export default function CookiePolicyPage() {
           <>
             <h2 className="mt-4 mb-3 text-2xl font-bold">Cookie Policy</h2>
             <p className="mb-4">
-              This Cookie Policy explains how 🟩
-              <span className="text-green-400">FOG</span> uses cookies and
-              similar technologies.
+              This Cookie Policy explains how FOG uses cookies and similar
+              technologies.
             </p>
 
             <h3 className="mt-3 font-bold">1. What are cookies?</h3>
@@ -48,11 +47,8 @@ export default function CookiePolicyPage() {
             <h3 className="mt-3 font-bold">2. Types of cookies we use</h3>
             <ul className="text-sm list-disc list-inside">
               <li>Essential cookies for site operation</li>
-              <li>
-                Analytics cookies via 🟩
-                <span className="text-green-400">Sentry</span>
-              </li>
-              <li>Authentication tokens stored in IndexedDB</li>
+              <li>Analytics cookies via Sentry</li>
+              <li>Authentication tokens</li>
             </ul>
 
             <h3 className="mt-3 font-bold">3. Managing cookies</h3>
@@ -69,9 +65,8 @@ export default function CookiePolicyPage() {
               Politique de Cookies
             </h2>
             <p className="mb-4">
-              Cette Politique de Cookies explique comment 🟩
-              <span className="text-green-400">FOG</span> utilise les cookies et
-              technologies similaires.
+              Cette Politique de Cookies explique comment FOG utilise les
+              cookies et technologies similaires.
             </p>
 
             <h3 className="mt-3 font-bold">
@@ -85,11 +80,8 @@ export default function CookiePolicyPage() {
             <h3 className="mt-3 font-bold">2. Types de cookies utilisés</h3>
             <ul className="text-sm list-disc list-inside">
               <li>Cookies essentiels au fonctionnement du site</li>
-              <li>
-                Cookies d&apos;analyse via 🟩
-                <span className="text-green-400">Sentry</span>
-              </li>
-              <li>Jetons d&apos;authentification stockés dans IndexedDB</li>
+              <li>Cookies d&apos;analyse via Sentry</li>
+              <li>Jetons d&apos;authentification</li>
             </ul>
 
             <h3 className="mt-3 font-bold">3. Gestion des cookies</h3>
@@ -101,7 +93,7 @@ export default function CookiePolicyPage() {
         )}
       </div>
 
-      <div className="w-3 sm:w-1/2 bg-emerald-500"></div>
+      <div className="w-2 sm:w-1/2 bg-emerald-500"></div>
     </main>
   );
 }

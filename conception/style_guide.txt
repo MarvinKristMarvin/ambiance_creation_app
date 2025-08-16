@@ -1,6 +1,12 @@
 
 STYLE GUIDE
 
-Description - The application should evoke the modern music industry -> dark theme first. Very minimalistic and intuitive interface.
-Colors - Dark theme, with some colors for the sliders, logo and premium features
-Fonts - Not specified yet
+Description - The application should reflect the modern music industry, with a minimalistic and intuitive interface.
+
+Landing page - Features an ambient background image, a large white title, and transparent black buttons.
+
+Colors - Dark theme by default, with vibrant emerald as the primary color. Premium features use vibrant fuchsia. Each category and theme icon has its own distinct vibrant color. In the sound settings, each group of sliders is color-coded consistently. Buttons and text primarily use gray variants.
+
+Images - Use high-quality, realistic, square images to represent sounds.
+
+Fonts - Titles use Monoton, while all other text uses Arial.

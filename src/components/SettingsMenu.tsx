@@ -257,7 +257,7 @@ export default function SettingsMenu() {
           aria-label="subscribe button"
           type="button"
           onClick={() => lemonSqueezyPayment()}
-          className="flex-1 w-full px-8 py-2 text-sm font-bold border-2 rounded-sm border-fuchsia-300 text-fuchsia-300 mb0 hover:cursor-pointer hover:bg-fuchsia-950/40"
+          className="flex-1 w-full px-8 py-2 text-sm font-extrabold text-black border-2 rounded-sm border-fuchsia-300 bg-fuchsia-300 hover:cursor-pointer hover:bg-fuchsia-300/90"
         >
           Subscribe for $&thinsp;6.00 / month
         </button>

@@ -294,17 +294,18 @@ TASKS
 - add price for subscription
 - head request to set the number of downloaded sounds directly on page opening
 
-WAITING TO BE PUSHED
+14/08/2025
+- contact and legality pages
 
-WORKING ON
-- rgpd / contact
+15/08/2025
+- rewrite contact and legality pages
 
+16/08/2025
+- begin updating conception documents
 
 TO DO
-- back office to add sounds
-- remake conception docs
 - instead of showing nothing in the beginning when searching sounds/ambiances, explain better and add a button to beign search with a random theme
-
+- back office to add sounds
 - better looping for sounds (dont cut between loop)
 - show more informations on sounds (show when they play, show when they will play, show their duration)
 - add youtube audio
@@ -320,4 +321,4 @@ CONSIDER
 A - in ambiance card : categories and themes ordered only by quantity, not categories always first
 A - in search ambiance menu : drop down next to name to show more ambiance infos
 C - don't change pitch when changing speed option ?
-C - study stereo vs mono sounds
+B - study stereo vs mono sounds

@@ -7,9 +7,9 @@ export default function ContactPage() {
   return (
     <main className="flex flex-row justify-center min-h-screen text-gray-100 bg-gray-950">
       {/* Left side color block */}
-      <div className="w-3 sm:w-0 bg-emerald-500"></div>
+      <div className="w-2 bg-emerald-500"></div>
 
-      <div className="w-[calc(100%-1.5rem)] p-8 sm:w-1/2">
+      <div className="w-[calc(100%-1rem)] p-8 sm:w-1/2">
         {/* Title */}
         <h1 className="mb-6 text-6xl font-bold font-title">FOG</h1>
 
@@ -76,7 +76,7 @@ export default function ContactPage() {
       </div>
 
       {/* Right side color block */}
-      <div className="w-3 sm:w-1/2 bg-emerald-500"></div>
+      <div className="w-2 sm:w-1/2 bg-emerald-500"></div>
     </main>
   );
 }

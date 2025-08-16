@@ -1,4 +1,10 @@
 
 ROUTES
 
-root (only the main route /)
+/ -> landing page and main application
+/contact -> contact page
+/cookiepolicy -> cookie policy page
+/copyright -> copyright page
+/termsofsale -> terms of sale page
+/termsofservice -> terms of service page
+/privacy -> provacy page
