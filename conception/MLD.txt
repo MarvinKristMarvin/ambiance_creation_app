@@ -1,0 +1,13 @@
+
+MLD - MODELE LOGIQUE DE DONNEES
+
+user(i̲d̲, name, email, emailVerified, image, createdAt, updatedAt, role)
+session(i̲d̲, expiresAt, token, createdAt, updatedAt, ipAddress, userAgent, #user_id)
+account(i̲d̲, accountId, providerId, accessToken, refreshToken, idToken, accessTokenExpiresAt, refreshTokenExpiresAt, scope, password, createdAt, updatedAt, #user_id)
+verification(i̲d̲, identifier, value, expiresAt, createdAt, updatedAt)
+sounds(i̲d̲, sound_name, audio_paths, image_path, looping, volume, reverb, reverb_duration, speed, direction, category, themes, repeat_delay)
+ambiances(i̲d̲, ambiance_name, categories, themes, #author_id)
+ambiances_sounds(i̲d̲, volume, direction, speed, reverb, reverb_duration, low, mid, high, low_cut, high_cut, repeat_delay, #ambiance_id, #sound_id)
+user_has_favorite_sounds(i̲d̲, #̲u̲s̲e̲r̲_̲i̲d̲, #̲s̲o̲u̲n̲d̲_̲i̲d̲)
+user_has_favorite_ambiances(i̲d̲, #̲u̲s̲e̲r̲_̲i̲d̲, #̲a̲m̲b̲i̲a̲n̲c̲e̲_̲i̲d̲)
+ips_download_limits(i̲d̲, ip_address, number_of_sounds_downloaded, reset_date)

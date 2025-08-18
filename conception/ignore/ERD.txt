@@ -1,0 +1,136 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Enum category {
+  Nature
+  Animals
+  Human
+  Music
+}
+
+Enum theme {
+  Mysterious
+  Aquatic
+  Night
+  House
+  Ethereal
+  Fantasy
+  Elemental
+  Insect
+  Instrument
+  Bird
+  Action
+}
+
+Table user {
+  id text [pk]
+  name text [not null]
+  email text [not null, unique]
+  emailVerified boolean [not null]
+  image text
+  createdAt timestamp [not null]
+  updatedAt timestamp [not null]
+  role text [not null, default: 'free']
+}
+
+Table sounds {
+  id int [pk]
+  sound_name text [not null, unique]
+  audio_paths text[] [not null]
+  image_path text
+  looping boolean
+  volume int [default: 50]
+  reverb int [default: 0]
+  reverb_duration decimal(3,1) [default: 2.0]
+  speed decimal(2,1) [default: 1.0]
+  direction decimal(2,1) [default: 0.0]
+  category category
+  themes theme[]
+  repeat_delay decimal[]
+}
+
+Table ambiances {
+  id int [pk]
+  ambiance_name text [not null]
+  author_id text [ref: > user.id]
+  categories category[]
+  themes theme[]
+}
+
+Table ambiances_sounds {
+  id int [pk]
+  ambiance_id int [not null, ref: > ambiances.id]
+  sound_id int [not null, ref: > sounds.id]
+  volume int
+  direction decimal(2,1)
+  speed decimal(2,1)
+  reverb int
+  reverb_duration decimal(3,1)
+  low int
+  mid int
+  high int
+  low_cut int
+  high_cut int
+  repeat_delay decimal[]
+}
+
+Table user_has_favorite_sounds {
+  id int [pk]
+  user_id text [not null, ref: > user.id]
+  sound_id int [not null, ref: > sounds.id]
+  indexes {
+    (user_id, sound_id) [unique]
+  }
+}
+
+Table user_has_favorite_ambiances {
+  id int [pk]
+  user_id text [not null, ref: > user.id]
+  ambiance_id int [not null, ref: > ambiances.id]
+  indexes {
+    (user_id, ambiance_id) [unique]
+  }
+}
+
+Table ips_download_limits {
+  id int [pk]
+  ip_address text [not null, unique]
+  number_of_sounds_downloaded int [not null, default: 0]
+  reset_date timestamp [not null]
+}
+
+Table session {
+  id text [pk]
+  expiresAt timestamp [not null]
+  token text [not null, unique]
+  createdAt timestamp [not null]
+  updatedAt timestamp [not null]
+  ipAddress text
+  userAgent text
+  userId text [not null, ref: > user.id]
+}
+
+Table account {
+  id text [pk]
+  accountId text [not null]
+  providerId text [not null]
+  userId text [not null, ref: > user.id]
+  accessToken text
+  refreshToken text
+  idToken text
+  accessTokenExpiresAt timestamp
+  refreshTokenExpiresAt timestamp
+  scope text
+  password text
+  createdAt timestamp [not null]
+  updatedAt timestamp [not null]
+}
+
+Table verification {
+  id text [pk]
+  identifier text [not null]
+  value text [not null]
+  expiresAt timestamp [not null]
+  createdAt timestamp
+  updatedAt timestamp
+}

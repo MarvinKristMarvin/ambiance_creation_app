@@ -1,0 +1,25 @@
+
+AMBIANCE_SOUND: id, volume, direction, speed, reverb, reverb_duration, low, mid, high, low_cut, high_cut, repeat_delay
+CORRESPOND, 11 AMBIANCE_SOUND, 0N SOUND
+SOUND: id, sound_name, audio_paths, image_path, looping, volume, reverb, reverb_duration, speed, direction, category, themes, repeat_delay
+LIKE2, 0N USER, 0N SOUND
+:
+:
+IPS_DOWNLOAD_LIMIT: id, ip_address, number_of_sounds_downloaded, reset_date
+
+USED_IN, 1N AMBIANCE_SOUND, 1N AMBIANCE
+AMBIANCE: id, ambiance_name, categories, themes
+CREATED_BY, 11 AMBIANCE, 0N USER
+USER: id, name, email, emailVerified, image, createdAt, updatedAt, role
+LINK, 11 ACCOUNT, 1N USER
+ACCOUNT: id, accountId, providerId, accessToken, refreshToken, idToken, accessTokenExpiresAt, refreshTokenExpiresAt, scope, password, createdAt, updatedAt
+:
+:
+
+:
+LIKE, 0N USER, 0N AMBIANCE
+OWN, 11 SESSION, 0N USER
+SESSION: id, expiresAt, token, createdAt, updatedAt, ipAddress, userAgent
+VERIFICATION: id, identifier, value, expiresAt, createdAt, updatedAt
+:
+:
