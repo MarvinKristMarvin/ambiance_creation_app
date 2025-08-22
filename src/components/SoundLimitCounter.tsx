@@ -13,8 +13,8 @@ export default function SoundLimitCounter() {
   );
 
   // Download limits
-  const unsignedLimit = 5;
-  const signedLimit = 10;
+  const unsignedLimit = 20;
+  const signedLimit = 40;
   const premiumLimit = 200;
 
   // States

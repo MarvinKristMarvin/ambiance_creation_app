@@ -16,12 +16,12 @@ interface IpRow {
 }
 
 // Limits (adjust if you want different numbers)
-const MAX_UNSIGNED_DOWNLOADS = 5;
-const MAX_SIGNED_DOWNLOADS = 10;
+const MAX_UNSIGNED_DOWNLOADS = 20;
+const MAX_SIGNED_DOWNLOADS = 40;
 const MAX_PREMIUM_DOWNLOADS = 200;
 
 // Reset delay (in ms)
-const RESET_DELAY = 1 * 60 * 1000;
+const RESET_DELAY = 12 * 60 * 60 * 1000; // 1 day
 
 // Shared logic to extract IP from request
 function getIP(req: NextRequest): string {
