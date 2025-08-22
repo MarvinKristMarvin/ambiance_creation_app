@@ -197,7 +197,7 @@ export default function SettingsMenu() {
             : handleSignIn()
         }
         disabled={isLoading}
-        className={`w-full px-6 py-2 mb-3 text-sm font-bold text-emerald-400 border-2 border-emerald-400 rounded-sm hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`w-full px-6 py-2 mb-3 text-sm font-bold text-emerald-400 border-2 border-emerald-400 rounded-full hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
           session
             ? " border-red-700 text-red-700 hover:border-red-500 hover:text-red-500"
             : " hover:bg-emerald-950"
@@ -235,10 +235,13 @@ export default function SettingsMenu() {
       <p className="pl-0 mt-0 mb-1.5 font-bold text-left text-gray-300 text-md">
         Premium <span className="text-gray-500">(coming soon)</span>
       </p>
-      <div className="mb-3">
+      <div className="p-3 mb-3 rounded-xl bg-fuchsia-950/30 border-1 border-fuchsia-900/30">
+        <p className="mb-2 font-bold text-md text-fuchsia-300">
+          $&thinsp;4.00 / month
+        </p>
         <div
           aria-label="premium list"
-          className="flex flex-col gap-1.5 mb-3 text-sm font-bold"
+          className="flex flex-col gap-1.5 mb-3.5 text-sm font-bold "
         >
           <div className="flex items-center gap-1.5">
             <CircleCheckBig className="w-5 h-5 text-fuchsia-300 " />{" "}
@@ -253,14 +256,16 @@ export default function SettingsMenu() {
             <span className="text-gray-300">Add your own sounds</span>
           </div>
         </div>
-        <button
-          aria-label="subscribe button"
-          type="button"
-          onClick={() => lemonSqueezyPayment()}
-          className="flex-1 w-full px-8 py-2 text-sm font-extrabold text-black border-2 rounded-sm border-fuchsia-300 bg-fuchsia-300 hover:cursor-pointer hover:bg-fuchsia-300/90"
-        >
-          Subscribe for $&thinsp;6.00 / month
-        </button>
+        <div className="flex justify-center w-full">
+          <button
+            aria-label="subscribe button"
+            type="button"
+            onClick={() => lemonSqueezyPayment()}
+            className="px-8 py-2.5 text-sm font-extrabold text-black rounded-full w-1/1 bg-fuchsia-300 hover:cursor-pointer hover:bg-fuchsia-400"
+          >
+            Subscribe
+          </button>
+        </div>
       </div>
 
       <p className="pl-0 mt-0 mb-1.5 font-bold text-left text-gray-300 text-md">

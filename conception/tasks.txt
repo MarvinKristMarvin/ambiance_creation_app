@@ -308,6 +308,7 @@ TASKS
 
 18/08/2025
 - finish updating conception documents
+- remake subscription UI
 
 TO DO
 - instead of showing nothing in the beginning when searching sounds/ambiances, explain better and add a button to beign search with a random theme

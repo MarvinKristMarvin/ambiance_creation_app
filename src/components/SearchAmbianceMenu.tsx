@@ -1,5 +1,5 @@
 import { useGlobalStore } from "@/stores/useGlobalStore";
-import { Check, ChevronDown, Star, X, Search } from "lucide-react";
+import { Check, ChevronDown, Star, X, Search, ArrowBigUp } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import type { Ambiance, AmbianceBasicInformations, Sound } from "@/types";
@@ -319,7 +319,7 @@ export default function SearchAmbianceMenu() {
                 className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
               >
                 <X className="w-4 h-4 text-gray-400" />
-                <span>All Categories</span>
+                <span>None</span>
               </button>
               {CATEGORIES.map((category) => (
                 <button
@@ -385,7 +385,7 @@ export default function SearchAmbianceMenu() {
                 className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2 border-x-1"
               >
                 <X className="w-4 h-4 text-gray-400" />
-                <span>All Themes</span>
+                <span>None</span>
               </button>
               {THEMES.map((theme) => (
                 <button
@@ -455,13 +455,19 @@ export default function SearchAmbianceMenu() {
         <div className="flex flex-col flex-1 gap-2 overflow-y-auto custom-scrollbar  rounded-sm border-gray-950 border-y-2 max-h-[calc(100dvh-14.5rem)]">
           <SoundLimitCounter />
           {searchedAmbiancesBasicInformations.length === 0 && !loading ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
+            <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-400">
               {searchString.trim() ||
               selectedCategories.length > 0 ||
               selectedThemes.length > 0 ? (
                 <p>No ambiance found with those filters</p>
               ) : (
-                <p>Search ambiance by using filters</p>
+                <>
+                  <ArrowBigUp
+                    className="w-8 h-8 text-gray-400"
+                    strokeWidth={1.5}
+                  />
+                  <p>Search ambiances using filters</p>
+                </>
               )}
             </div>
           ) : (

@@ -8,6 +8,7 @@ import {
   Plus,
   Pause,
   Play,
+  ArrowBigUp,
 } from "lucide-react"; // themes icons
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
@@ -436,7 +437,7 @@ export default function SearchSoundsMenu() {
                   className="w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
                   <X className="w-4 h-4 text-gray-400" />
-                  <span>All Categories</span>
+                  <span>None</span>
                 </button>
                 {CATEGORIES.map((category) => (
                   <button
@@ -509,7 +510,7 @@ export default function SearchSoundsMenu() {
                   className="border-x-1 w-full px-2 py-1.75 text-sm font-bold text-left text-gray-300 hover:bg-gray-700 hover:cursor-pointer border-b-1 border-gray-700 flex items-center gap-2"
                 >
                   <X className="w-4 h-4 text-gray-400" />
-                  <span>All Themes</span>
+                  <span>None</span>
                 </button>
                 {THEMES.map((theme) => (
                   <button
@@ -582,13 +583,19 @@ export default function SearchSoundsMenu() {
         <div className="flex flex-col flex-1 gap-2 overflow-y-auto custom-scrollbar rounded-sm border-y-2  border-gray-950  max-h-[calc(100dvh-14.5rem)]">
           <SoundLimitCounter />
           {searchedSoundsBasicInformations.length === 0 && !loading ? (
-            <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-500">
+            <div className="flex flex-col items-center justify-center flex-1 text-sm font-bold text-gray-400">
               {searchString.trim() ||
               selectedCategory ||
               selectedThemes.length > 0 ? (
                 <p>No sounds found with those filters</p>
               ) : (
-                <p>Search sounds by using filters</p>
+                <>
+                  <ArrowBigUp
+                    className="w-8 h-8 text-gray-400"
+                    strokeWidth={1.5}
+                  />
+                  <p>Search sounds using filters</p>
+                </>
               )}
             </div>
           ) : (
