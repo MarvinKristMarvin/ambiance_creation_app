@@ -100,16 +100,22 @@ export default function SettingsMenu() {
     }
   };
 
-  const lemonSqueezyPayment = async () => {};
+  const lemonSqueezyPayment = async () => {
+    // show toast
+    ShowToast("premium", "user", "Subscriptions are not available yet", 5000);
+  };
 
   return (
-    <div aria-label="user settings menu" className="text-gray-300 ">
+    <div
+      aria-label="user settings menu"
+      className="h-full max-h-screen overflow-y-scroll text-gray-300"
+    >
       <p className="mb-2 font-bold text-left text-gray-300 text-md">
         {session ? "Connected as " + session.user.name : "Connexion"}
       </p>
 
       {!session && (
-        <div className="flex gap-2 mb-2 ">
+        <div className="flex gap-2 mb-2">
           <button
             aria-label="login button"
             type="button"

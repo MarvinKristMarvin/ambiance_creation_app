@@ -67,7 +67,13 @@ export interface SoundBasicInformations {
 }
 
 // Toasts
-export type ToastType = "success" | "warning" | "error" | "info" | "neutral";
+export type ToastType =
+  | "success"
+  | "warning"
+  | "error"
+  | "info"
+  | "neutral"
+  | "premium";
 
 export type ToastIcon =
   | "star"
