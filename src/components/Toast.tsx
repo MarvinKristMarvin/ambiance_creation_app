@@ -88,11 +88,6 @@ const Toast: React.FC<ToastProps> = ({
       borderColor: "border-gray-800",
       iconBgColor: "bg-gray-950",
     },
-    premium: {
-      bgColor: "bg-fuchsia-900",
-      borderColor: "border-fuchsia-900",
-      iconBgColor: "bg-gray-950",
-    },
   };
 
   // Icon configurations

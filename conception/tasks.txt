@@ -310,20 +310,12 @@ TASKS
 - finish updating conception documents
 - remake subscription UI
 
-27/08/2025
-- make the user settings menu scroll
-- make the landing page cleaner
-
 TO DO
-- opening a sound on mobile adds a small gray line on the right (it is the ambiance sounds scrollbar)
-- difficult to scroll down the ambiance sounds on mobile, add a scrollbar on the right
-- add a button to hide ans show header menu on mobile
 - instead of showing nothing in the beginning when searching sounds/ambiances, explain better and add a button to beign search with a random theme
 - back office to add sounds
 - better looping for sounds (dont cut between loop)
 - show more informations on sounds (show when they play, show when they will play, show their duration)
 - add youtube audio
-- blackscreen to save battery
 - fix sound modifications
 - delete account
 - in sound table, remove possible default options (all sounds will have same everything at the beginning i think)
