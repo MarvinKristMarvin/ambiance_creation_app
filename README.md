@@ -1,4 +1,4 @@
-# 🎶 FOG — Générateur d’ambiances sonores dynamiques
+# 🎶 FOG — Création d’ambiances sonores personnalisées
 
 ## 🌟 Présentation
 
