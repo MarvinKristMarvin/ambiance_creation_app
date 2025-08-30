@@ -65,7 +65,7 @@ Chaque utilisateur peut :
 
 ## 🧪 Tests
 
-- **Tests unitaires** (Quelques tests car pas eu le temps de m'y mettre sérieusement)
+- **Tests unitaires** (Quelques tests simples)
 - Monitoring des erreurs avec **Sentry**
 
 ## 🌍 Déploiement
