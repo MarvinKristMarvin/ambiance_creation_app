@@ -30,8 +30,6 @@ Chaque utilisateur peut :
 
 ## 🔐 Sécurité
 
-FOG implémente les bonnes pratiques de sécurité :
-
 - Authentification sécurisée
 - Prévention contre l'injection SQL, XSS, CSRF
 - Content Security Policy, NoSniff headers
@@ -49,12 +47,12 @@ FOG implémente les bonnes pratiques de sécurité :
 - Compatibilité multi-navigateurs (harmonisation scrollbars, UI)
 - Application responsive mobile & desktop
 
-## 🧪 Accessibilité
+## 👁️ Accessibilité
 
-- Application la plus accessible possible visuellement
+- Application accessible visuellement et dans sa simplicité d'utilisation
 - Bonnes pratiques SEO et accessibilité (sémantique, differents attributs aria)
 
-## 🧪 Organisation
+## 📂 Organisation
 
 - Documents de conception complets
 - Architecture propre
