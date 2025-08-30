@@ -73,3 +73,31 @@ body {
   scrollbar-color: oklch(37.2% 0.044 257.287) transparent;
   overflow-y: overlay;
 }
+
+/* Ambiance Scrollbar (pushes content + bigger width) */
+
+/* For WebKit browsers */
+.custom-scrollbar-ambiance::-webkit-scrollbar {
+  height: 24px; /* thicker horizontal scrollbar */
+  width: 24px; /* thicker vertical scrollbar */
+  background: oklch(13% 0.028 261.692);
+}
+
+.custom-scrollbar-ambiance::-webkit-scrollbar-track {
+  background: transparent; /* no overlay */
+}
+
+.custom-scrollbar-ambiance::-webkit-scrollbar-thumb {
+  background-color: oklch(37.2% 0.044 257.287);
+  border-radius: 12px; /* not fully rounded for a chunky look */
+  border: 4px solid transparent; /* makes thumb chunkier */
+  background-clip: content-box;
+}
+
+/* Firefox */
+.custom-scrollbar-ambiance {
+  scrollbar-gutter: stable; /* reserves space for scrollbar */
+  scrollbar-width: thick; /* keeps it chunky */
+  scrollbar-color: oklch(37.2% 0.044 257.287) transparent;
+  overflow-y: scroll; /* ensures space is always allocated */
+}

@@ -103,7 +103,10 @@ export default function SettingsMenu() {
   const lemonSqueezyPayment = async () => {};
 
   return (
-    <div aria-label="user settings menu" className="text-gray-300 ">
+    <div
+      aria-label="user settings menu"
+      className="overflow-y-scroll text-gray-300"
+    >
       <p className="mb-2 font-bold text-left text-gray-300 text-md">
         {session ? "Connected as " + session.user.name : "Connexion"}
       </p>

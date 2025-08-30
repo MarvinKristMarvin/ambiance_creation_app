@@ -137,7 +137,7 @@ export default function Sounds() {
   return (
     <div
       aria-label="my ambiance sounds container"
-      className={`relative flex flex-col sm:flex-row gap-4 pb-4 mx-4 w-[calc(100%-2rem)] h-full items-center overflow-x-auto overflow-y-auto whitespace-nowrap custom-scrollbar ${
+      className={`relative flex flex-col sm:flex-row gap-4 pb-4 mx-4 w-[calc(100%-2rem)] h-full items-center overflow-x-auto overflow-y-auto whitespace-nowrap custom-scrollbar-ambiance ${
         currentAmbiance.ambiance_sounds.length === 0
           ? "justify-center-safe"
           : soundsCentering === "Left"

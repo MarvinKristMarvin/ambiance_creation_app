@@ -65,14 +65,14 @@ const themes = [
     borderClass: "border-pink-400",
     textClass: "text-pink-400",
     icon: Sparkles,
-    vowel: false,
+    vowel: true,
   },
   {
     name: "elemental",
     borderClass: "border-sky-400",
     textClass: "text-sky-400",
     icon: CloudDrizzle,
-    vowel: false,
+    vowel: true,
   },
 ];
 
@@ -222,7 +222,7 @@ export default function Hero() {
       <div className="flex flex-col items-center transform -translate-y-4">
         <h2
           aria-label="title"
-          className="font-title text-6xl mb-1 text-white tracking-[8] translate-x-1.5"
+          className="font-title text-6xl mb-2 text-white tracking-[8] translate-x-1.5"
         >
           FOG
         </h2>
@@ -231,9 +231,9 @@ export default function Hero() {
         </p> */}
         <p
           aria-label="subtitle"
-          className="mb-6 text-lg font-bold uppercase text-white/60"
+          className="mb-6 text-lg font-bold uppercase text-white/90"
         >
-          Audio ambiances
+          free audio ambiances
         </p>
         {/* <Image
           className="mb-5 rounded-xl"
@@ -300,7 +300,7 @@ export default function Hero() {
               </div>
             ) : (
               <span className="px-2 py-2 rounded-full">
-                Or listen to a{currentTheme.vowel ? "n " : " "}
+                Listen to a{currentTheme.vowel ? "n " : " "}
                 <span className={currentTheme.textClass}>
                   {currentTheme.name}
                 </span>{" "}
