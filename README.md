@@ -1,5 +1,7 @@
 # 🎶 FOG — Création d’ambiances sonores personnalisées
 
+![screenshot](public/photos/screenshot.png)
+
 ## 🌟 Présentation
 
 **FOG** est une application web permettant de créer des ambiances sonores entièrement personnalisées et moins répétitives car contrairement aux solutions classiques (vidéos YouTube ou ambiances pré-enregistrées), FOG propose de rajouter de l'aléatoire et joue chaque son de manière individuelle donc l'ambiance ne se répète jamais.  
